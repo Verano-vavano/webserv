@@ -1,0 +1,5 @@
+*.o
+valg*
+*.swp
+tests
+webserv
