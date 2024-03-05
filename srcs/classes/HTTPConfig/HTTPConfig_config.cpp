@@ -7,11 +7,23 @@ int HTTPConfig::configurate(std::string const path, std::string const config_fil
         std::getline(std::cin, choice);
         if (choice != "Y" && choice != "y")
             return (1);
+        else
+            std::cout << "Proceeding..." << std::endl;
     }
 
-    std::cout << "Proceeding..." << std::endl;
+    this->path = path;
 
-    (void) path;
-    //this->path = path;
+    std::ifstream    config(config_file.c_str());
+    if (!config || !config.good()) {
+        std::cerr << "Not a valid config file (does not exist or is not readble)" << std::endl;
+        return (1);
+    }
+
+    return (this->parse_infile(config));
+}
+
+
+int HTTPConfig::parse_infile(std::ifstream &f) {
+    (void) f;
     return (0);
 }

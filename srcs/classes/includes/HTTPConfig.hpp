@@ -4,6 +4,7 @@
 # include <iostream>
 # include <map>
 # include <vector>
+# include <fstream>
 
 class HTTPConfig {
 
@@ -59,6 +60,9 @@ class HTTPConfig {
         t_config                default_config;
         std::vector<t_config>   servers;
         std::string             path;
+
+
+        int parse_infile(std::ifstream &f);
 };
 
 #endif /* HTTPCONFIG_HPP */
