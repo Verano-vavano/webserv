@@ -1,0 +1,28 @@
+body {
+	width: 100vw;
+	height: 100vh;
+	color: white;
+	background-color: black;
+	cursor: url(./images/pointer.webp), auto;
+}
+
+nav {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+nav > img {
+	width: 300px;
+	height: auto;
+}
+
+nav > ul {
+	display: flex;
+	flex-direction: row;
+}
+
+nav > ul > li {
+	margin: 50px;
+}
