@@ -1,0 +1,15 @@
+absolute_redirect
+alias
+chunked_transfer_encoding
+client_body_buffer_size
+client_body_in_file_only on|clean|off
+client_header_buffer_size
+client_max_body_size
+default_type
+error_page
+ignore_invalid_headers
+keepalive_requests
+keepalive_time
+log_not_found
+log_subrequest
+types

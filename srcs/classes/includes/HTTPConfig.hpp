@@ -2,6 +2,8 @@
 # define HTTPCONFIG_HPP
 
 # include <iostream>
+# include <map>
+# include <vector>
 
 class HTTPConfig {
 
@@ -9,14 +11,54 @@ class HTTPConfig {
 		HTTPConfig(void);
         HTTPConfig(char const **conf);
         HTTPConfig(std::string const path, std::string const config_file);
-		HTTPConfig(HTTPConfig const & old);
-		HTTPConfig & operator=(HTTPConfig const & rhs);
 		~HTTPConfig(void);
 
         int configurate(std::string const path, std::string const config_file);
 
     private:
-        bool    set;
+        typedef std::map<std::string, std::string> t_map_str_str;
+        typedef t_map_str_str t_type;
+        typedef t_map_str_str t_header;
+
+        typedef struct {
+            std::string default_uri;
+            std::string replacement;
+            std::string index;
+            bool        alias;
+        }   t_location;
+
+        typedef struct {
+            std::vector<int>    codes;
+            int                 response;
+            std::string         uri;
+        }   t_error;
+
+        typedef struct {
+            int                     port;
+            std::string             server_name;
+            bool                    absolute_redirect;
+            bool                    chunked_transfer_encoding;
+            long                    client_body_timeout;
+            long                    client_body_buffer_size;
+            short                   client_body_in_file_only;
+            long                    client_header_buffer_size;
+            long                    client_max_body_size;
+            std::string             default_type;
+            std::vector<t_error>    error_page;
+            bool                    ignore_invalid_headers;
+            long                    keepalive_requests;
+            long                    keepalive_time;
+            bool                    log_not_found;
+            bool                    log_subrequest;
+            t_type                  types;
+            t_header                headers;
+            std::vector<t_location> locations;
+        }   t_config;
+
+        bool                    set;
+        t_config                default_config;
+        std::vector<t_config>   servers;
+        std::string             path;
 };
 
 #endif /* HTTPCONFIG_HPP */

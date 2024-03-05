@@ -12,5 +12,6 @@ int HTTPConfig::configurate(std::string const path, std::string const config_fil
     std::cout << "Proceeding..." << std::endl;
 
     (void) path;
+    //this->path = path;
     return (0);
 }

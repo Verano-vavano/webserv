@@ -1,5 +1,7 @@
 *.o
 valg*
 *.swp
+*.swo
 tests
 webserv
+miniweb

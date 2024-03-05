@@ -6,11 +6,11 @@
 #    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/03/05 12:48:31 by hdupire          ###   ########.fr        #
+#    Updated: 2024/03/05 21:14:23 by hdupire          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME=./webserv
+NAME=./miniweb
 
 SRCS_HTTPServ=HTTPServ.cpp
 SRCS_HTTPConfig=HTTPConfig.cpp \
@@ -72,7 +72,7 @@ endef
 define move_progress_bar
 	@if [ ${START} -eq 0 ]; then \
 		printf "${MAGENTA}"; \
-		echo "COMPILING MINIRT"; \
+		echo "COMPILING WEBSERV"; \
 		printf "${RESET}"; \
 		tput cud1; \
 		$(eval START = 1) \
@@ -125,7 +125,7 @@ ${NAME}: ${DEST}
 	@printf ${SHOW_CURSOR}
 
 clean:
-	@echo "${GREEN}Cleaning MiniRT..."
+	@echo "${GREEN}Cleaning webserv..."
 	@${RM} ${DEST}
 	@printf "${RESET}"
 	@echo "~~~~"
