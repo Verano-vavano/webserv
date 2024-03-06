@@ -21,9 +21,3 @@ int HTTPConfig::configurate(std::string const path, std::string const config_fil
 
     return (this->parse_infile(config));
 }
-
-
-int HTTPConfig::parse_infile(std::ifstream &f) {
-    (void) f;
-    return (0);
-}

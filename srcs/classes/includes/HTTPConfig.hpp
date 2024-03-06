@@ -4,7 +4,19 @@
 # include <iostream>
 # include <map>
 # include <vector>
+# include <stack>
+# include <algorithm>
+# include <cctype>
+# include <cstring>
 # include <fstream>
+
+# define BUFFER_SIZE 4096
+
+# define O_SPACE_MODE (1 << 0)
+# define O_ERROR_STOP (1 << 1)
+# define O_WARNING_AS_ERROR (1 << 2)
+
+# define ISSPACE " \f\n\r\t\v"
 
 class HTTPConfig {
 
@@ -17,6 +29,7 @@ class HTTPConfig {
         int configurate(std::string const path, std::string const config_file);
 
     private:
+        // CONFIG OPTIONS
         typedef std::map<std::string, std::string> t_map_str_str;
         typedef t_map_str_str t_type;
         typedef t_map_str_str t_header;
@@ -62,8 +75,31 @@ class HTTPConfig {
         std::string             path;
 
 
+
+        // CONFIG PARSER
+
+        typedef struct {
+            std::stack<std::string> blocks;
+            bool                    in_http;
+            t_config                *current_serv;
+            int                     options;
+            unsigned long           line;
+        }   t_parser;
+
         int parse_infile(std::ifstream &f);
+
+        int understand_the_line(char *buffer, t_parser &opt);
+        int understand_the_cut(std::string & cut, t_parser &opt);
+
+        static int set_define(std::string & cut, t_parser &opt);
+        static int set_block(std::string & cut, t_parser &opt);
+        static int set_other(std::string & cut, t_parser &opt);
+
+        static std::pair<char, int>     search_delim(std::string const buffer, t_parser &opt);
+        static std::string              trim_buffer(char *buffer);
+        static void                     split_cut(std::vector<std::string> &s, std::string const & cut);
+
+        static bool inline bitmask_warning(int mask);
 };
 
 #endif /* HTTPCONFIG_HPP */
-

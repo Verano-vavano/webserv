@@ -13,3 +13,9 @@ keepalive_time
 log_not_found
 log_subrequest
 types
+
+SPACE_MODE on|off (off default)
+ERROR_QUIT on|off (off default)
+
+
+Rajouter ligne d'erreur (compter \n)
