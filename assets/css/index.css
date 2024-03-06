@@ -1,0 +1,26 @@
+main {
+	margin: auto;
+	width: 70vw;
+	height: 50vh;
+	text-align: center;
+}
+
+.border {
+	margin-bottom: 10px;
+}
+
+.cat {
+	width: 150px;
+	height: auto;
+	margin: auto;
+}
+
+.cat > img {
+	width: 100%;
+	height: auto;
+}
+
+main > h1 {
+	font-size: 2rem;
+	margin-bottom: 70px;
+}
