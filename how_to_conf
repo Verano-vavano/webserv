@@ -3,3 +3,11 @@ DEFINE SPACE_MODE must be declared on the first line of the file
 An existing server or location might be fully overwritten if same port / same uri
 
 Errors by default are ignored (except if DEFINE ERROR_STOP toggled). Fatal errors can occure in case of fatal mistakes in the config file
+
+Comments must be on new command and last until a separator is found
+'http #start of HTTP block {' <- invalid
+'http { #start of HTTP block server { ...' <- invalid (not separated)
+'http { #start of HTTP block; server { ...' <- valid
+
+
+'server 8080 { ... }' == 'server { listen 8080; ... }'

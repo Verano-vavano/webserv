@@ -61,6 +61,9 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 }
 
 int	HTTPConfig::understand_the_cut(std::string & cut, HTTPConfig::t_parser &opt) {
+	if (cut[0] == '#')
+		return (0);
+	std::cout << cut << std::endl;
 	if (cut.substr(0, 6) == "DEFINE") {
 		return (this->set_define(cut, opt));
 	}
@@ -85,7 +88,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 	if (method == "location") {
 		t_location	tmp;
 		if (split.size() == 1) {
-			HTTPConfig::error("No URI for location", opt.line, opt.options);
+			HTTPConfig::error("No URI for location (if root, specify '/')", opt.line, opt.options);
 			return (2 - (opt.options & O_ERROR_STOP));
 		}
 		else if (split.size() > 2 && HTTPConfig::warning("Multiple URI for location (not supported)", opt.line, opt.options)) { return (1); }
@@ -101,6 +104,18 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 			return (1);
 		}
 		opt.in_http = true;
+	}
+
+	// SERVER
+	else if (method == "server") {
+		t_config	tmp;
+		tmp.port = 80;
+		if (split.size() >= 2) {
+			tmp.port = std::atoi(split[1].c_str());
+			if (tmp.port == 0 && warning("Invalid server port at declaration", opt.line, opt.options)) { return (1); }
+		}
+		if (split.size() > 2 && warning("Too many ports at server declaration", opt.line, opt.options)) { return (1); }
+		this->servers.push_back(tmp);
 	}
 	return (0);
 }
@@ -119,6 +134,8 @@ int	HTTPConfig::set_define(std::string & cut, HTTPConfig::t_parser &opt) {
 		opt.options |= O_ERROR_STOP;
 	else if (method == "WARNING_AS_ERROR")
 		opt.options |= O_WARNING_AS_ERROR;
+	else if (method == "SILENT")
+		opt.options |= O_SILENT;
 	else {
 		return (HTTPConfig::error("Unknown define", opt.line, opt.options));
 	}
@@ -193,25 +210,29 @@ void	HTTPConfig::split_cut(std::vector<std::string> &s, std::string const & cut)
 
 char	*HTTPConfig::skip_block(char *buffer, int start) {
 	for (; buffer[start] != '}'; start++) {}
-	buffer += start;
+	buffer += start + 1;
 	return (buffer);
 }
 
 
 bool	HTTPConfig::warning(std::string const message, unsigned long line, int mask) {
-	std::cerr << "[WARNING] " << message;
-	if (line != 0) {
-		std::cerr << " [l." << line << "]";
+	if (!(mask & O_SILENT)) {
+		std::cerr << "[WARNING] " << message;
+		if (line != 0) {
+			std::cerr << " [l." << line << "]";
+		}
+		std::cerr << std::endl;
 	}
-	std::cerr << std::endl;
 	return ((mask & O_WARNING_AS_ERROR) && (mask & O_ERROR_STOP));
 }
 
 bool	HTTPConfig::error(std::string const message, unsigned long line, int mask) {
-	std::cerr << "[ERROR] " << message;
-	if (line != 0) {
-		std::cerr << " [l." << line << "]";
+	if (!(mask & O_SILENT)) {
+		std::cerr << "[ERROR] " << message;
+		if (line != 0) {
+			std::cerr << " [l." << line << "]";
+		}
+		std::cerr << std::endl;
 	}
-	std::cerr << std::endl;
 	return (mask & O_WARNING_AS_ERROR);
 }

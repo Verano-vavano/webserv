@@ -9,12 +9,14 @@
 # include <cctype>
 # include <cstring>
 # include <fstream>
+# include <cstdlib>
 
 # define BUFFER_SIZE 4096
 
 # define O_SPACE_MODE (1 << 0)
 # define O_ERROR_STOP (1 << 1)
 # define O_WARNING_AS_ERROR (1 << 2)
+# define O_SILENT (1 << 3)
 
 # define ISSPACE " \f\n\r\t\v"
 
@@ -91,9 +93,9 @@ class HTTPConfig {
         int understand_the_line(char *buffer, t_parser &opt);
         int understand_the_cut(std::string & cut, t_parser &opt);
 
-        static int set_define(std::string & cut, t_parser &opt);
-        static int set_block(std::string & cut, t_parser &opt);
-        static int set_other(std::string & cut, t_parser &opt);
+        int set_define(std::string & cut, t_parser &opt);
+        int set_block(std::string & cut, t_parser &opt);
+        int set_other(std::string & cut, t_parser &opt);
 
         static std::pair<char, int>     search_delim(std::string const buffer, t_parser &opt);
         static std::string              trim_buffer(char *buffer);
