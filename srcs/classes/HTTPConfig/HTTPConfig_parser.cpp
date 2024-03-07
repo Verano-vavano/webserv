@@ -17,10 +17,7 @@ int HTTPConfig::parse_infile(std::ifstream &f) {
 			return (1);
 	} while (bytes == BUFFER_SIZE - 1);
 
-	if (!opt.blocks.empty()) {
-		std::cerr << "[WARNING] Blocks not closed" << std::endl;
-		if (this->bitmask_warning(opt.options)) { return (1); }
-	}
+	if (!opt.blocks.empty() && HTTPConfig::warning("Blocks not closed", 0, opt.options)) { return (1); }
 	return (0);
 }
 
@@ -39,16 +36,8 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 		buffer[delim.second] = '\0';
 		cut = this->trim_buffer(buffer);
 		if (delim.first == '}') {
-			if (opt.blocks.size() == 0) {
-				std::cerr << "[ERROR] Extra '}' at line " << opt.line << std::endl;
-				if (opt.options & O_ERROR_STOP)
-					return (1);
-			}
-			else if (cut != "") {
-				std::cerr << "[ERROR] Missing separator near line " << opt.line << std::endl;
-				if (opt.options & O_ERROR_STOP)
-					return (1);
-			}
+			if (opt.blocks.size() == 0 && HTTPConfig::error("Extra '}'", opt.line, opt.options)) { return (1); }
+			else if (cut != "" && HTTPConfig::error("Missing separator", opt.line, opt.options)) { return (1); }
 			else {
 				opt.blocks.pop();
 				if (opt.blocks.empty())
@@ -57,6 +46,10 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 		}
 		else if (delim.first == '{') {
 			ret = this->set_block(cut, opt);
+			if (ret == 2) {
+				buffer = this->skip_block(buffer, delim.second);
+				continue ;
+			}
 			opt.blocks.push(cut);
 		}
 		else { ret = understand_the_cut(cut, opt); }
@@ -72,10 +65,7 @@ int	HTTPConfig::understand_the_cut(std::string & cut, HTTPConfig::t_parser &opt)
 		return (this->set_define(cut, opt));
 	}
 	else {
-		if (!opt.in_http) {
-			std::cerr << "[WARNING] Not DEFINE not in a HTTP block at line " << opt.line << std::endl;
-			if (this->bitmask_warning(opt.options)) { return (1); }
-		}
+		if (!opt.in_http && HTTPConfig::warning("Not DEFINE not in a HTTP block", opt.line, opt.options)) { return (1); }
 		return (this->set_other(cut, opt));
 	}
 	return (0);
@@ -95,13 +85,10 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 	if (method == "location") {
 		t_location	tmp;
 		if (split.size() == 1) {
-			std::cerr << "[ERROR] No URI for location at line " << opt.line << std::endl;
+			HTTPConfig::error("No URI for location", opt.line, opt.options);
 			return (2 - (opt.options & O_ERROR_STOP));
 		}
-		else if (split.size() > 2) {
-			std::cerr << "[WARNING] Multiple URI for location (not supported) at line " << opt.line << std::endl;
-			if (HTTPConfig::bitmask_warning(opt.options)) { return (1); }
-		}
+		else if (split.size() > 2 && HTTPConfig::warning("Multiple URI for location (not supported)", opt.line, opt.options)) { return (1); }
 		tmp.default_uri = split[1];
 		tmp.replacement = "";
 		opt.current_serv->locations.push_back(tmp);
@@ -120,10 +107,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 
 
 int	HTTPConfig::set_define(std::string & cut, HTTPConfig::t_parser &opt) {
-	if (opt.blocks.size() != 0) {
-		std::cerr << "[ERROR] Invalid define location at line " << opt.line << std::endl;
-		if (HTTPConfig::bitmask_warning(opt.options)) { return (1); }
-	}
+	if (opt.blocks.size() != 0 && HTTPConfig::error("Invalid define location", opt.line, opt.options)) { return (1); }
 
 	int	start = 6;
 	for (; isspace(cut[start]); start++) {}
@@ -136,8 +120,7 @@ int	HTTPConfig::set_define(std::string & cut, HTTPConfig::t_parser &opt) {
 	else if (method == "WARNING_AS_ERROR")
 		opt.options |= O_WARNING_AS_ERROR;
 	else {
-		std::cerr << "[ERROR] Unknown define at line " << opt.line << std::endl;
-		return (opt.options & O_ERROR_STOP);
+		return (HTTPConfig::error("Unknown define", opt.line, opt.options));
 	}
 	return (0);
 }
@@ -151,25 +134,13 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// LOCATION METHODS
 	if (method == "root" || method == "alias" || method == "index") {
-		if (opt.blocks.top().substr(0, 8) != "location") {
-			std::cerr << "[ERROR] " << method << " outside of 'location' block at line " << opt.line << std::endl;
-			if (opt.options & O_ERROR_STOP) { return (1); }
-		}
+		if (opt.blocks.top().substr(0, 8) != "location" && HTTPConfig::error(method + " outside of 'location' block", opt.line, opt.options)) { return (1); }
 		else {
 			HTTPConfig::t_location	*tmp = &(opt.current_serv->locations.back());
 			if (method == "root" || method == "alias") {
-				if (tmp->replacement != "") {
-					std::cerr << "[WARNING] Overwriting already existing alias at line " << opt.line << std::endl;
-					if (HTTPConfig::bitmask_warning(opt.options)) { return (1); }
-				}
-				if (split.size() == 1) {
-					std::cerr << "[WARNING] No location for a uri at line " << opt.line << std::endl;
-					return (HTTPConfig::bitmask_warning(opt.options));
-				}
-				if (split.size() != 2) {
-					std::cerr << "[WARNING] Multiple locations for a uri at line " << opt.line << std::endl;
-					if (HTTPConfig::bitmask_warning(opt.options)) { return (1); }
-				}
+				if (tmp->replacement != "" && HTTPConfig::warning("Overwriting already existing alias", opt.line, opt.options)) { return (1); }
+				if (split.size() == 1) { return (HTTPConfig::warning("No location for a uri", opt.line, opt.options)); }
+				if (split.size() != 2 && HTTPConfig::warning("Multiple locations for a uri", opt.line, opt.options)) { return (1); }
 				tmp->replacement = split[1];
 				tmp->alias = (method == "alias");
 			}
@@ -220,7 +191,27 @@ void	HTTPConfig::split_cut(std::vector<std::string> &s, std::string const & cut)
 	return ;
 }
 
+char	*HTTPConfig::skip_block(char *buffer, int start) {
+	for (; buffer[start] != '}'; start++) {}
+	buffer += start;
+	return (buffer);
+}
 
-bool inline	HTTPConfig::bitmask_warning(int mask) {
+
+bool	HTTPConfig::warning(std::string const message, unsigned long line, int mask) {
+	std::cerr << "[WARNING] " << message;
+	if (line != 0) {
+		std::cerr << " [l." << line << "]";
+	}
+	std::cerr << std::endl;
 	return ((mask & O_WARNING_AS_ERROR) && (mask & O_ERROR_STOP));
+}
+
+bool	HTTPConfig::error(std::string const message, unsigned long line, int mask) {
+	std::cerr << "[ERROR] " << message;
+	if (line != 0) {
+		std::cerr << " [l." << line << "]";
+	}
+	std::cerr << std::endl;
+	return (mask & O_WARNING_AS_ERROR);
 }
