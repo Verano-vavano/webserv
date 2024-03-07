@@ -98,8 +98,10 @@ class HTTPConfig {
         static std::pair<char, int>     search_delim(std::string const buffer, t_parser &opt);
         static std::string              trim_buffer(char *buffer);
         static void                     split_cut(std::vector<std::string> &s, std::string const & cut);
+		static char*					skip_block(char *buffer, int start);
 
-        static bool inline bitmask_warning(int mask);
+		static bool	warning(std::string const message, unsigned long line, int mask);
+		static bool	error(std::string const message, unsigned long line, int mask);
 };
 
 #endif /* HTTPCONFIG_HPP */
