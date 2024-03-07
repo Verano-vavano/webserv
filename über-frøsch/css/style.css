@@ -3,7 +3,7 @@ body {
 	height: 100vh;
 	color: white;
 	background-color: black;
-	cursor: url("../images/cursors/metal.png"), auto;
+	cursor: url("../images/cursors/metal.webp"), auto;
 }
 
 nav {
@@ -13,7 +13,7 @@ nav {
 	flex-direction: column;
 }
 
-nav > img {
+.logo {
 	width: 300px;
 	height: auto;
 }
@@ -27,7 +27,7 @@ nav > div > a {
 	margin: 50px;
 }
 
-nav > div > a:hover {
+a:hover {
 	color: red;
-	cursor: url("../images/cursors/metal-pointer.png"), pointer;
+	cursor: url("../images/cursors/metal-pointer.webp"), pointer;
 }
