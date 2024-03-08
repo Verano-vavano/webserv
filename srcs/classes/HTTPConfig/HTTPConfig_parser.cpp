@@ -185,7 +185,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// LOCATION METHODS
 	if (this->in(method, "root", "alias", "index", NULL)) {
-		if (opt.blocks.top().substr(0, 8) != "location" && HTTPConfig::error(method + " outside of 'location' block", opt.line, opt.options)) { return (1); }
+		if (opt.blocks.top().substr(0, 8) != "location") { return (HTTPConfig::error(method + " outside of 'location' block", opt.line, opt.options)); }
 		else {
 			HTTPConfig::t_location	*tmp = &(serv->locations.back());
 			if (method == "root" || method == "alias") {
@@ -194,6 +194,10 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 				if (split.size() != 2 && HTTPConfig::warning("Multiple locations for a uri", opt.line, opt.options)) { return (1); }
 				tmp->replacement = split[1];
 				tmp->alias = (method == "alias");
+			} else {
+				if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
+				else if (split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
+				serv->locations.back().index = split[1];
 			}
 		}
 	}
@@ -230,7 +234,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	// ARGUMENTAL METHODS
 	else {
 		if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
-		else if (split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
+		else if (method != "error_page" && split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
 
 		long	ret = std::atol(split[1].c_str());
 		switch (method[0]) {
@@ -277,10 +281,35 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 				}
 				else if (method == "server_name")
 					serv->server_name = split[1];
+				else if (method == "error_page")
+					return (this->set_error_page(split, opt));
 				else
 					return (this->unknown_command_error(opt));
 		}
 	}
+	return (0);
+}
+
+int	HTTPConfig::set_error_page(std::vector<std::string> &split, t_parser &opt) {
+	unsigned int	index = 1;
+	HTTPConfig::t_config	*serv = opt.current_serv;
+	HTTPConfig::t_error		err;
+
+	std::vector<int>	codes;
+	int	error_code;
+	for (; index < split.size() && split[index][0] != '='; index++) {
+		error_code = std::atoi(split[index].c_str());
+		if ((error_code < 100 || error_code >= 600) && this->warning("Invalid error code", opt.line, opt.options)) { return (1); }
+		codes.push_back(error_code);
+	}
+
+	err.codes = codes;
+	if (split[index][0] == '=' && index != split.size()) {
+		err.response = std::atoi(split[index].c_str() + 1);
+		index++;
+	}
+	err.uri = split[index];
+	serv->error_page.push_back(err);
 	return (0);
 }
 
@@ -319,7 +348,7 @@ void	HTTPConfig::split_cut(std::vector<std::string> &s, std::string const & cut)
 
 	do {
 		new_i = cut.find_first_of(ISSPACE, i);
-		s.push_back(cut.substr(i, new_i));
+		s.push_back(cut.substr(i, new_i - i));
 		i = cut.find_first_not_of(ISSPACE, new_i);
 	} while (i != std::string::npos);
 

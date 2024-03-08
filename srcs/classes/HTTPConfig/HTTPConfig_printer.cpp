@@ -27,5 +27,27 @@ void	HTTPConfig::print_server(t_config const &s) {
 		<< "keepalive_time = " << s.keepalive_time << std::endl
 		<< "log_not_found = " << s.log_not_found << std::endl
 		<< "log_subrequest = " << s.log_subrequest << std::endl;
+	std::cout << "Error pages :" << std::endl;
+	for (std::vector<HTTPConfig::t_error>::const_iterator it = s.error_page.begin();
+			it != s.error_page.end(); it++) {
+		std::cout << "- ";
+		for (std::vector<int>::const_iterator it2 = it->codes.begin(); it2 != it->codes.end(); it2++) {
+			std::cout << *it2 << " ";
+		}
+		std::cout << "=> " << it->uri << " (" << it->response << ")" << std::endl;
+	}
+	std::cout << "Locations :" << std::endl;
+	for (std::vector<HTTPConfig::t_location>::const_iterator it = s.locations.begin();
+			it != s.locations.end(); it++) {
+		std::cout << "- " << it->default_uri << " => " << it->replacement << " . " << it->index << " (" << it->alias << ")" << std::endl;
+	}
+	std::cout << "Types :" << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it = s.types.begin(); it != s.types.end(); it++) {
+		std::cout << "- " << it->first << " | " << it->second << std::endl;
+	}
+	std::cout << "Headers :" << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it = s.headers.begin(); it != s.headers.end(); it++) {
+		std::cout << "- " << it->first << " | " << it->second << std::endl;
+	}
 	return ;
 }

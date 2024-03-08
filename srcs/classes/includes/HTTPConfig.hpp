@@ -123,6 +123,8 @@ class HTTPConfig {
         int set_block(std::string & cut, t_parser &opt);
         int set_other(std::string & cut, t_parser &opt);
 
+		int	set_error_page(std::vector<std::string> &split, t_parser &opt);
+
         static std::pair<char, int>     search_delim(std::string const buffer, t_parser &opt);
         static std::string              trim_buffer(char *buffer);
         static void                     split_cut(std::vector<std::string> &s, std::string const & cut);
