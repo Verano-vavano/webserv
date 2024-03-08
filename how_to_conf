@@ -11,3 +11,8 @@ Comments must be on new command and last until a separator is found
 
 
 'server 8080 { ... }' == 'server { listen 8080; ... }'
+
+For boolean methods (absolute_redirect for example), not specifying an argument will toggle it on.
+To toggle it off, an 'off' argument must be specified.
+Hence "absolute_redirect;" == "absolute_redirect on;"
+To make so not specifying an argument toggles on and off, please specify the define TOGGLE_BOOL.

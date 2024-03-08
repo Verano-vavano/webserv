@@ -6,7 +6,7 @@
 #    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/03/06 12:03:56 by hdupire          ###   ########.fr        #
+#    Updated: 2024/03/08 11:21:03 by hdupire          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,8 @@ NAME=./miniweb
 SRCS_HTTPServ=HTTPServ.cpp
 SRCS_HTTPConfig=HTTPConfig.cpp \
 				HTTPConfig_config.cpp \
-				HTTPConfig_parser.cpp
+				HTTPConfig_parser.cpp \
+				HTTPConfig_printer.cpp
 
 SRCS_CLASSES=$(addprefix classes/, \
 			 	$(addprefix HTTPServ/, ${SRCS_HTTPServ})\
