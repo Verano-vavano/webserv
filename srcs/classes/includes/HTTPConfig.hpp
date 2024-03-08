@@ -18,12 +18,15 @@
 # define O_ERROR_STOP (1 << 1)
 # define O_WARNING_AS_ERROR (1 << 2)
 # define O_SILENT (1 << 3)
+// TODO ?
 # define O_TOGGLE_BOOL (1 << 4)
 
 # define ISSPACE " \f\n\r\t\v"
 
 # define DEFAULT_PORT 80
+// TODO normalement localhost non?
 # define DEFAULT_NAME "local_host"
+// TODO ? les deux la en bas?
 # define DEFAULT_REDIR true
 # define DEFAULT_CHUNKED true
 # define DEFAULT_BODY_TO 60
@@ -94,6 +97,7 @@ class HTTPConfig {
 			struct s_config & operator=(struct s_config const & rhs);
         }   t_config;
 
+		// TODO ?
         bool                    set;
         t_config                default_config;
         std::vector<t_config>   servers;

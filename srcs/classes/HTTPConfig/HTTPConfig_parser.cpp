@@ -11,8 +11,10 @@ int HTTPConfig::parse_infile(std::ifstream &f) {
 	opt.current_serv = &(this->default_config);
 	do {
 		f.read(buffer, BUFFER_SIZE - 1);
+		// TODO ca se fini pas par \0 de base?
 		bytes = f.gcount();
 		buffer[bytes] = '\0';
+		// TODO tres beau nom de fonction #minishell
 		if (this->understand_the_line(buffer, opt) == 1)
 			return (1);
 	} while (bytes == BUFFER_SIZE - 1);
@@ -31,6 +33,7 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 
 	while (true) {
 		delim = this->search_delim(buffer, opt);
+		// TODO en gros c'est juste une ligne vide on la skip?
 		if (!delim.first)
 			return (-1);
 		buffer[delim.second] = '\0';
@@ -38,9 +41,11 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 
 		// DELIM is end of block
 		if (delim.first == '}') {
+			// TODO wtf is that.
 			if (opt.blocks.size() == 0 && HTTPConfig::error("Extra '}'", opt.line, opt.options)) { return (1); }
 			else if (cut != "" && HTTPConfig::error("Missing separator", opt.line, opt.options)) { return (1); }
 			else {
+				// TODO demander comment la stack de std::string est cree.
 				opt.blocks.pop();
 				if (opt.blocks.empty())
 					opt.in_http = false;
@@ -324,6 +329,7 @@ std::pair<char, int>    HTTPConfig::search_delim(std::string const buffer, HTTPC
 			ret.second = i;
 			break ;
 		}
+		// TODO pourquoi compter les lignes?
 		else if (buffer[i] == '\n')
 			opt.line++;
 	}
