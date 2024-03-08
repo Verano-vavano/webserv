@@ -7,7 +7,7 @@
     <title>Les Über Frøsch</title>
     <link rel="stylesheet" href="./css/reset.css">
     <link rel="stylesheet" href="./css/style.css">
-    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/login.css">
 		<!-- Ü -->
 		<!-- ü -->
 		<!-- Ø -->
@@ -27,14 +27,25 @@
 			<div class="border">
 				<img src="./images/border-2.webp" alt="">
 			</div>
-			<div class="form">
-				<input type="text" placeholder="Ton username metallique!" required>
-				<input type="password" placeholder="Le mot de passe trop secret" required>
+			<form>
+				<input
+					type="text"
+					placeholder="Ton username metallique!"
+					value="superuser"
+					id="username"
+					required>
+				<input
+					type="password"
+					placeholder="Le mot de passe trop secret"
+					value="ldskajf"
+					value="password"
+					required>
 				<button type="submit">Se connecter</button>
-			</div>
+			</form>
 			<div class="border-end">
 				<img src="./images/border-2.webp" alt="">
 			</div>
 		</main>
+		<script src="./js/login.js"></script>
   </body>
 </html>
