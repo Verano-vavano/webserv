@@ -27,7 +27,24 @@ nav > div > a {
 	margin: 50px;
 }
 
+main {
+	margin: auto;
+	width: 70vw;
+	height: 50vh;
+	text-align: center;
+}
+
+
+
 a:hover {
 	color: red;
 	cursor: url("../images/cursors/metal-pointer.webp"), pointer;
+}
+
+.border-end {
+	transform: scaleY(-1)
+}
+
+.border {
+	margin-bottom: 10px;
 }
