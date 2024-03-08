@@ -10,6 +10,7 @@
 # include <cstring>
 # include <fstream>
 # include <cstdlib>
+# include <limits>
 
 # define BUFFER_SIZE 4096
 
@@ -17,8 +18,25 @@
 # define O_ERROR_STOP (1 << 1)
 # define O_WARNING_AS_ERROR (1 << 2)
 # define O_SILENT (1 << 3)
+# define O_TOGGLE_BOOL (1 << 4)
 
 # define ISSPACE " \f\n\r\t\v"
+
+# define DEFAULT_PORT 80
+# define DEFAULT_NAME "local_host"
+# define DEFAULT_REDIR true
+# define DEFAULT_CHUNKED true
+# define DEFAULT_BODY_TO 60
+# define DEFAULT_BODY_BUF_SIZE 8000
+# define DEFAULT_BODY_IN false
+# define DEFAULT_HEAD_BUF_SIZE 1000
+# define DEFAULT_MAX_BODY 100000
+# define DEFAULT_TYPE "text/plain"
+# define DEFAULT_IGNORE_INVALID true
+# define DEFAULT_KEEPALIVE_REQ 1000
+# define DEFAULT_KEEPALIVE_TIME 60
+# define DEFAULT_LOG_NOT_FOUND true
+# define DEFAULT_LOG_SUB false
 
 class HTTPConfig {
 
@@ -28,7 +46,8 @@ class HTTPConfig {
         HTTPConfig(std::string const path, std::string const config_file);
 		~HTTPConfig(void);
 
-        int configurate(std::string const path, std::string const config_file);
+        int 	configurate(std::string const path, std::string const config_file);
+		void	print_config(void) const;
 
     private:
         // CONFIG OPTIONS
@@ -43,13 +62,15 @@ class HTTPConfig {
             bool        alias;
         }   t_location;
 
-        typedef struct {
+        typedef struct s_error {
             std::vector<int>    codes;
             int                 response;
             std::string         uri;
+
+			struct s_error & operator=(struct s_error const & rhs);
         }   t_error;
 
-        typedef struct {
+        typedef struct s_config {
             int                     port;
             std::string             server_name;
             bool                    absolute_redirect;
@@ -69,12 +90,16 @@ class HTTPConfig {
             t_type                  types;
             t_header                headers;
             std::vector<t_location> locations;
+
+			struct s_config & operator=(struct s_config const & rhs);
         }   t_config;
 
         bool                    set;
         t_config                default_config;
         std::vector<t_config>   servers;
         std::string             path;
+
+		void	set_default_config(void);
 
 
 
@@ -94,6 +119,7 @@ class HTTPConfig {
         int understand_the_cut(std::string & cut, t_parser &opt);
 
         int set_define(std::string & cut, t_parser &opt);
+        int set_type(std::string & cut, t_parser &opt);
         int set_block(std::string & cut, t_parser &opt);
         int set_other(std::string & cut, t_parser &opt);
 
@@ -101,9 +127,16 @@ class HTTPConfig {
         static std::string              trim_buffer(char *buffer);
         static void                     split_cut(std::vector<std::string> &s, std::string const & cut);
 		static char*					skip_block(char *buffer, int start);
+		static bool						in(std::string const s, ...);
+		static long						translate_time(std::string arg);
 
 		static bool	warning(std::string const message, unsigned long line, int mask);
 		static bool	error(std::string const message, unsigned long line, int mask);
+		static bool	unknown_command_error(t_parser &opt) { return (error("Unknown command", opt.line, opt.options)); }
+
+
+		// PRINTER
+		static void	print_server(t_config const &s);
 };
 
 #endif /* HTTPCONFIG_HPP */

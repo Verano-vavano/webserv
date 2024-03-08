@@ -35,6 +35,8 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 			return (-1);
 		buffer[delim.second] = '\0';
 		cut = this->trim_buffer(buffer);
+
+		// DELIM is end of block
 		if (delim.first == '}') {
 			if (opt.blocks.size() == 0 && HTTPConfig::error("Extra '}'", opt.line, opt.options)) { return (1); }
 			else if (cut != "" && HTTPConfig::error("Missing separator", opt.line, opt.options)) { return (1); }
@@ -44,6 +46,8 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 					opt.in_http = false;
 			}
 		}
+
+		// DELIM is start of block
 		else if (delim.first == '{') {
 			ret = this->set_block(cut, opt);
 			if (ret == 2) {
@@ -52,6 +56,8 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 			}
 			opt.blocks.push(cut);
 		}
+
+		// DELIM is ; or \n (SPACE_MODE)
 		else { ret = understand_the_cut(cut, opt); }
 		buffer += delim.second + 1;
 		if (ret == 1)
@@ -60,13 +66,15 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 	return (ret);
 }
 
+
 int	HTTPConfig::understand_the_cut(std::string & cut, HTTPConfig::t_parser &opt) {
 	if (cut[0] == '#')
 		return (0);
-	std::cout << cut << std::endl;
 	if (cut.substr(0, 6) == "DEFINE") {
 		return (this->set_define(cut, opt));
 	}
+	else if (opt.blocks.top() == "types")
+		return (this->set_type(cut, opt));
 	else {
 		if (!opt.in_http && HTTPConfig::warning("Not DEFINE not in a HTTP block", opt.line, opt.options)) { return (1); }
 		return (this->set_other(cut, opt));
@@ -109,6 +117,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 	// SERVER
 	else if (method == "server") {
 		t_config	tmp;
+		tmp = this->default_config;
 		tmp.port = 80;
 		if (split.size() >= 2) {
 			tmp.port = std::atoi(split[1].c_str());
@@ -116,6 +125,10 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 		}
 		if (split.size() > 2 && warning("Too many ports at server declaration", opt.line, opt.options)) { return (1); }
 		this->servers.push_back(tmp);
+	}
+
+	else if (method != "types") {
+		return (2 - error("Unknown block type", opt.line, opt.options));
 	}
 	return (0);
 }
@@ -136,9 +149,28 @@ int	HTTPConfig::set_define(std::string & cut, HTTPConfig::t_parser &opt) {
 		opt.options |= O_WARNING_AS_ERROR;
 	else if (method == "SILENT")
 		opt.options |= O_SILENT;
+	else if (method == "TOGGLE_BOOL")
+		opt.options |= O_TOGGLE_BOOL;
 	else {
 		return (HTTPConfig::error("Unknown define", opt.line, opt.options));
 	}
+	return (0);
+}
+
+int	HTTPConfig::set_type(std::string & cut, HTTPConfig::t_parser &opt) {
+	std::vector<std::string>	split;
+	split_cut(split, cut);
+
+	if (split.size() != 2) {
+		return (this->error("Type definition does not have 2 arguments", opt.line, opt.options));
+	}
+
+	t_type	*t = &(opt.current_serv->types);
+	if (t->find(split[0]) != t->end()) {
+		(*t)[split[0]] = split[1];
+		return (this->warning("Type already set : " + split[0], opt.line, opt.options));
+	}
+	t->insert(std::pair<std::string, std::string>(split[0], split[1]));
 	return (0);
 }
 
@@ -147,13 +179,15 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	std::vector<std::string>	split;
 	split_cut(split, cut);
 
+	t_config	*serv = opt.current_serv;
+
 	std::string	method = split.front();
 
 	// LOCATION METHODS
-	if (method == "root" || method == "alias" || method == "index") {
+	if (this->in(method, "root", "alias", "index", NULL)) {
 		if (opt.blocks.top().substr(0, 8) != "location" && HTTPConfig::error(method + " outside of 'location' block", opt.line, opt.options)) { return (1); }
 		else {
-			HTTPConfig::t_location	*tmp = &(opt.current_serv->locations.back());
+			HTTPConfig::t_location	*tmp = &(serv->locations.back());
 			if (method == "root" || method == "alias") {
 				if (tmp->replacement != "" && HTTPConfig::warning("Overwriting already existing alias", opt.line, opt.options)) { return (1); }
 				if (split.size() == 1) { return (HTTPConfig::warning("No location for a uri", opt.line, opt.options)); }
@@ -161,6 +195,90 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 				tmp->replacement = split[1];
 				tmp->alias = (method == "alias");
 			}
+		}
+	}
+
+	// BOOLEAN METHODS
+	else if (this->in(method, "absolute_redirect", "chunked_transfer_encoding",
+			"ignore_invalid_headers", "log_not_found", "log_subrequest", NULL)) {
+		bool	on;
+		if (split.size() == 1) { on = true; }
+		else {
+			if (split.size() > 2 && this->warning("More than one argument to boolean method " + method, opt.line, opt.options)) { return (1); }
+			on = (split[1] == "on");
+		}
+
+		switch (method[0]) { // ugly switch
+			case 'a':
+				serv->absolute_redirect = on;
+				break ;
+			case 'c':
+				serv->chunked_transfer_encoding = on;
+				break ;
+			case 'i':
+				serv->ignore_invalid_headers = on;
+				break ;
+			default: // l
+				if (method == "log_not_found")
+					serv->log_not_found = on;
+				else
+					serv->log_subrequest = on;
+				break ;
+		}
+	}
+
+	// ARGUMENTAL METHODS
+	else {
+		if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
+		else if (split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
+
+		long	ret = std::atol(split[1].c_str());
+		switch (method[0]) {
+			case 'c':
+				if (method == "client_body_timeout") {
+					ret = this->translate_time(split[1]);
+					if (ret == -1) { return this->error("Invalid argument", opt.line, opt.options); }
+					serv->client_body_timeout = ret;
+				}
+				else if (method == "client_body_buffer_size") { serv->client_body_buffer_size = ret;}
+				else if (method == "client_body_in_file_only") {
+					if (split[1] == "clean") { ret = -1; }
+					else { ret = (split[1] == "on"); }
+					serv->client_body_in_file_only = ret;
+				}
+				else if (method == "client_header_buffer_size") { serv->client_header_buffer_size = ret; }
+				else if (method == "client_max_body_size") { serv->client_max_body_size = ret; }
+				else { return (this->unknown_command_error(opt)); }
+				break ;
+
+			case 'd':
+				if (method != "default_type") { return (this->unknown_command_error(opt)); }
+				serv->default_type = split[1];
+				break ;
+
+			case 'k':
+				if (method == "keepalive_requests") { serv->keepalive_requests = ret; }
+				else if (method == "keepalive_time") {
+					ret = this->translate_time(split[1]);
+					if (ret == -1) { return this->error("Invalid argument", opt.line, opt.options); }
+					serv->keepalive_time = ret;
+				}
+				else
+					return (this->unknown_command_error(opt));
+				break ;
+
+
+			default:
+				if (method == "listen") {
+					if (ret > std::numeric_limits<int>::max() || ret < 0) {
+						return (this->error("Invalid port", opt.line, opt.options));
+					}
+					serv->port = ret;
+				}
+				else if (method == "server_name")
+					serv->server_name = split[1];
+				else
+					return (this->unknown_command_error(opt));
 		}
 	}
 	return (0);
@@ -212,6 +330,47 @@ char	*HTTPConfig::skip_block(char *buffer, int start) {
 	for (; buffer[start] != '}'; start++) {}
 	buffer += start + 1;
 	return (buffer);
+}
+
+bool	HTTPConfig::in(std::string const s, ...) {
+	va_list	vargs;
+	char	*to_cmp;
+
+	va_start(vargs, s);
+
+	to_cmp = va_arg(vargs, char*);
+	while (to_cmp) {
+		if (s == to_cmp)
+			return (true);
+		to_cmp = va_arg(vargs, char*);
+	}
+	return (false);
+}
+
+long	HTTPConfig::translate_time(std::string arg) {
+	int	end = 0;
+	for (; arg[end] && isdigit(arg[end]); end++) {}
+
+	long	ret = std::atol(arg.c_str());
+
+	if (ret < 0) { return (-1); }
+
+	switch (arg[end]) {
+		case 'm':
+			if (ret > std::numeric_limits<long>::max() / 60) {
+				return (-1);
+			}
+			ret *= 60;
+			break ;
+		case 'h':
+			if (ret > std::numeric_limits<long>::max() / 360) {
+				return (-1);
+			}
+			ret *= 360;
+			break ;
+	}
+
+	return (ret);
 }
 
 
