@@ -234,7 +234,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	// ARGUMENTAL METHODS
 	else {
 		if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
-		else if (method != "error_page" && split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
+		else if (!this->in(method, "error_page", "add_header", NULL) && split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
 
 		long	ret = std::atol(split[1].c_str());
 		switch (method[0]) {
@@ -283,6 +283,10 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 					serv->server_name = split[1];
 				else if (method == "error_page")
 					return (this->set_error_page(split, opt));
+				else if (method == "add_header") {
+					if (split.size() < 3) { return (0); }
+					serv->headers.insert(std::pair<std::string, std::string>(split[1], split[2]));
+				}
 				else
 					return (this->unknown_command_error(opt));
 		}
