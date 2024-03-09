@@ -5,7 +5,6 @@ int HTTPConfig::configurate(std::string const path, std::string const config_fil
         std::string choice;
         std::cout << "Not a .conf file. Do you wish to continue ? (Y/N) > ";
         std::getline(std::cin, choice);
-		// TODO return(1) mais plus tard faudra checker dans le constructeur la val de retour non?
         if (choice != "Y" && choice != "y")
             return (1);
         else
@@ -14,7 +13,6 @@ int HTTPConfig::configurate(std::string const path, std::string const config_fil
 
 	this->set_default_config();
 
-	// TODO on en fait quoi de ca?
     this->path = path;
 
     std::ifstream    config(config_file.c_str());
