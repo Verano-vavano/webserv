@@ -11,6 +11,7 @@
 # include <fstream>
 # include <cstdlib>
 # include <limits>
+# include <stdarg.h>
 
 # define BUFFER_SIZE 4096
 

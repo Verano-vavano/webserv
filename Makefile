@@ -6,7 +6,7 @@
 #    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/03/10 14:40:28 by hdupire          ###   ########.fr        #
+#    Updated: 2024/03/10 16:33:45 by tcharanc         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,8 @@ NO_OF_FILES:=$(words $(SRCS))
 
 RM=rm -f
 
-GCC=c++
+# TODO make this into c++ at the end.
+GCC=g++
 CFLAGS=-Wall -Wextra -Werror -std=c++98 -g
 
 INCLUDES=-I ./includes/ -I ./srcs/classes/includes
