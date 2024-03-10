@@ -1,6 +1,6 @@
 #include "HTTPConfig.hpp"
 
-int HTTPConfig::parse_infile(std::ifstream &f) {
+bool	HTTPConfig::parse_infile(std::ifstream &f) {
 	char                    buffer[BUFFER_SIZE];
 	std::streamsize         bytes;
 	HTTPConfig::t_parser    opt;
@@ -18,7 +18,7 @@ int HTTPConfig::parse_infile(std::ifstream &f) {
 	} while (bytes == BUFFER_SIZE - 1);
 
 	if (!opt.blocks.empty() && HTTPConfig::warning("Blocks not closed", 0, opt.options)) { return (1); }
-	return (0);
+	return (this->check_config());
 }
 
 // -1 = Continue
@@ -41,6 +41,9 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 			if (opt.blocks.size() == 0 && HTTPConfig::error("Extra '}'", opt.line, opt.options)) { return (1); }
 			else if (cut != "" && HTTPConfig::error("Missing separator", opt.line, opt.options)) { return (1); }
 			else {
+				if (opt.blocks.top() == "server") {
+					opt.current_serv = &(this->default_config);
+				}
 				opt.blocks.pop();
 				if (opt.blocks.empty())
 					opt.in_http = false;
@@ -125,6 +128,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 		}
 		if (split.size() > 2 && warning("Too many ports at server declaration", opt.line, opt.options)) { return (1); }
 		this->servers.push_back(tmp);
+		opt.current_serv = &(this->servers.back());
 	}
 
 	else if (method != "types") {

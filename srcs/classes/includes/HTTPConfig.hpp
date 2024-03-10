@@ -116,7 +116,7 @@ class HTTPConfig {
             unsigned long           line;
         }   t_parser;
 
-        int parse_infile(std::ifstream &f);
+        bool	parse_infile(std::ifstream &f);
 
         int understand_the_line(char *buffer, t_parser &opt);
         int understand_the_cut(std::string & cut, t_parser &opt);
@@ -142,6 +142,9 @@ class HTTPConfig {
 
 		// PRINTER
 		static void	print_server(t_config const &s);
+
+		// CHECKER
+		bool	check_config(void);
 };
 
 #endif /* HTTPCONFIG_HPP */
