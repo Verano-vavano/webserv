@@ -7,6 +7,7 @@ int	main(int argc, char **argv) {
     }
 
     HTTPServ    A(argv);
+	A.CreateSocket();
 	return (0);
 }
 

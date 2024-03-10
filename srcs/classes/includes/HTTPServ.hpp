@@ -12,6 +12,7 @@ class HTTPServ {
         HTTPServ(char *path, char *config_file);
 		HTTPServ(HTTPServ const & old);
 		HTTPServ & operator=(HTTPServ const & rhs);
+		void CreateSocket(void);
 		~HTTPServ(void);
 
     private:
