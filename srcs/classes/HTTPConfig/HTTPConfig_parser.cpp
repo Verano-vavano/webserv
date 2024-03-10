@@ -18,7 +18,7 @@ bool	HTTPConfig::parse_infile(std::ifstream &f) {
 	} while (bytes == BUFFER_SIZE - 1);
 
 	if (!opt.blocks.empty() && HTTPConfig::warning("Blocks not closed", 0, opt.options)) { return (1); }
-	return (this->check_config());
+	return (0);
 }
 
 // -1 = Continue

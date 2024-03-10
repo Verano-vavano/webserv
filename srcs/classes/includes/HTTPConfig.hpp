@@ -143,9 +143,6 @@ class HTTPConfig {
 
 		// PRINTER
 		static void	print_server(t_config const &s);
-
-		// CHECKER
-		bool	check_config(void);
 };
 
 #endif /* HTTPCONFIG_HPP */
