@@ -6,7 +6,7 @@
 #    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/03/10 16:40:20 by hdupire          ###   ########.fr        #
+#    Updated: 2024/03/10 18:57:22 by hdupire          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,10 +17,12 @@ SRCS_HTTPConfig=HTTPConfig.cpp \
 				HTTPConfig_config.cpp \
 				HTTPConfig_parser.cpp \
 				HTTPConfig_printer.cpp
+SRCS_HTTPProt=HTTPProtocol.cpp
 
 SRCS_CLASSES=$(addprefix classes/, \
 			 	$(addprefix HTTPServ/, ${SRCS_HTTPServ})\
 			 	$(addprefix HTTPConfig/, ${SRCS_HTTPConfig})\
+			 	$(addprefix HTTPProtocol/, ${SRCS_HTTPProt})\
 			 )
 
 SRCS=main.cpp\
