@@ -3,6 +3,8 @@
 
 # include "HTTPConfig.hpp"
 # include <iostream>
+#include <sys/epoll.h>
+#include <vector>
 
 class HTTPServ {
 
@@ -12,11 +14,14 @@ class HTTPServ {
         HTTPServ(char *path, char *config_file);
 		HTTPServ(HTTPServ const & old);
 		HTTPServ & operator=(HTTPServ const & rhs);
-		void CreateSocket(void);
+		void socketsInit(void);
+		void socketsClose(void);
 		~HTTPServ(void);
 
     private:
         HTTPConfig  conf;
+		std::vector<int> sockets_fds;
+	std::vector<epoll_event> epoll_events;
 };
 
 #endif /* HTTPSERV_HPP */

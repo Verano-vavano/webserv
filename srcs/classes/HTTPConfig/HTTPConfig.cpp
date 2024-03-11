@@ -1,6 +1,6 @@
 #include "HTTPConfig.hpp"
 
-HTTPConfig::HTTPConfig(void): set(false) { return ;}
+HTTPConfig::HTTPConfig(void) {}
 
 HTTPConfig::HTTPConfig(char const **conf) {
 	this->configurate(conf[0], conf[1]);

@@ -50,10 +50,8 @@ class HTTPConfig {
         HTTPConfig(std::string const path, std::string const config_file);
 		~HTTPConfig(void);
 
-        int 	configurate(std::string const path, std::string const config_file);
+        void 	configurate(std::string const path, std::string const config_file);
 		void	print_config(void) const;
-
-		bool                    set;
 
         typedef std::map<std::string, std::string> t_map_str_str;
         typedef t_map_str_str t_type;
