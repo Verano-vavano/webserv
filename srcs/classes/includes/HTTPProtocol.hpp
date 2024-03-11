@@ -1,6 +1,7 @@
 #ifndef HTTPPROTOCOL_HPP
 # define HTTPPROTOCOL_HPP
 
+# include <iostream>
 # include <string>
 # include <vector>
 # include <map>
@@ -32,6 +33,9 @@ class HTTPProtocol {
 
 		void	understand_request(t_request &req, std::string &s);
 		void	create_response(t_response &res, t_request &req);
+
+	private:
+		std::vector<std::string>	split_header_val(std::string val);
 
 };
 
