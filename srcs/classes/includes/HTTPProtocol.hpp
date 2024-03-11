@@ -21,13 +21,13 @@ typedef struct {
 	std::string	status_line;
 	std::string	headers;
 	std::string	body;
-	int			err_code;
 }	t_response;
 
 typedef struct {
-	t_request				&req;
-	t_response				&res;
-	HTTPConfig::t_config	&conf;
+	t_request				req;
+	t_response				res;
+	HTTPConfig::t_config	*conf;
+	int						err_code;
 }	t_response_creator;
 
 
@@ -39,7 +39,7 @@ class HTTPProtocol {
 		HTTPProtocol(void) { return ; }
 		~HTTPProtocol(void) { return ; }
 
-		void		understand_request(t_request &req, std::string &s);
+		int			understand_request(t_request &req, std::string &s);
 		void		print_request(t_request &req);
 
 		void		create_response(t_response_creator &r);

@@ -55,8 +55,6 @@ class HTTPConfig {
 
 		bool                    set;
 
-    private:
-        // CONFIG OPTIONS
         typedef std::map<std::string, std::string> t_map_str_str;
         typedef t_map_str_str t_type;
         typedef t_map_str_str t_header;
@@ -99,6 +97,9 @@ class HTTPConfig {
 
 			struct s_config & operator=(struct s_config const & rhs);
         }   t_config;
+
+    private:
+        // CONFIG OPTIONS
 
         t_config                default_config;
         std::vector<t_config>   servers;

@@ -1,12 +1,10 @@
 #include "HTTPProtocol.hpp"
 
-void    HTTPProtocol::understand_request(t_request &req, std::string &s) {
+int    HTTPProtocol::understand_request(t_request &req, std::string &s) {
     std::string line;
     int         index = 0;
     int         sub_index = 0;
     int         sub_sub_index = 0;
-
-    req.bad_request = false;
 
     // REQUEST LINE
     index = s.find("\r\n");
@@ -33,8 +31,7 @@ void    HTTPProtocol::understand_request(t_request &req, std::string &s) {
         new_el.first = s.substr(sub_index, sub_sub_index - sub_index);
         // If \n in key, then bad s lol
         if (new_el.first.find("\n") != std::string::npos) {
-            req.bad_request = true;
-            return ;
+            return (400);
         }
         sub_sub_index++;
         sub_index = s.find("\r\n", sub_index);
@@ -54,7 +51,7 @@ void    HTTPProtocol::understand_request(t_request &req, std::string &s) {
 
     if (req.uri == "/")
         req.uri = "/lol.html";
-    return ;
+    return (200);
 }
 
 
