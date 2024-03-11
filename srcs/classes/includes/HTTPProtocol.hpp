@@ -28,6 +28,7 @@ typedef struct {
 	t_response				res;
 	HTTPConfig::t_config	*conf;
 	int						err_code;
+	std::string				file_type;
 }	t_response_creator;
 
 
@@ -48,8 +49,14 @@ class HTTPProtocol {
 	private:
 		std::vector<std::string>	split_header_val(std::string val);
 
-		void	handle_method(t_response &res, t_request &req);
-		void	handle_get(t_response &res, t_request &req);
+		void	handle_method(t_response_creator &r);
+		void	handle_get(t_response_creator &r);
+
+		std::string	get_dir_uri(std::string &uri, HTTPConfig::t_config *conf, int *err);
+
+		void	handle_error_code(t_response_creator &r);
+
+		void	set_headers(t_response_creator &r);
 
 };
 

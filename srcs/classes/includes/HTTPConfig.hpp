@@ -98,11 +98,12 @@ class HTTPConfig {
 			struct s_config & operator=(struct s_config const & rhs);
         }   t_config;
 
+        t_config                default_config;
+        std::vector<t_config>   servers;
+
     private:
         // CONFIG OPTIONS
 
-        t_config                default_config;
-        std::vector<t_config>   servers;
         std::string             path;
 
 		void	set_default_config(void);

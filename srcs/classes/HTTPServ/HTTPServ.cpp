@@ -62,6 +62,7 @@ void HTTPServ::CreateSocket(void) {
 
 	HTTPProtocol	Http;
 	t_response_creator	r;
+	r.conf = &(this->conf.default_config);
 	std::string		formated_res;
 	for (int i = 0; i < MAX_EVENTS; ++i){
 		std::cout << "Entering loop " << i << std::endl;
