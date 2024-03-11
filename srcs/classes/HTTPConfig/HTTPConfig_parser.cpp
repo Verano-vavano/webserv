@@ -7,6 +7,11 @@ bool	HTTPConfig::parse_infile(std::ifstream &f, bool space_mode) {
 	std::streamsize         bytes;
 	HTTPConfig::t_parser    opt;
 
+	if (BUFFER_SIZE < 2) {
+		std::cerr << "Buffer size too small (check HTTPConfig.hpp or use custom flag -D to define a new one)" << std::endl;
+		return (1);
+	}
+
 	if (space_mode) { std::getline(f, line); } // getline dans le vide pour oublier premiere ligne
 	opt.options = space_mode * O_SPACE_MODE;
 	opt.line = 1;
@@ -18,13 +23,13 @@ bool	HTTPConfig::parse_infile(std::ifstream &f, bool space_mode) {
 			std::getline(f, line);
 			opt.line++;
 			if (f.eof()) { break ; }
-			if (this->understand_the_line(line, temp, opt) == 1)
+			if (this->understand_the_line(temp + line, temp, opt) == 1)
 				return (1);
 		} else {
 			f.read(buffer, BUFFER_SIZE - 1);
 			bytes = f.gcount();
 			buffer[bytes] = '\0';
-			if (this->understand_the_line(buffer, temp, opt) == 1)
+			if (this->understand_the_line(temp + buffer, temp, opt) == 1)
 				return (1);
 		}
 	} while (bytes == BUFFER_SIZE - 1);
@@ -61,7 +66,7 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 			cmd = buffer.substr(0, delim.second);
 		cut = this->trim_buffer(cmd);
 		std::cout << "CUT: " << cut << std::endl;
-		if (delim.first != '}' && cut.empty())
+		if ((opt.options & O_SPACE_MODE) && delim.first != '}' && cut.empty())
 			return (-1);
 
 		// DELIM is end of block
@@ -89,7 +94,7 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 		}
 
 		// DELIM is ; or \n (SPACE_MODE)
-		else { ret = understand_the_cut(cut, opt); }
+		else if (!cut.empty()) { ret = understand_the_cut(cut, opt); }
 		buffer = buffer.substr(delim.second + 1 - (delim.first == '\n'));
 		if (ret == 1)
 			return (ret);
@@ -235,10 +240,13 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	}
 
 	// BOOLEAN METHODS
+	// For the TOGGLE_BOOL define, we use one of the properties of the NAND gate
+	// 1 NAND 1 = 0, 0 NAND 1 = 1 so if B = 1, A is 'switched'
+	// 1 NAND 0 = 1, 0 NAND 0 = 1 so if B = 0, A is true
 	else if (this->in(method, "absolute_redirect", "chunked_transfer_encoding",
 			"ignore_invalid_headers", "log_not_found", "log_subrequest", NULL)) {
 		bool	on;
-		if (split.size() == 1) { on = true; }
+		if (split.size() == 1) { on = (opt.options & O_TOGGLE_BOOL); }
 		else {
 			if (split.size() > 2 && this->warning("More than one argument to boolean method " + method, opt.line, opt.options)) { return (1); }
 			on = (split[1] == "on");
@@ -246,19 +254,19 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 
 		switch (method[0]) { // ugly switch
 			case 'a':
-				serv->absolute_redirect = on;
+				serv->absolute_redirect = !(serv->absolute_redirect & on);
 				break ;
 			case 'c':
-				serv->chunked_transfer_encoding = on;
+				serv->chunked_transfer_encoding = !(serv->chunked_transfer_encoding & on);
 				break ;
 			case 'i':
-				serv->ignore_invalid_headers = on;
+				serv->ignore_invalid_headers = !(serv->ignore_invalid_headers & on);
 				break ;
 			default: // l
 				if (method == "log_not_found")
-					serv->log_not_found = on;
+					serv->log_not_found = !(serv->log_not_found & on);
 				else
-					serv->log_subrequest = on;
+					serv->log_subrequest = !(serv->log_subrequest & on);
 				break ;
 		}
 	}

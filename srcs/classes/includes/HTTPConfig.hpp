@@ -13,7 +13,7 @@
 # include <limits>
 # include <stdarg.h>
 
-# define BUFFER_SIZE 4096
+# define BUFFER_SIZE 25
 
 # define O_SPACE_MODE (1 << 0)
 # define O_ERROR_STOP (1 << 1)
