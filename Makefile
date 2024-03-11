@@ -6,18 +6,24 @@
 #    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/03/11 09:15:25 by hdupire          ###   ########.fr        #
+#    Updated: 2024/03/11 13:01:18 by hdupire          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME=./miniweb
 
 SRCS_HTTPServ=HTTPServ.cpp
+
 SRCS_HTTPConfig=HTTPConfig.cpp \
 				HTTPConfig_config.cpp \
 				HTTPConfig_parser.cpp \
+				HTTPConfig_setters.cpp \
+				HTTPConfig_utils.cpp \
 				HTTPConfig_printer.cpp
-SRCS_HTTPProt=HTTPProtocol_request.cpp\
+
+SRCS_HTTPProt=HTTPProtocol_request.cpp \
+			  HTTPProtocol_response.cpp \
+			  HTTPProtocol_methods.cpp \
 			  HTTPProtocol_printer.cpp
 
 SRCS_CLASSES=$(addprefix classes/, \

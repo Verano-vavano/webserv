@@ -1,5 +1,6 @@
 #include "HTTPProtocol.hpp"
 
+// Used for debug purposes
 void	HTTPProtocol::print_request(t_request &req) {
 	std::cout << "REQUEST SENT" << std::endl;
 	std::cout << "Method = " << req.method << std::endl;

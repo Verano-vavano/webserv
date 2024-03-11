@@ -61,7 +61,8 @@ void HTTPServ::CreateSocket(void) {
 	}
 
 	HTTPProtocol	Http;
-	t_request		req;
+	t_response_creator	r;
+	std::string		formated_res;
 	for (int i = 0; i < MAX_EVENTS; ++i){
 		std::cout << "Entering loop " << i << std::endl;
 		std::cout << "fd is " << events[i].data.fd << std::endl;
@@ -76,11 +77,13 @@ void HTTPServ::CreateSocket(void) {
 				std::cout << "Could not read from socket" << std::endl;
 			}
 			std::string lol(buffer);
-			Http.understand_request(req, lol);
-			Http.print_request(req);
+			Http.understand_request(r.req, lol);
+			Http.print_request(r.req);
 			std::cout << "got: " << buffer << std::endl;
-			const char *res = "HTTP/1.1 200 OK\n\n<h1>salut mdr</h1>";
-			send(clientSocket, res, strlen(res), 0);
+			Http.create_response(r);
+			formated_res = Http.format_response(r.res);
+			std::cout << formated_res;
+			send(clientSocket, formated_res.c_str(), formated_res.size(), 0);
 			close(clientSocket);
 		}
 	}

@@ -107,7 +107,6 @@ class HTTPConfig {
 		void	set_default_config(void);
 
 
-
         // CONFIG PARSER
 
         typedef struct {

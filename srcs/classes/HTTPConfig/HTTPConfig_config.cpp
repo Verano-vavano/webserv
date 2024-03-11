@@ -15,6 +15,8 @@ int HTTPConfig::configurate(std::string const path, std::string const config_fil
 
     this->path = path;
 
+	// We check if the first line is 'DEFINE SPACE_MODE;'
+	// It enables space mode, so it uses getline instead of read
 	std::string	first_line;
 	{
 		std::ifstream    config(config_file.c_str());
@@ -29,6 +31,7 @@ int HTTPConfig::configurate(std::string const path, std::string const config_fil
 
 	bool	space_mode = (first_line == "DEFINE SPACE_MODE;");
 
+	// We open the file again to move the cursor at the start
     std::ifstream    new_config(config_file.c_str());
     if (!new_config || !new_config.good()) {
         std::cerr << "Not a valid config file (does not exist or is not readble)" << std::endl;

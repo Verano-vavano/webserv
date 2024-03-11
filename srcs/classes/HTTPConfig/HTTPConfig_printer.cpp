@@ -1,5 +1,6 @@
 #include "HTTPConfig.hpp"
 
+// Debug purposes
 void	HTTPConfig::print_config(void) const {
 	this->print_server(default_config);
 	for (std::vector<t_config>::const_iterator it = this->servers.begin();
@@ -10,6 +11,7 @@ void	HTTPConfig::print_config(void) const {
 	return ;
 }
 
+// For debug purposes
 void	HTTPConfig::print_server(t_config const &s) {
 	std::cout << "--SERVER--" << std::endl
 		<< "port = " << s.port << std::endl
@@ -50,4 +52,29 @@ void	HTTPConfig::print_server(t_config const &s) {
 		std::cout << "- " << it->first << " | " << it->second << std::endl;
 	}
 	return ;
+}
+
+
+// Warn and bitmask check
+bool	HTTPConfig::warning(std::string const message, unsigned long line, int mask) {
+	if (!(mask & O_SILENT)) {
+		std::cerr << "[WARNING] " << message;
+		if (line != 0) {
+			std::cerr << " [l." << line << "]";
+		}
+		std::cerr << std::endl;
+	}
+	return ((mask & O_WARNING_AS_ERROR) && (mask & O_ERROR_STOP));
+}
+
+// Err and bitmask check
+bool	HTTPConfig::error(std::string const message, unsigned long line, int mask) {
+	if (!(mask & O_SILENT)) {
+		std::cerr << "[ERROR] " << message;
+		if (line != 0) {
+			std::cerr << " [l." << line << "]";
+		}
+		std::cerr << std::endl;
+	}
+	return (mask & O_ERROR_STOP);
 }
