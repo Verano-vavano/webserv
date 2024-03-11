@@ -117,9 +117,9 @@ class HTTPConfig {
             unsigned long           line;
         }   t_parser;
 
-        bool	parse_infile(std::ifstream &f);
+        bool	parse_infile(std::ifstream &f, bool space_mode);
 
-        int understand_the_line(char *buffer, t_parser &opt);
+        int understand_the_line(std::string buffer, std::string & temp, t_parser &opt);
         int understand_the_cut(std::string & cut, t_parser &opt);
 
         int set_define(std::string & cut, t_parser &opt);
@@ -131,8 +131,9 @@ class HTTPConfig {
 
         static std::pair<char, int>     search_delim(std::string const buffer, t_parser &opt);
         static std::string              trim_buffer(char *buffer);
+        static std::string              trim_buffer(std::string const & buffer);
         static void                     split_cut(std::vector<std::string> &s, std::string const & cut);
-		static char*					skip_block(char *buffer, int start);
+		static void						skip_block(std::string & buffer, int start);
 		static bool						in(std::string const s, ...);
 		static long						translate_time(std::string arg);
 

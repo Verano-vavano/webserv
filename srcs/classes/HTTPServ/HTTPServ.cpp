@@ -14,7 +14,7 @@ HTTPServ::HTTPServ(void) { return ; }
 
 HTTPServ::HTTPServ(char **conf) {
 	std::cout << this->conf.configurate(conf[0], conf[1]) << std::endl;
-	//this->conf.print_config();
+	this->conf.print_config();
     return ;
 }
 
@@ -23,7 +23,8 @@ void HTTPServ::CreateSocket(void) {
 	//  SOCK_STREAM Provides sequenced, reliable, two-way, connection-based byte streams.
 	//  0 is the protocol, auto to tcp
 	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 0, sizeof(int));
+	int	a = 1;
+	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &a, sizeof(a));
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
 	// htons = machine into to network byte order int

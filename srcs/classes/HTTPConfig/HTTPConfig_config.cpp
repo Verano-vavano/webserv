@@ -15,13 +15,29 @@ int HTTPConfig::configurate(std::string const path, std::string const config_fil
 
     this->path = path;
 
-    std::ifstream    config(config_file.c_str());
-    if (!config || !config.good()) {
+	std::string	first_line;
+	{
+		std::ifstream    config(config_file.c_str());
+		if (!config || !config.good()) {
+			std::cerr << "Not a valid config file (does not exist or is not readble)" << std::endl;
+			return (1);
+		}
+
+		std::getline(config, first_line);
+		first_line = this->trim_buffer(first_line);
+	}
+
+	bool	space_mode = (first_line == "DEFINE SPACE_MODE;");
+
+	std::cout << "SPACE MODE : " << space_mode << std::endl;
+
+    std::ifstream    new_config(config_file.c_str());
+    if (!new_config || !new_config.good()) {
         std::cerr << "Not a valid config file (does not exist or is not readble)" << std::endl;
         return (1);
     }
 
-    return (this->parse_infile(config));
+    return (this->parse_infile(new_config, space_mode));
 }
 
 void	HTTPConfig::set_default_config(void) {

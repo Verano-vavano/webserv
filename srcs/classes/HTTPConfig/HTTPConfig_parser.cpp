@@ -1,20 +1,32 @@
 #include "HTTPConfig.hpp"
 
-bool	HTTPConfig::parse_infile(std::ifstream &f) {
+bool	HTTPConfig::parse_infile(std::ifstream &f, bool space_mode) {
 	char                    buffer[BUFFER_SIZE];
+	std::string				line;
+	std::string				temp = "";
 	std::streamsize         bytes;
 	HTTPConfig::t_parser    opt;
 
-	opt.options = 0;
+	if (space_mode) { std::getline(f, line); } // getline dans le vide pour oublier premiere ligne
+	opt.options = space_mode * O_SPACE_MODE;
 	opt.line = 1;
 	opt.in_http = false;
 	opt.current_serv = &(this->default_config);
+	bytes = BUFFER_SIZE - 1;
 	do {
-		f.read(buffer, BUFFER_SIZE - 1);
-		bytes = f.gcount();
-		buffer[bytes] = '\0';
-		if (this->understand_the_line(buffer, opt) == 1)
-			return (1);
+		if (opt.options & O_SPACE_MODE) {
+			std::getline(f, line);
+			opt.line++;
+			if (f.eof()) { break ; }
+			if (this->understand_the_line(line, temp, opt) == 1)
+				return (1);
+		} else {
+			f.read(buffer, BUFFER_SIZE - 1);
+			bytes = f.gcount();
+			buffer[bytes] = '\0';
+			if (this->understand_the_line(buffer, temp, opt) == 1)
+				return (1);
+		}
 	} while (bytes == BUFFER_SIZE - 1);
 
 	if (!opt.blocks.empty() && HTTPConfig::warning("Blocks not closed", 0, opt.options)) { return (1); }
@@ -24,22 +36,38 @@ bool	HTTPConfig::parse_infile(std::ifstream &f) {
 // -1 = Continue
 // 0 = OK
 // 1 = Error parsing && ERROR_STOP on
-int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
+int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTPConfig::t_parser &opt) {
+	std::string				cmd;
 	std::pair<char, int>    delim;
 	std::string             cut;
 	int						ret;
 
+	temp = "";
 	while (true) {
 		delim = this->search_delim(buffer, opt);
-		if (!delim.first)
+		if (!delim.first && !(opt.options & O_SPACE_MODE)) {
+			// if no delim, then we haven't read enough
+			std::cout << "Early exit at : " << buffer << std::endl;
+			temp = buffer;
 			return (-1);
-		buffer[delim.second] = '\0';
-		cut = this->trim_buffer(buffer);
+		}
+		else if (!delim.first) {
+			// we in space mode
+			delim.first = '\n';
+			delim.second = buffer.size();
+			cmd = buffer;
+		}
+		else
+			cmd = buffer.substr(0, delim.second);
+		cut = this->trim_buffer(cmd);
+		std::cout << "CUT: " << cut << std::endl;
+		if (delim.first != '}' && cut.empty())
+			return (-1);
 
 		// DELIM is end of block
 		if (delim.first == '}') {
 			if (opt.blocks.size() == 0 && HTTPConfig::error("Extra '}'", opt.line, opt.options)) { return (1); }
-			else if (cut != "" && HTTPConfig::error("Missing separator", opt.line, opt.options)) { return (1); }
+			//else if (cut != "" && HTTPConfig::error("Missing separator", opt.line, opt.options)) { return (1); }
 			else {
 				if (opt.blocks.top() == "server") {
 					opt.current_serv = &(this->default_config);
@@ -54,7 +82,7 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 		else if (delim.first == '{') {
 			ret = this->set_block(cut, opt);
 			if (ret == 2) {
-				buffer = this->skip_block(buffer, delim.second);
+				this->skip_block(buffer, delim.second);
 				continue ;
 			}
 			opt.blocks.push(cut);
@@ -62,7 +90,7 @@ int HTTPConfig::understand_the_line(char *buffer, HTTPConfig::t_parser &opt) {
 
 		// DELIM is ; or \n (SPACE_MODE)
 		else { ret = understand_the_cut(cut, opt); }
-		buffer += delim.second + 1;
+		buffer = buffer.substr(delim.second + 1 - (delim.first == '\n'));
 		if (ret == 1)
 			return (ret);
 	}
@@ -76,7 +104,7 @@ int	HTTPConfig::understand_the_cut(std::string & cut, HTTPConfig::t_parser &opt)
 	if (cut.substr(0, 6) == "DEFINE") {
 		return (this->set_define(cut, opt));
 	}
-	else if (opt.blocks.top() == "types")
+	else if (opt.blocks.size() != 0 && opt.blocks.top() == "types")
 		return (this->set_type(cut, opt));
 	else {
 		if (!opt.in_http && HTTPConfig::warning("Not DEFINE not in a HTTP block", opt.line, opt.options)) { return (1); }
@@ -146,7 +174,7 @@ int	HTTPConfig::set_define(std::string & cut, HTTPConfig::t_parser &opt) {
 	std::string	method = cut.substr(start);
 
 	if (method == "SPACE_MODE")
-		opt.options |= O_SPACE_MODE;
+		return (HTTPConfig::warning("Misplaced define", opt.line, opt.options));
 	else if (method == "ERROR_STOP")
 		opt.options |= O_ERROR_STOP;
 	else if (method == "WARNING_AS_ERROR")
@@ -349,6 +377,15 @@ std::string HTTPConfig::trim_buffer(char *buffer) {
 	return (buffer + start);
 }
 
+std::string HTTPConfig::trim_buffer(std::string const & buffer) {
+	int start = 0;
+	int end = buffer.size() - 1;
+
+	for (; buffer[start] && isspace(buffer[start]); start++) {}
+	for (; end > 0 && isspace(buffer[end]); end--) {}
+	return (buffer.substr(start, end - start + 1));
+}
+
 
 void	HTTPConfig::split_cut(std::vector<std::string> &s, std::string const & cut) {
 	size_t	i = 0;
@@ -363,10 +400,9 @@ void	HTTPConfig::split_cut(std::vector<std::string> &s, std::string const & cut)
 	return ;
 }
 
-char	*HTTPConfig::skip_block(char *buffer, int start) {
+void	HTTPConfig::skip_block(std::string & buffer, int start) {
 	for (; buffer[start] != '}'; start++) {}
-	buffer += start + 1;
-	return (buffer);
+	buffer.substr(start + 1);
 }
 
 bool	HTTPConfig::in(std::string const s, ...) {
