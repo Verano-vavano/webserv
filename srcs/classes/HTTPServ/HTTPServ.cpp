@@ -1,4 +1,5 @@
 #include "HTTPServ.hpp"
+#include "HTTPProtocol.hpp"
 #include <asm-generic/socket.h>
 #include <cstdio>
 #include <cstdlib>
@@ -13,7 +14,7 @@ HTTPServ::HTTPServ(void) { return ; }
 
 HTTPServ::HTTPServ(char **conf) {
 	std::cout << this->conf.configurate(conf[0], conf[1]) << std::endl;
-	this->conf.print_config();
+	//this->conf.print_config();
     return ;
 }
 
@@ -22,7 +23,7 @@ void HTTPServ::CreateSocket(void) {
 	//  SOCK_STREAM Provides sequenced, reliable, two-way, connection-based byte streams.
 	//  0 is the protocol, auto to tcp
 	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, 0, sizeof(int));
+	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 0, sizeof(int));
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
 	// htons = machine into to network byte order int
@@ -53,6 +54,9 @@ void HTTPServ::CreateSocket(void) {
 		perror("NFDS FAILURE");
 		exit(EXIT_FAILURE);
 	}
+
+	HTTPProtocol	Http;
+	t_request		req;
 	for (int i = 0; i < MAX_EVENTS; ++i){
 		std::cout << "Entering loop " << i << std::endl;
 		std::cout << "fd is " << events[i].data.fd << std::endl;
@@ -66,6 +70,9 @@ void HTTPServ::CreateSocket(void) {
 			if (recv(clientSocket, buffer, sizeof(buffer), 0) == -1) {
 				std::cout << "Could not read from socket" << std::endl;
 			}
+			std::string lol(buffer);
+			Http.understand_request(req, lol);
+			Http.print_request(req);
 			std::cout << "got: " << buffer << std::endl;
 			const char *res = "HTTP/1.1 200 OK\n\n<h1>salut mdr</h1>";
 			send(clientSocket, res, strlen(res), 0);

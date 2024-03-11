@@ -32,6 +32,7 @@ class HTTPProtocol {
 		~HTTPProtocol(void) { return ; }
 
 		void	understand_request(t_request &req, std::string &s);
+		void	print_request(t_request &req);
 		void	create_response(t_response &res, t_request &req);
 
 	private:

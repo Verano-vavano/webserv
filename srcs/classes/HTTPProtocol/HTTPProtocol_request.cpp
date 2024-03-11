@@ -39,6 +39,7 @@ void    HTTPProtocol::understand_request(t_request &req, std::string &s) {
         sub_sub_index++;
         sub_index = s.find("\r\n", sub_index);
         new_el.second = HTTPProtocol::split_header_val(s.substr(sub_sub_index, sub_index - sub_sub_index));
+		req.headers.insert(new_el);
         sub_index += 2;
     }
 
@@ -66,7 +67,7 @@ std::vector<std::string>    HTTPProtocol::split_header_val(std::string val) {
     while (start < val.size()) {
         next = val.find(',', start);
         end = val.find_last_not_of(' ', next);
-        ret.push_back(val.substr(start, end - start + (val[next] != ',')));
+        ret.push_back(val.substr(start, end - start + 1));
         if (next >= val.size())
             break ;
         start = val.find_first_not_of(' ', next + 1);
