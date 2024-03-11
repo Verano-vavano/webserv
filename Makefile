@@ -6,7 +6,7 @@
 #    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/03/11 14:55:08 by hdupire          ###   ########.fr        #
+#    Updated: 2024/03/11 15:10:38 by hdupire          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,7 @@ SRCS_HTTPConfig=HTTPConfig.cpp \
 SRCS_HTTPProt=HTTPProtocol_request.cpp \
 			  HTTPProtocol_response.cpp \
 			  HTTPProtocol_methods.cpp \
+			  HTTPProtocol_methods_utils.cpp \
 			  HTTPProtocol_response_headers.cpp \
 			  HTTPProtocol_printer.cpp
 

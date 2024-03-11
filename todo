@@ -1,2 +1,3 @@
 REGEX in nginx (crazy crazy, could be implemented in our shell lmao) (location ~ \.(gif|jpg|png)$)
 types, headers et locations copy config
+root pour diriger par defaut

@@ -13,7 +13,7 @@
 # include <limits>
 # include <stdarg.h>
 
-# define BUFFER_SIZE 25
+# define BUFFER_SIZE 4096
 
 # define O_SPACE_MODE (1 << 0)
 # define O_ERROR_STOP (1 << 1)
@@ -100,12 +100,10 @@ class HTTPConfig {
 
         t_config                default_config;
         std::vector<t_config>   servers;
+        std::string             path;
 
     private:
         // CONFIG OPTIONS
-
-        std::string             path;
-
 		void	set_default_config(void);
 
 

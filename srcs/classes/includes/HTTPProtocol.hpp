@@ -52,7 +52,7 @@ class HTTPProtocol {
 		void	handle_method(t_response_creator &r);
 		void	handle_get(t_response_creator &r);
 
-		std::string	get_dir_uri(std::string &uri, HTTPConfig::t_config *conf, int *err);
+		HTTPConfig::t_location	const get_dir_uri(std::string &uri, HTTPConfig::t_config *conf);
 
 		void	handle_error_code(t_response_creator &r);
 

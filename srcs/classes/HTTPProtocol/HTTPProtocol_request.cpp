@@ -49,8 +49,6 @@ int    HTTPProtocol::understand_request(t_request &req, std::string &s) {
      * std::cout << "BODY = " << req.body << std::endl;
      */
 
-    if (req.uri == "/")
-        req.uri = "/lol.html";
     return (200);
 }
 
