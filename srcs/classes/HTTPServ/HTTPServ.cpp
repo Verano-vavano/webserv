@@ -13,8 +13,7 @@
 HTTPServ::HTTPServ(void) { return ; }
 
 HTTPServ::HTTPServ(char **conf) {
-	std::cout << this->conf.configurate(conf[0], conf[1]) << std::endl;
-	this->conf.print_config();
+	this->conf.set = !(this->conf.configurate(conf[0], conf[1]));
     return ;
 }
 
@@ -22,6 +21,11 @@ void HTTPServ::CreateSocket(void) {
 	// AF_INET = ipv4
 	//  SOCK_STREAM Provides sequenced, reliable, two-way, connection-based byte streams.
 	//  0 is the protocol, auto to tcp
+	if (!this->conf.set) {
+		std::cerr << "Configuration not set" << std::endl;
+		return ;
+	}
+
 	int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	int	a = 1;
 	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &a, sizeof(a));

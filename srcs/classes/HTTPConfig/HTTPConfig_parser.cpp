@@ -52,7 +52,6 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 		delim = this->search_delim(buffer, opt);
 		if (!delim.first && !(opt.options & O_SPACE_MODE)) {
 			// if no delim, then we haven't read enough
-			std::cout << "Early exit at : " << buffer << std::endl;
 			temp = buffer;
 			return (-1);
 		}
@@ -65,7 +64,6 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 		else
 			cmd = buffer.substr(0, delim.second);
 		cut = this->trim_buffer(cmd);
-		std::cout << "CUT: " << cut << std::endl;
 		if ((opt.options & O_SPACE_MODE) && delim.first != '}' && cut.empty())
 			return (-1);
 
@@ -245,28 +243,30 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	// 1 NAND 0 = 1, 0 NAND 0 = 1 so if B = 0, A is true
 	else if (this->in(method, "absolute_redirect", "chunked_transfer_encoding",
 			"ignore_invalid_headers", "log_not_found", "log_subrequest", NULL)) {
-		bool	on;
+		bool	on, easy;
+		easy = false;
 		if (split.size() == 1) { on = (opt.options & O_TOGGLE_BOOL); }
 		else {
 			if (split.size() > 2 && this->warning("More than one argument to boolean method " + method, opt.line, opt.options)) { return (1); }
+			easy = true;
 			on = (split[1] == "on");
 		}
 
 		switch (method[0]) { // ugly switch
 			case 'a':
-				serv->absolute_redirect = !(serv->absolute_redirect & on);
+				serv->absolute_redirect = (easy ? on : !(serv->absolute_redirect & on));
 				break ;
 			case 'c':
-				serv->chunked_transfer_encoding = !(serv->chunked_transfer_encoding & on);
+				serv->chunked_transfer_encoding = (easy ? on : !(serv->chunked_transfer_encoding & on));
 				break ;
 			case 'i':
-				serv->ignore_invalid_headers = !(serv->ignore_invalid_headers & on);
+				serv->ignore_invalid_headers = (easy ? on : !(serv->ignore_invalid_headers & on));
 				break ;
 			default: // l
 				if (method == "log_not_found")
-					serv->log_not_found = !(serv->log_not_found & on);
+					serv->log_not_found = (easy ? on : !(serv->log_not_found & on));
 				else
-					serv->log_subrequest = !(serv->log_subrequest & on);
+					serv->log_subrequest = (easy ? on : !(serv->log_subrequest & on));
 				break ;
 		}
 	}
