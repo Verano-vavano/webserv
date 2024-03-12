@@ -51,5 +51,6 @@ std::string	const HTTPProtocol::get_mime_type(HTTPConfig::t_config *config, std:
 	else if (file_type == "html") { return (HTML); }
 	else if (file_type == "css") { return (CSS); }
 	else if (file_type == "js") { return (JS); }
+	else if (file_type == "webp") { return (WEBP); }
 	return (config->default_type);
 }

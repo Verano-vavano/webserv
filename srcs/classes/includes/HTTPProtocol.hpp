@@ -13,6 +13,7 @@
 # define HTML	"text/html"
 # define CSS	"text/css"
 # define JS		"application/javascript"
+# define WEBP	"image/webp"
 
 # define CRLF "\r\n"
 

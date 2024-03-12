@@ -17,8 +17,8 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 
 	if (found) {
 		std::string		full_uri = this->get_complete_uri(it->uri, r.conf);
-		std::cout << "URI = [" << full_uri << "]" << std::endl;
-		std::ifstream	file(r.conf->path + full_uri.c_str());
+		std::cout << "URI = [" << r.conf->path + full_uri << "]" << std::endl;
+		std::ifstream	file((r.conf->path + full_uri).c_str());
 		if (file && file.good()) {
 			std::cout << "INSIDE" << std::endl;
 			if (it->response != -1)

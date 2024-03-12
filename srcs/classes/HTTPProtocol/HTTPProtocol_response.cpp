@@ -2,6 +2,9 @@
 
 void	HTTPProtocol::create_response(t_response_creator &rc) {
 	rc.err_code = 200;
+	rc.res.status_line = "";
+	rc.res.headers = "";
+	rc.res.body = "";
 
 	this->handle_method(rc);
 	this->handle_error_code(rc);
