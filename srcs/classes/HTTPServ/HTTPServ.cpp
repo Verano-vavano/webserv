@@ -69,7 +69,7 @@ void HTTPServ::socketsInit(void) {
 			epoll_events.push_back(epollTheSocket(sockets_fds.back(), epoll_fd));
 		}
 	}
-	for (;;) {
+	while (true) {
 		// init temp struct with fds of -1
 		epoll_event events[epoll_events.size()];
 		for (ulong i = 0; i < epoll_events.size(); i++)
