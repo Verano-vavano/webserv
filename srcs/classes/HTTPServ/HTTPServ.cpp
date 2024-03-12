@@ -52,6 +52,9 @@ epoll_event epollTheSocket(int socket_fd, int epoll_fd) {
 }
 
 void HTTPServ::socketsInit(void) {
+	HTTPProtocol Http;
+	t_response_creator r;
+	r.conf = &(this->conf.default_config);
 	int i = 0;
 	std::vector<HTTPConfig::t_config>::iterator servers_it = this->conf.servers.begin();
 	int epoll_fd = epoll_create(1);
@@ -66,34 +69,42 @@ void HTTPServ::socketsInit(void) {
 			epoll_events.push_back(epollTheSocket(sockets_fds.back(), epoll_fd));
 		}
 	}
-	for (int l = 0; l < 4; l++) {
-		// std::cout << "--- boucle numero " << l << " ---" <<  std::endl;
-		// for (ulong i = 0; i < epoll_events.size(); i++)
-		// 	events[i].data.fd = 0;
-		// std::cout << "struct before boucle" << std::endl;
-		// for (ulong i = 0; i < epoll_events.size(); i++)
-		// 	std::cout << "\telement " << i << " fd = " << events[i].data.fd << std::endl;
-		// std::vector<epoll_event> epoll_events_cp = epoll_events;
-		// std::vector<epoll_event>::iterator epoll_events_cp_it = epoll_events_cp.begin();
+	for (;;) {
+		// init temp struct with fds of -1
 		epoll_event events[epoll_events.size()];
+		for (ulong i = 0; i < epoll_events.size(); i++)
+			events[i].data.fd = -1;
+
 		epoll_wait(epoll_fd, events, epoll_events.size(), -1);
 
-		// iterating on fds to find matching socket
-		for (ulong i = 0; i < epoll_events.size() && events[i].data.fd != 0; i++){
-			// std::cout << "events fd is " << events[i].data.fd << std::endl;
-			std::vector<int>::iterator fds_it =	sockets_fds.begin();
-			for (; fds_it != sockets_fds.end(); fds_it++) {
-				if (*fds_it == events[i].data.fd) {
-					std::cout << "Activity is on fd " << *fds_it << std::endl;
-					// epoll_ctl(epoll_fd, EPOLL_CTL_DEL, *fds_it, &*epoll_events.begin());
-					break ;
+		// iteration over events
+		for (ulong i = 0; i < epoll_events.size() && events[i].data.fd != -1; i++){
+
+			std::vector<int>::iterator sockets_fds_it =	sockets_fds.begin();
+
+			// iteration over sockets_fds to find matching activity.
+			for (; sockets_fds_it != sockets_fds.end(); sockets_fds_it++) {
+				if (*sockets_fds_it == events[i].data.fd) {
+					std::cout << "fd " << *sockets_fds_it << " is activated" << std::endl;
+					int clientSocket = accept(*sockets_fds_it, 0, 0);
+					// sockets_fds.push_back(clientSocket);
+					// epoll_events.push_back(epollTheSocket(sockets_fds.back(), epoll_fd));
+					char buffer[1024] = { 0 };
+					if (recv(clientSocket, buffer, sizeof(buffer), 0) == -1) {
+						std::cout << "Could not read from client connection" << std::endl;
+					} else {
+						std::string mdr(buffer);
+						Http.understand_request(r.req, mdr);
+						Http.print_request(r.req);
+						Http.create_response(r);
+						std::string formated_res = Http.format_response(r.res);
+						send(clientSocket, formated_res.c_str(), formated_res.size(), 0);
+						close(clientSocket);
+						break ;
+					}
 				}
 			}
 		}
-		std::cout << "struct after boucle" << std::endl;
-		for (ulong i = 0; i < epoll_events.size(); i++)
-			std::cout << "\telement " << i << " fd = " << events[i].data.fd << std::endl;
-		std::cout << std::endl << std::endl;
 	}
 
 	// std::cout << "after epoll wait" << std::endl;
