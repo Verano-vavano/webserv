@@ -21,7 +21,7 @@ class HTTPServ {
     private:
         HTTPConfig  conf;
 		std::vector<int> sockets_fds;
-	std::vector<epoll_event> epoll_events;
+		std::vector<epoll_event> epoll_events;
 };
 
 #endif /* HTTPSERV_HPP */

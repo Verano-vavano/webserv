@@ -27,7 +27,6 @@ int socketOpen(HTTPConfig::t_config config) {
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
 	// htons = machine into to network byte order int
-	// std::cout << "\t conf port is " << config.port << std::endl;
 	serverAddr.sin_port = htons(config.port);
 	serverAddr.sin_addr.s_addr = INADDR_ANY;
 	if (bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
@@ -54,21 +53,26 @@ epoll_event epollTheSocket(int socket_fd, int epoll_fd) {
 void HTTPServ::socketsInit(void) {
 	int i = 0;
 	std::vector<HTTPConfig::t_config>::iterator servers_it = this->conf.servers.begin();
-	std::vector<epoll_event> events;
 	int epoll_fd = epoll_create(1);
 	if (epoll_fd == -1) {
 		perror("epoll_create");
 		exit(EXIT_FAILURE);
 	}
+	struct epoll_event ev, ev_big[10];
 	for (; servers_it != this->conf.servers.end(); servers_it++, i++) {
 		sockets_fds.push_back(socketOpen(*servers_it));
-		if (*sockets_fds.end() != -1)
-			events.push_back(epollTheSocket(*sockets_fds.end(), epoll_fd));
-		std::cout << "port " << servers_it->port << " bound" << std::endl;
+		if (sockets_fds.back() != -1) {
+			ev = epollTheSocket(sockets_fds.back(), epoll_fd);
+			epoll_events.push_back(ev);
+			ev_big[i] = ev;
+		}
 	}
-	int wait_fds = epoll_wait(epoll_fd, &*events.begin(), MAX_EVENTS, -1);
-	std::cout << "after wait" << std::endl;
-	(void)wait_fds;
+	int lol = epoll_wait(epoll_fd, ev_big, 10, -1);
+	if (lol == -1) {
+		perror("Epoll_wait failure");
+		exit(EXIT_FAILURE);
+	}
+	std::cout << "after epoll wait" << std::endl;
 	// std::cout << "after epoll wait" << std::endl;
 	// if (wait_fds == -1) {
 	// 	perror("NFDS FAILURE");
