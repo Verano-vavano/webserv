@@ -1,4 +1,5 @@
 #include "HTTPServ.hpp"
+#include <unistd.h>
 
 int	main(int argc, char **argv) {
     if (argc != 2) {
@@ -7,7 +8,9 @@ int	main(int argc, char **argv) {
     }
 
     HTTPServ    Serv(argv);
-	Serv.CreateSocket();
+	Serv.socketsInit();
+	Serv.socketsClose();
+	// std::cout << "Before return" << std::endl;
 	return (0);
 }
 

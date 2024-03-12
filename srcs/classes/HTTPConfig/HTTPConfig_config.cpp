@@ -1,12 +1,12 @@
 #include "HTTPConfig.hpp"
 
-int HTTPConfig::configurate(std::string const path, std::string const config_file) {
+void HTTPConfig::configurate(std::string const path, std::string const config_file) {
     if (config_file.find(".conf") == std::string::npos) {
         std::string choice;
         std::cout << "Not a .conf file. Do you wish to continue ? (Y/N) > ";
         std::getline(std::cin, choice);
         if (choice != "Y" && choice != "y")
-            return (1);
+            exit (0);
         else
             std::cout << "Proceeding..." << std::endl;
     }
@@ -22,7 +22,7 @@ int HTTPConfig::configurate(std::string const path, std::string const config_fil
 		std::ifstream    config(config_file.c_str());
 		if (!config || !config.good()) {
 			std::cerr << "Not a valid config file (does not exist or is not readble)" << std::endl;
-			return (1);
+			exit (EXIT_FAILURE);
 		}
 
 		std::getline(config, first_line);
@@ -35,10 +35,13 @@ int HTTPConfig::configurate(std::string const path, std::string const config_fil
     std::ifstream    new_config(config_file.c_str());
     if (!new_config || !new_config.good()) {
         std::cerr << "Not a valid config file (does not exist or is not readble)" << std::endl;
-        return (1);
+        exit(EXIT_FAILURE) ;
     }
 
-    return (this->parse_infile(new_config, space_mode));
+    this->parse_infile(new_config, space_mode);
+	if (this->servers.empty()) {
+		this->servers.push_back(this->default_config);
+	}
 }
 
 void	HTTPConfig::set_default_config(void) {
