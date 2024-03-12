@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h> // sockaddr_in
 #include <fcntl.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <sys/epoll.h>
 #include <vector>
@@ -58,21 +59,43 @@ void HTTPServ::socketsInit(void) {
 		perror("epoll_create");
 		exit(EXIT_FAILURE);
 	}
-	struct epoll_event ev, ev_big[10];
 	for (; servers_it != this->conf.servers.end(); servers_it++, i++) {
 		sockets_fds.push_back(socketOpen(*servers_it));
+		std::cout << i << " port " << servers_it->port << " with fd " << sockets_fds.back() << std::endl;
 		if (sockets_fds.back() != -1) {
-			ev = epollTheSocket(sockets_fds.back(), epoll_fd);
-			epoll_events.push_back(ev);
-			ev_big[i] = ev;
+			epoll_events.push_back(epollTheSocket(sockets_fds.back(), epoll_fd));
 		}
 	}
-	int lol = epoll_wait(epoll_fd, ev_big, 10, -1);
-	if (lol == -1) {
-		perror("Epoll_wait failure");
-		exit(EXIT_FAILURE);
+	for (int l = 0; l < 4; l++) {
+		// std::cout << "--- boucle numero " << l << " ---" <<  std::endl;
+		// for (ulong i = 0; i < epoll_events.size(); i++)
+		// 	events[i].data.fd = 0;
+		// std::cout << "struct before boucle" << std::endl;
+		// for (ulong i = 0; i < epoll_events.size(); i++)
+		// 	std::cout << "\telement " << i << " fd = " << events[i].data.fd << std::endl;
+		// std::vector<epoll_event> epoll_events_cp = epoll_events;
+		// std::vector<epoll_event>::iterator epoll_events_cp_it = epoll_events_cp.begin();
+		epoll_event events[epoll_events.size()];
+		epoll_wait(epoll_fd, events, epoll_events.size(), -1);
+
+		// iterating on fds to find matching socket
+		for (ulong i = 0; i < epoll_events.size() && events[i].data.fd != 0; i++){
+			// std::cout << "events fd is " << events[i].data.fd << std::endl;
+			std::vector<int>::iterator fds_it =	sockets_fds.begin();
+			for (; fds_it != sockets_fds.end(); fds_it++) {
+				if (*fds_it == events[i].data.fd) {
+					std::cout << "Activity is on fd " << *fds_it << std::endl;
+					// epoll_ctl(epoll_fd, EPOLL_CTL_DEL, *fds_it, &*epoll_events.begin());
+					break ;
+				}
+			}
+		}
+		std::cout << "struct after boucle" << std::endl;
+		for (ulong i = 0; i < epoll_events.size(); i++)
+			std::cout << "\telement " << i << " fd = " << events[i].data.fd << std::endl;
+		std::cout << std::endl << std::endl;
 	}
-	std::cout << "after epoll wait" << std::endl;
+
 	// std::cout << "after epoll wait" << std::endl;
 	// if (wait_fds == -1) {
 	// 	perror("NFDS FAILURE");
