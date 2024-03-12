@@ -223,7 +223,7 @@ int	HTTPConfig::set_error_page(std::vector<std::string> &split, t_parser &opt) {
 
 	std::vector<int>	codes;
 	int	error_code;
-	for (; index < split.size() && split[index][0] != '='; index++) {
+	for (; index < split.size() - 1 && split[index][0] != '='; index++) {
 		error_code = std::atoi(split[index].c_str());
 		if ((error_code < 100 || error_code >= 600) && this->warning("Invalid error code", opt.line, opt.options)) { return (1); }
 		codes.push_back(error_code);
@@ -234,6 +234,8 @@ int	HTTPConfig::set_error_page(std::vector<std::string> &split, t_parser &opt) {
 		err.response = std::atoi(split[index].c_str() + 1);
 		index++;
 	}
+	else
+		err.response = -1;
 	err.uri = split[index];
 	serv->error_page.push_back(err);
 	return (0);

@@ -1,8 +1,10 @@
 #include "HTTPProtocol.hpp"
 
-void	set_headers(t_response_creator &r) {
+void	HTTPProtocol::set_headers(t_response_creator &r) {
 	std::string	&h = r.res.headers;
-	(void) h;
+	std::ostringstream	s;
 
-	//h += "Content-Type: " + get_mime_type(r.file_type) + CRLF;
+	h += "Content-Type: " + this->get_mime_type(r.conf, r.file_type) + CRLF;
+	s << r.res.body.size();
+	h += "Content-Length: " + s.str() + CRLF;
 }

@@ -4,9 +4,15 @@
 # include "HTTPConfig.hpp"
 
 # include <iostream>
+# include <sstream>
 # include <string>
 # include <vector>
 # include <map>
+
+// DEFAULT TYPES
+# define HTML	"text/html"
+# define CSS	"text/css"
+# define JS		"application/javascript"
 
 # define CRLF "\r\n"
 
@@ -49,14 +55,20 @@ class HTTPProtocol {
 	private:
 		std::vector<std::string>	split_header_val(std::string val);
 
+		static void	set_status_line(t_response_creator &r);
+
 		void	handle_method(t_response_creator &r);
 		void	handle_get(t_response_creator &r);
-
-		HTTPConfig::t_location	const get_dir_uri(std::string &uri, HTTPConfig::t_config *conf);
 
 		void	handle_error_code(t_response_creator &r);
 
 		void	set_headers(t_response_creator &r);
+
+		HTTPConfig::t_location	const get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
+		std::string				const get_complete_uri(std::string const &uri, HTTPConfig::t_config *conf);
+		std::string				const get_mime_type(HTTPConfig::t_config *config, std::string &file_type);
+
+		static void	read_entire_file(std::string &buf, std::ifstream &file);
 
 };
 

@@ -7,26 +7,14 @@ void	HTTPProtocol::handle_get(t_response_creator &r) {
 		return ;
 	}
 
-	HTTPConfig::t_location	dir = get_dir_uri(uri, r.conf);
-	std::string	file = uri.substr(uri.find_last_of("/"));
-	std::cout << file << std::endl;
+	std::string	file = get_complete_uri(uri, r.conf);
 
-	std::string	filewdir;
-	if (file == "/") {
-		filewdir = dir.replacement + "/" + dir.index;
-	}
-	else
-		filewdir = dir.replacement + "/" + uri;
+	r.file_type = file.substr(file.find_last_of(".") + 1);
 
-	std::ifstream	fs(filewdir.c_str());
+	std::ifstream	fs(file.c_str());
 	if (!fs || !fs.good()) {
 		r.err_code = 404;
 		return ;
 	}
-	char			buff[BUFFER_SIZE];
-	while (!fs.eof()) {
-		fs.read(buff, BUFFER_SIZE - 1);
-		buff[fs.gcount()] = 0;
-		r.res.body += buff;
-	}
+	this->read_entire_file(r.res.body, fs);
 }

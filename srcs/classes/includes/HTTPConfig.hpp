@@ -94,6 +94,7 @@ class HTTPConfig {
             t_type                  types;
             t_header                headers;
             std::vector<t_location> locations;
+			std::string				path;
 
 			struct s_config & operator=(struct s_config const & rhs);
         }   t_config;
