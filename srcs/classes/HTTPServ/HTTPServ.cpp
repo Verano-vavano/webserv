@@ -103,14 +103,21 @@ void HTTPServ::socketsInit(void) {
 							std::string mdr(buffer);
 							Http.understand_request(r.req, mdr);
 							Http.print_request(r.req);
+							std::cout << "After print_request" << std::endl;
+							// TODO create response qui bug!!
 							Http.create_response(r);
+							std::cout << "After create_response" << std::endl;
 							events[i].events = EPOLLOUT;
 							epoll_ctl(epoll_fd, EPOLL_CTL_MOD, *sockets_fds_it, &events[i]);
+							std::cout << "Modifying socket to EPOLL_OUT" << std::endl;
+							std::cout << Http.format_response(r.res);
 						} else {
 							std::cout << "ahh EPOLLOUT" << std::endl;
 							std::string formated_res = Http.format_response(r.res);
 							send(*sockets_fds_it, formated_res.c_str(), formated_res.size(), 0);
-							close(*sockets_fds_it);
+							events[i].events = EPOLLIN;
+							epoll_ctl(epoll_fd, EPOLL_CTL_MOD, *sockets_fds_it, &events[i]);
+							// close(*sockets_fds_it);
 						}
 					}
 				}
