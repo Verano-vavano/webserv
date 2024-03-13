@@ -56,8 +56,6 @@ class HTTPProtocol {
 	private:
 		std::vector<std::string>	split_header_val(std::string val);
 
-		static void	set_status_line(t_response_creator &r);
-
 		void	handle_method(t_response_creator &r);
 		void	handle_get(t_response_creator &r);
 
@@ -68,6 +66,7 @@ class HTTPProtocol {
 		HTTPConfig::t_location	const get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
 		std::string				const get_complete_uri(std::string const &uri, HTTPConfig::t_config *conf);
 		std::string				const get_mime_type(HTTPConfig::t_config *config, std::string &file_type);
+		static std::string		get_error_tag(int err_code);
 
 		static void	read_entire_file(std::string &buf, std::ifstream &file);
 

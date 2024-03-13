@@ -72,14 +72,12 @@ void HTTPServ::socketsInit(void) {
 	struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
 	while (true) {
-		std::cout << "Retour de boucle--" << std::endl;
 		// init temp struct with fds of -1
 		epoll_event events[epoll_events.size()];
 		for (ulong i = 0; i < epoll_events.size(); i++)
 			events[i].data.fd = -1;
 
 		epoll_wait(epoll_fd, events, epoll_events.size(), -1);
-		std::cout << "WAITED" << std::endl;
 
 		// iteration over events
 		for (ulong i = 0; i < epoll_events.size() && events[i].data.fd != -1; i++){
@@ -99,15 +97,16 @@ void HTTPServ::socketsInit(void) {
 					}
 					std::string mdr(buffer);
 					Http.understand_request(r.req, mdr);
-					Http.print_request(r.req);
-					// TODO create response qui bug!!
+					std::cout << "Got request" << std::endl;
+					//Http.print_request(r.req);
 					Http.create_response(r);
 					events[i].events = EPOLLOUT;
 					epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]);
 					Http.format_response(r.res);
 					//std::cout << Http.format_response(r.res);
-				} else {
+				} else if (events[i].events == EPOLLOUT) {
 					std::string formated_res = Http.format_response(r.res);
+					std::cout << formated_res << std::endl;
 					send(events[i].data.fd, formated_res.c_str(), formated_res.size(), 0);
 					events[i].events = EPOLLIN;
 					epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]);

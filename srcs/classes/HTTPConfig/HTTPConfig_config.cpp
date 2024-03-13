@@ -11,9 +11,8 @@ void HTTPConfig::configurate(std::string const path, std::string const config_fi
             std::cout << "Proceeding..." << std::endl;
     }
 
+    this->path = path.substr(0, path.find_last_of("/") + 1);
 	this->set_default_config();
-
-    this->path = path.substr(0, path.find_last_of("/"));
 
 	// We check if the first line is 'DEFINE SPACE_MODE;'
 	// It enables space mode, so it uses getline instead of read
@@ -87,6 +86,7 @@ HTTPConfig::t_config	& HTTPConfig::t_config::operator=(t_config const & rhs) {
 	this->keepalive_time = rhs.keepalive_time;
 	this->log_not_found = rhs.log_not_found;
 	this->log_subrequest = rhs.log_subrequest;
+	this->path = rhs.path;
 
 	HTTPConfig::t_error	tmp;
 	for (std::vector<HTTPConfig::t_error>::const_iterator it = rhs.error_page.begin();
