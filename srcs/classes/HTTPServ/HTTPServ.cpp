@@ -69,6 +69,8 @@ void HTTPServ::socketsInit(void) {
 			epoll_events.push_back(epollTheSocket(sockets_fds.back(), epoll_fd));
 		}
 	}
+	struct sockaddr_in client_addr;
+    socklen_t client_addr_len = sizeof(client_addr);
 	while (true) {
 		std::cout << "Retour de boucle--" << std::endl;
 		// init temp struct with fds of -1
@@ -77,49 +79,38 @@ void HTTPServ::socketsInit(void) {
 			events[i].data.fd = -1;
 
 		epoll_wait(epoll_fd, events, epoll_events.size(), -1);
+		std::cout << "WAITED" << std::endl;
 
 		// iteration over events
 		for (ulong i = 0; i < epoll_events.size() && events[i].data.fd != -1; i++){
 
-			std::vector<int>::iterator sockets_fds_it =	sockets_fds.begin();
-
 			// iteration over sockets_fds to find matching activity.
-			for (; sockets_fds_it != sockets_fds.end(); sockets_fds_it++) {
-				if (*sockets_fds_it == events[i].data.fd) {
-					if (clients_fds.find(*sockets_fds_it) == clients_fds.end()) {
-						std::cout << "ahhh mon fd est un serveur" << std::endl;
-						int newClientSocket = accept(*sockets_fds_it, 0, 0);
-						sockets_fds.push_back(newClientSocket);
-						clients_fds.insert(newClientSocket);
-						epoll_events.push_back(epollTheSocket(newClientSocket, epoll_fd));
-					} else {
-						if (events[i].events == EPOLLIN) {
-							std::cout << "ahh EPOLLIN" << std::endl;
-							char buffer[1024] = { 0 };
-							if (recv(*sockets_fds_it, buffer, sizeof(buffer), 0) == -1) {
-								std::cout << "Could not read from client connection" << std::endl;
-								exit(EXIT_FAILURE);
-							}
-							std::string mdr(buffer);
-							Http.understand_request(r.req, mdr);
-							Http.print_request(r.req);
-							std::cout << "After print_request" << std::endl;
-							// TODO create response qui bug!!
-							Http.create_response(r);
-							std::cout << "After create_response" << std::endl;
-							events[i].events = EPOLLOUT;
-							epoll_ctl(epoll_fd, EPOLL_CTL_MOD, *sockets_fds_it, &events[i]);
-							std::cout << "Modifying socket to EPOLL_OUT" << std::endl;
-							std::cout << Http.format_response(r.res);
-						} else {
-							std::cout << "ahh EPOLLOUT" << std::endl;
-							std::string formated_res = Http.format_response(r.res);
-							send(*sockets_fds_it, formated_res.c_str(), formated_res.size(), 0);
-							events[i].events = EPOLLIN;
-							epoll_ctl(epoll_fd, EPOLL_CTL_MOD, *sockets_fds_it, &events[i]);
-							// close(*sockets_fds_it);
-						}
+			if (clients_fds.find(events[i].data.fd) == clients_fds.end()) {
+				int newClientSocket = accept(events[i].data.fd, (struct sockaddr*)&client_addr, &client_addr_len);
+				sockets_fds.push_back(newClientSocket);
+				clients_fds.insert(newClientSocket);
+				epoll_events.push_back(epollTheSocket(newClientSocket, epoll_fd));
+			} else {
+				if (events[i].events == EPOLLIN) {
+					char buffer[1024] = { 0 };
+					if (recv(events[i].data.fd, buffer, sizeof(buffer), 0) == -1) {
+						std::cout << "Could not read from client connection" << std::endl;
+						exit(EXIT_FAILURE);
 					}
+					std::string mdr(buffer);
+					Http.understand_request(r.req, mdr);
+					Http.print_request(r.req);
+					// TODO create response qui bug!!
+					Http.create_response(r);
+					events[i].events = EPOLLOUT;
+					epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]);
+					std::cout << Http.format_response(r.res);
+				} else {
+					std::string formated_res = Http.format_response(r.res);
+					send(events[i].data.fd, formated_res.c_str(), formated_res.size(), 0);
+					events[i].events = EPOLLIN;
+					epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]);
+					// close(*sockets_fds_it);
 				}
 			}
 		}

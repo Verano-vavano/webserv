@@ -7,23 +7,15 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 	rc.res.headers = "";
 	rc.res.body = "";
 
-	std::cout << "Before handle_method" << std::endl;
 	this->handle_method(rc);
-	std::cout << "After handle_method" << std::endl;
 	this->handle_error_code(rc);
-	std::cout << "After handle_error_code" << std::endl;
 	this->set_headers(rc);
-	std::cout << "After set_headers" << std::endl;
 	this->set_status_line(rc);
-	std::cout << "After set_status_line" << std::endl;
 }
 
 void	HTTPProtocol::handle_method(t_response_creator &r) {
-	std::cout << "Into handle_method" << std::endl;
 	if (r.req.method == "GET") {
-		std::cout << "Ahhh ma reponse est un GET" << std::endl;
 		this->handle_get(r);
-		std::cout << "After handle_get" << std::endl;
 	}
 	else
 		r.err_code = 500;

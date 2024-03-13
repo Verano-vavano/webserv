@@ -40,6 +40,8 @@ std::string	const HTTPProtocol::get_complete_uri(std::string const &uri, HTTPCon
 	else
 		filewdir = dir.replacement + "/" + uri;
 
+	std::cout << "FILE = " << filewdir << std::endl;
+
 	return (filewdir);
 }
 
