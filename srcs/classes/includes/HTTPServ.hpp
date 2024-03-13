@@ -16,10 +16,12 @@ class HTTPServ {
 		HTTPServ(HTTPServ const & old);
 		HTTPServ & operator=(HTTPServ const & rhs);
 		void socketsInit(void);
+		void mainLoop(void);
 		void socketsClose(void);
 		~HTTPServ(void);
 
     private:
+		int			epoll_fd;
         HTTPConfig  conf;
 		std::vector<int> sockets_fds;
 		std::set<int> clients_fds;

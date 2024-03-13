@@ -8,7 +8,10 @@ int	main(int argc, char **argv) {
     }
 
     HTTPServ    Serv(argv);
+	// open server sockets
+	// epoll all sockets
 	Serv.socketsInit();
+	Serv.mainLoop();
 	Serv.socketsClose();
 	// std::cout << "Before return" << std::endl;
 	return (0);
