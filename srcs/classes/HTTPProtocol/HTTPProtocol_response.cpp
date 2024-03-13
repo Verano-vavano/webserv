@@ -1,15 +1,21 @@
 #include "HTTPProtocol.hpp"
 
 void	HTTPProtocol::create_response(t_response_creator &rc) {
+	std::cout << "Coucou!!" << std::endl;
 	rc.err_code = 200;
 	rc.res.status_line = "";
 	rc.res.headers = "";
 	rc.res.body = "";
 
+	std::cout << "Before handle_method" << std::endl;
 	this->handle_method(rc);
+	std::cout << "After handle_method" << std::endl;
 	this->handle_error_code(rc);
+	std::cout << "After handle_error_code" << std::endl;
 	this->set_headers(rc);
+	std::cout << "After set_headers" << std::endl;
 	this->set_status_line(rc);
+	std::cout << "After set_status_line" << std::endl;
 }
 
 void	HTTPProtocol::handle_method(t_response_creator &r) {
