@@ -104,7 +104,8 @@ void HTTPServ::socketsInit(void) {
 					Http.create_response(r);
 					events[i].events = EPOLLOUT;
 					epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]);
-					std::cout << Http.format_response(r.res);
+					Http.format_response(r.res);
+					//std::cout << Http.format_response(r.res);
 				} else {
 					std::string formated_res = Http.format_response(r.res);
 					send(events[i].data.fd, formated_res.c_str(), formated_res.size(), 0);

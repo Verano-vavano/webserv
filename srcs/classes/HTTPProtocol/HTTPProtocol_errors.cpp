@@ -20,7 +20,6 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 		std::cout << "URI = [" << r.conf->path + full_uri << "]" << std::endl;
 		std::ifstream	file((r.conf->path + full_uri).c_str());
 		if (file && file.good()) {
-			std::cout << "INSIDE" << std::endl;
 			if (it->response != -1)
 				r.err_code = it->response;
 			this->read_entire_file(r.res.body, file);

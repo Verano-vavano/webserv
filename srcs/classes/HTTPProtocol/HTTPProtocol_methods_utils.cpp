@@ -35,7 +35,7 @@ std::string	const HTTPProtocol::get_complete_uri(std::string const &uri, HTTPCon
 
 	if (dir.alias)
 		filewdir = dir.replacement + "/" + filename;
-	else if (file == "/")
+	else if (file == "/" || file == "")
 		filewdir = dir.replacement + "/" + uri + "/" + filename;
 	else
 		filewdir = dir.replacement + "/" + uri;
