@@ -19,8 +19,11 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 }
 
 void	HTTPProtocol::handle_method(t_response_creator &r) {
+	std::cout << "Into handle_method" << std::endl;
 	if (r.req.method == "GET") {
+		std::cout << "Ahhh ma reponse est un GET" << std::endl;
 		this->handle_get(r);
+		std::cout << "After handle_get" << std::endl;
 	}
 	else
 		r.err_code = 500;
