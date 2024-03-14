@@ -66,10 +66,26 @@ void HTTPServ::socketsInit(void) {
 	}
 }
 
+HTTPConfig::t_config*	HTTPServ::get_config_client(int port) {
+	if (this->conf.servers.size() == 0)
+		return (&this->conf.default_config);
+	for (std::vector<HTTPConfig::t_config>::iterator it = this->conf.servers.begin(); it != this->conf.servers.end(); it++) {
+		if (it->port == port) { return (&*it); }
+	}
+	return (&this->conf.default_config);
+}
+
+t_response_creator&	HTTPServ::get_client_config(std::vector<t_client_config> &cl, int fd) {
+	for (std::vector<t_client_config>::iterator  it = cl.begin(); it != cl.end(); it++) {
+		if (it->fd == fd) { return (it->rc); }
+	}
+	return (cl[0].rc);
+}
+
 void HTTPServ::mainLoop(void) {
 	HTTPProtocol Http;
-	t_response_creator r;
-	r.conf = &(this->conf.default_config);
+	std::vector<t_client_config>	clients_struct;
+	t_response_creator	tmp;
 	while (true) {
 		epoll_event events[epoll_events.size()];
 		for (ulong i = 0; i < epoll_events.size(); i++)
@@ -83,32 +99,38 @@ void HTTPServ::mainLoop(void) {
 				struct sockaddr_in client_addr;
 				socklen_t client_addr_len = sizeof(client_addr);
 				int newClientSocket = accept(events[i].data.fd, (struct sockaddr*)&client_addr, &client_addr_len);
+				t_client_config	new_client;
+				new_client.fd = newClientSocket;
+				new_client.port = ntohs(client_addr.sin_port);
+				new_client.rc.conf = get_config_client(new_client.port);
+				clients_struct.push_back(new_client);
 				sockets_fds.push_back(newClientSocket);
 				clients_fds.insert(newClientSocket);
 				epoll_events.push_back(epollinTheSocket(newClientSocket, epoll_fd));
 			} else {
-				if (events[i].events == EPOLLIN) {
+				t_response_creator	cl_conf = this->get_client_config(clients_struct, events[i].data.fd);
+				if (events[i].events & EPOLLIN) {
 					char buffer[1024] = { 0 };
 					if (recv(events[i].data.fd, buffer, sizeof(buffer), 0) == -1) {
 						std::cout << "Could not read from client connection" << std::endl;
 						exit(EXIT_FAILURE);
 					}
 					std::string mdr(buffer);
-					Http.understand_request(r.req, mdr);
+					Http.understand_request(cl_conf.req, mdr);
 					std::cout << "Got request" << std::endl;
-					//Http.print_request(r.req);
-					Http.create_response(r);
+					Http.print_request(cl_conf.req);
+					Http.create_response(cl_conf);
 					events[i].events = EPOLLOUT;
 					epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]);
-					Http.format_response(r.res);
-					//std::cout << Http.format_response(r.res);
-				} else if (events[i].events == EPOLLOUT) {
-					std::string formated_res = Http.format_response(r.res);
+					Http.format_response(cl_conf.res);
+				} else if (events[i].events & EPOLLOUT) {
+					std::string formated_res = Http.format_response(cl_conf.res);
 					std::cout << formated_res << std::endl;
 					send(events[i].data.fd, formated_res.c_str(), formated_res.size(), 0);
 					events[i].events = EPOLLIN;
 					epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]);
 				} else {
+					std::cout << events[i].events << std::endl;
 					std::cout << "Error could not handle socket event" << std::endl;
 				}
 			}

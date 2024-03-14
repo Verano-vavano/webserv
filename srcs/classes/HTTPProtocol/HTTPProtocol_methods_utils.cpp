@@ -9,6 +9,7 @@ HTTPConfig::t_location	const HTTPProtocol::get_dir_uri(std::string const &uri, H
 	while (!found && last_i <= uri.size() && last_i != 0) {
 		last_i = uri.find_last_of("/", last_i);
 		sub = uri.substr(0, last_i + 1);
+		std::cout << "SUB = " << sub << std::endl;
 		for (finder = conf->locations.begin(); finder != conf->locations.end(); finder++) {
 			if (finder->default_uri == sub) { found = true; break ; }
 		}
