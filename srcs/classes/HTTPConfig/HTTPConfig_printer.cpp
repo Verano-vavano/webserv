@@ -43,6 +43,8 @@ void	HTTPConfig::print_server(t_config const &s) {
 	for (std::vector<HTTPConfig::t_location>::const_iterator it = s.locations.begin();
 			it != s.locations.end(); it++) {
 		std::cout << "- " << it->default_uri << " => " << it->replacement << " . " << it->index << " (" << it->alias << ")" << std::endl;
+		std::cout << "-CGI = " << it->cgi.cgi_exec << ":" << std::endl;
+		for (t_map_str_str::const_iterator it2 = it->cgi.cgi_interpreter.begin(); it2 != it->cgi.cgi_interpreter.end(); it2++) { std::cout << "--" << it2->first << "." << it2->second << std::endl; }
 	}
 	std::cout << "Types :" << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = s.types.begin(); it != s.types.end(); it++) {

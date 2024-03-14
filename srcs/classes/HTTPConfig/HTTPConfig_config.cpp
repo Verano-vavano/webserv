@@ -109,6 +109,8 @@ HTTPConfig::t_config	& HTTPConfig::t_config::operator=(t_config const & rhs) {
 		tmp2.replacement = it->replacement;
 		tmp2.index = it->index;
 		tmp2.alias = it->alias;
+		tmp2.cgi.cgi_exec = it->cgi.cgi_exec;
+		copy_map_strstr(tmp2.cgi.cgi_interpreter, it->cgi.cgi_interpreter);
 		this->locations.push_back(tmp2);
 	}
 

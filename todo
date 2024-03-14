@@ -2,3 +2,4 @@ REGEX in nginx (crazy crazy, could be implemented in our shell lmao) (location ~
 retrocompatibilite HTTP1.0
 max_depth ?
 wildcards dans Accept et q=
+finir cgi

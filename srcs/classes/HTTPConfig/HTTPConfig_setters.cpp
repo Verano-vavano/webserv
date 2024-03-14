@@ -111,10 +111,19 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 			if (split.size() != 2 && HTTPConfig::warning("Multiple locations for a uri", opt.line, opt.options)) { return (1); }
 			tmp->replacement = split[1];
 			tmp->alias = (method == "alias");
-		} else { // index
+		} else if (method == "index" || method == "cgi_exec") {
 			if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
 			else if (split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
-			tmp->index = split[1];
+			if (method == "index")
+				tmp->index = split[1];
+			else if (method == "cgi_exec")
+				tmp->cgi.cgi_exec = split[1];
+		} else {
+			if (split.size() != 3) { return (this->error("Invalid number of arguments", opt.line, opt.options)); }
+			std::pair<std::string, std::string>	p;
+			p.first = split[1];
+			p.second = split[2];
+			tmp->cgi.cgi_interpreter.insert(p);
 		}
 	}
 
