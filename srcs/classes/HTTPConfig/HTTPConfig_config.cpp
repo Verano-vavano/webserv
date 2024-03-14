@@ -48,6 +48,8 @@ void	HTTPConfig::set_default_config(void) {
 
 	conf.port = DEFAULT_PORT;
 	conf.server_name = DEFAULT_NAME;
+	conf.default_root.default_uri = "/";
+	conf.default_root.replacement = DEFAULT_LOCATION;
 	conf.absolute_redirect = DEFAULT_REDIR;
 	conf.chunked_transfer_encoding = DEFAULT_CHUNKED;
 	conf.client_body_timeout = DEFAULT_BODY_TO;
@@ -95,9 +97,18 @@ HTTPConfig::t_config	& HTTPConfig::t_config::operator=(t_config const & rhs) {
 		this->error_page.push_back(tmp);
 	}
 
-	// TYPES
-	// HEADERS
-	// LOCATIONS
+	HTTPConfig::t_location	tmp2;
+	for (std::vector<HTTPConfig::t_location>::const_iterator it = rhs.locations.begin();
+			it != rhs.locations.end(); it++) {
+		tmp2.default_uri = it->default_uri;
+		tmp2.replacement = it->replacement;
+		tmp2.index = it->index;
+		tmp2.alias = it->alias;
+		this->locations.push_back(tmp2);
+	}
+
+	copy_map_strstr(this->types, rhs.types);
+	copy_map_strstr(this->headers, rhs.headers);
 
 	return (*this);
 }
@@ -111,4 +122,14 @@ HTTPConfig::t_error	& HTTPConfig::t_error::operator=(t_error const & rhs) {
 	std::vector<int>	tmp(rhs.codes.begin(), rhs.codes.end());
 	this->codes = tmp;
 	return (*this);
+}
+
+void	HTTPConfig::copy_map_strstr(t_map_str_str & n, t_map_str_str const & old) {
+	std::pair<std::string, std::string>	tmp;
+
+	for (t_map_str_str::const_iterator it = old.begin(); it != old.end(); it++) {
+		tmp.first = it->first;
+		tmp.second = it->second;
+		n.insert(tmp);
+	}
 }

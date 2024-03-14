@@ -19,16 +19,14 @@
 # define O_ERROR_STOP (1 << 1)
 # define O_WARNING_AS_ERROR (1 << 2)
 # define O_SILENT (1 << 3)
-// absolute redirect on/off
 # define O_TOGGLE_BOOL (1 << 4)
 
 # define ISSPACE " \f\n\r\t\v"
 
 # define DEFAULT_PORT 80
 # define DEFAULT_NAME "localhost"
-// absolute redirect
+# define DEFAULT_LOCATION "./"
 # define DEFAULT_REDIR true
-// petit morceaux tout mignon
 # define DEFAULT_CHUNKED true
 # define DEFAULT_BODY_TO 60
 # define DEFAULT_BODY_BUF_SIZE 8000
@@ -75,6 +73,7 @@ class HTTPConfig {
         typedef struct s_config {
             int                     port;
             std::string             server_name;
+			t_location				default_root;
             bool                    absolute_redirect;
             bool                    chunked_transfer_encoding;
             long                    client_body_timeout;
@@ -104,6 +103,8 @@ class HTTPConfig {
     private:
         // CONFIG OPTIONS
 		void	set_default_config(void);
+
+		static void	copy_map_strstr(t_map_str_str & n, t_map_str_str const & old);
 
 
         // CONFIG PARSER
