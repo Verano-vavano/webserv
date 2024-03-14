@@ -69,11 +69,6 @@ void HTTPServ::socketsInit(void) {
 			epollinTheSocket(sockets.back().fd, epoll_fd);
 		}
 	}
-	std::vector<t_socket>::iterator sockets_it = sockets.begin();
-	for(; sockets_it != sockets.end(); sockets_it++) {
-		std::cout << "---Printing a socket---" << std::endl << std::endl;
-		std::cout << "socket_fd = " << sockets_it->fd << " is_client = " <<sockets_it->is_client << std::endl;
-	}
 }
 
 void HTTPServ::socketsClose(void) {
