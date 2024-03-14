@@ -59,6 +59,8 @@ class HTTPProtocol {
 		void	handle_method(t_response_creator &r);
 		void	handle_get(t_response_creator &r);
 
+		void	check_type(t_response_creator &r);
+
 		void	handle_error_code(t_response_creator &r);
 
 		void	set_headers(t_response_creator &r);

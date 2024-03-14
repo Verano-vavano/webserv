@@ -61,8 +61,8 @@ std::vector<std::string>    HTTPProtocol::split_header_val(std::string val) {
     start = val.find_first_not_of(' ');
     while (start < val.size()) {
         next = val.find(',', start);
-        end = val.find_last_not_of(' ', next);
-        ret.push_back(val.substr(start, end - start + 1));
+        end = val.find_first_not_of(' ', next);
+        ret.push_back(val.substr(start, end - start));
         if (next >= val.size())
             break ;
         start = val.find_first_not_of(' ', next + 1);
