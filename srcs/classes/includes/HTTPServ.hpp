@@ -22,19 +22,27 @@ class HTTPServ {
 		~HTTPServ(void);
 
     private:
-		typedef struct {
-			int					fd;
-			int					port;
+
+		typedef struct s_socket {
+			int fd;
+			int port;
+			bool is_client;
 			t_response_creator	rc;
-		}	t_client_config;
+		} t_socket;
+
+
 		int			epoll_fd;
         HTTPConfig  conf;
+		std::vector<t_socket> sockets;
 		std::vector<int> sockets_fds;
 		std::set<int> clients_fds;
 		std::vector<epoll_event> epoll_events;
 
 		HTTPConfig::t_config*	get_config_client(int port);
-		t_response_creator&	get_client_config(std::vector<t_client_config> &cl, int fd);
+		t_response_creator&	get_client_config(std::vector<t_socket> &cl, int fd);
+		t_socket *find_socket(int fd);
+		t_socket initClientSocket(HTTPServ::t_socket server);
+		void	event_change(int fd, EPOLL_EVENTS event);
 };
 
 #endif /* HTTPSERV_HPP */

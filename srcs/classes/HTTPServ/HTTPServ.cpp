@@ -11,7 +11,6 @@
 #include <unistd.h>
 #include <sys/epoll.h>
 #include <vector>
-#define MAX_EVENTS 10
 
 HTTPServ::HTTPServ(void) { return ; }
 
@@ -66,6 +65,15 @@ void HTTPServ::socketsInit(void) {
 			epoll_events.push_back(epollinTheSocket(sockets_fds.back(), epoll_fd));
 	}
 }
+void HTTPServ::socketsClose(void) {
+	std::vector<t_socket>::iterator sockets_it = sockets.begin();
+	for(; sockets_it != sockets.end(); sockets_it++) {
+		if (sockets_it->fd != -1) {
+			std::cout << "closing socket " << sockets_it->fd << std::endl;
+			close(sockets_it->fd);
+		}
+	}
+}
 
 HTTPConfig::t_config*	HTTPServ::get_config_client(int port) {
 	if (this->conf.servers.size() == 0)
@@ -76,75 +84,88 @@ HTTPConfig::t_config*	HTTPServ::get_config_client(int port) {
 	return (&this->conf.default_config);
 }
 
-t_response_creator&	HTTPServ::get_client_config(std::vector<t_client_config> &cl, int fd) {
-	for (std::vector<t_client_config>::iterator  it = cl.begin(); it != cl.end(); it++) {
+t_response_creator&	HTTPServ::get_client_config(std::vector<t_socket> &cl, int fd) {
+	for (std::vector<t_socket>::iterator  it = cl.begin(); it != cl.end(); it++) {
 		if (it->fd == fd) { return (it->rc); }
 	}
 	return (cl[0].rc);
 }
 
+HTTPServ::t_socket *HTTPServ::find_socket(int fd) {
+	std::vector<t_socket>::iterator sockets_it = this->sockets.begin();
+	for(; sockets_it != sockets.end(); sockets_it++) {
+		if (sockets_it->fd == fd)
+			return (&*sockets_it);
+	}
+	return (NULL);
+}
+
+HTTPServ::t_socket HTTPServ::initClientSocket(HTTPServ::t_socket server) {
+	t_socket newClientSocket;
+	sockaddr_in client_addr;
+	socklen_t sock_addr_len = sizeof(client_addr);
+
+	newClientSocket.fd = accept(server.fd, (sockaddr*)&client_addr, &sock_addr_len);
+	newClientSocket.port = server.port;
+	std::cout << "\t new client socket  = " << newClientSocket.port << std::endl;
+	newClientSocket.is_client = true;
+	newClientSocket.rc.conf = get_config_client(newClientSocket.port);
+
+	this->sockets.push_back(newClientSocket);
+	return (newClientSocket);
+}
+
+void HTTPServ::event_change(int fd, EPOLL_EVENTS event) {
+	epoll_event tmp;
+	tmp.data.fd = fd;
+	epoll_ctl(this->epoll_fd, event, fd, &tmp);
+}
+
 void HTTPServ::mainLoop(void) {
 	HTTPProtocol Http;
-	std::vector<t_client_config>	clients_struct;
 	t_response_creator	tmp;
+
 	while (true) {
-		epoll_event events[epoll_events.size()];
-		for (ulong i = 0; i < epoll_events.size(); i++)
-			events[i].data.fd = -1;
+		ulong sockets_count = sockets.size();
+		ulong i = 0;
+		epoll_event wait_events[sockets_count];
 
-		epoll_wait(epoll_fd, events, epoll_events.size(), -1);
+		for (; i < sockets_count; i++)
+			wait_events[i].data.fd = -1;
 
-		// iteration over events to and find matching socket
-		for (ulong i = 0; i < epoll_events.size() && events[i].data.fd != -1; i++){
-			if (clients_fds.find(events[i].data.fd) == clients_fds.end()) {
-				struct sockaddr_in client_addr;
-				socklen_t client_addr_len = sizeof(client_addr);
-				int newClientSocket = accept(events[i].data.fd, (struct sockaddr*)&client_addr, &client_addr_len);
-				t_client_config	new_client;
-				new_client.fd = newClientSocket;
-				new_client.port = ntohs(client_addr.sin_port);
-				new_client.rc.conf = get_config_client(new_client.port);
-				clients_struct.push_back(new_client);
-				sockets_fds.push_back(newClientSocket);
-				clients_fds.insert(newClientSocket);
-				epoll_events.push_back(epollinTheSocket(newClientSocket, epoll_fd));
-			} else {
-				t_response_creator	cl_conf = this->get_client_config(clients_struct, events[i].data.fd);
-				if (events[i].events & EPOLLIN) {
+		epoll_wait(epoll_fd, wait_events, sockets.size(), -1);
+
+		for (i = 0; i < sockets_count && wait_events[i].data.fd != -1; i++){
+			t_socket *matching_socket = find_socket(wait_events[i].data.fd);
+			if (!matching_socket)
+				break;
+			if (matching_socket->is_client) {
+				if (wait_events[i].events == EPOLLIN) {
 					char buffer[1024] = { 0 };
-					if (recv(events[i].data.fd, buffer, sizeof(buffer), 0) == -1) {
+					if (recv(matching_socket->fd, buffer, sizeof(buffer), 0) == -1) {
 						std::cout << "Could not read from client connection" << std::endl;
 						exit(EXIT_FAILURE);
 					}
-					std::string mdr(buffer);
-					Http.understand_request(cl_conf.req, mdr);
-					std::cout << "Got request" << std::endl;
-					Http.print_request(cl_conf.req);
-					Http.create_response(cl_conf);
-					events[i].events = EPOLLOUT;
-					epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]);
-					Http.format_response(cl_conf.res);
-				} else if (events[i].events & EPOLLOUT) {
-					std::string formated_res = Http.format_response(cl_conf.res);
-					std::cout << formated_res << std::endl;
-					send(events[i].data.fd, formated_res.c_str(), formated_res.size(), 0);
-					events[i].events = EPOLLIN;
-					epoll_ctl(epoll_fd, EPOLL_CTL_MOD, events[i].data.fd, &events[i]);
+					std::string request(buffer);
+					Http.understand_request(matching_socket->rc.req, request);
+					Http.print_request(matching_socket->rc.req);
+					Http.create_response(matching_socket->rc);
+					event_change(matching_socket->fd, EPOLLOUT);
+					Http.format_response(matching_socket->rc.res);
+				} else if (wait_events[i].events == EPOLLOUT){
+					std::string res = Http.format_response(matching_socket->rc.res);
+					std::cout << res << std::endl;
+					send(matching_socket->fd, res.c_str(), res.size(), 0);
+					event_change(matching_socket->fd, EPOLLIN);
 				} else {
-					std::cout << events[i].events << std::endl;
-					std::cout << "Error could not handle socket event" << std::endl;
+					std::cout << "Could not handle event" << std::endl;
 				}
+			} else {
+				t_socket newClientSocket = initClientSocket(*matching_socket);
+				epollinTheSocket(newClientSocket.fd, this->epoll_fd);
 			}
 		}
 	}
 }
-
-void HTTPServ::socketsClose(void) {
-	for (int i = 0; sockets_fds[i]; i++) {
-		if (sockets_fds[i] != -1)
-			close(sockets_fds[i]);
-	}
-}
-
 
 HTTPServ::~HTTPServ(void) { return ; }

@@ -1,0 +1,42 @@
+socket_fd
+is_client
+
+// 	if (clients_fds.find(wait_events[i].data.fd) == clients_fds.end()) {
+// 		struct sockaddr_in client_addr;
+// 		socklen_t client_addr_len = sizeof(client_addr);
+// 		int newClientSocket = accept(wait_events[i].data.fd, (struct sockaddr*)&client_addr, &client_addr_len);
+// 		t_client_config	new_client;
+// 		new_client.fd = newClientSocket;
+// 		new_client.port = ntohs(client_addr.sin_port);
+// 		new_client.rc.conf = get_config_client(new_client.port);
+// 		clients_struct.push_back(new_client);
+// 		sockets_fds.push_back(newClientSocket);
+// 		clients_fds.insert(newClientSocket);
+// 		epoll_events.push_back(epollinTheSocket(newClientSocket, epoll_fd));
+// 	} else {
+// 		t_response_creator	cl_conf = this->get_client_config(clients_struct, wait_events[i].data.fd);
+// 		if (wait_events[i].events & EPOLLIN) {
+// 			char buffer[1024] = { 0 };
+// 			if (recv(wait_events[i].data.fd, buffer, sizeof(buffer), 0) == -1) {
+// 				std::cout << "Could not read from client connection" << std::endl;
+// 				exit(EXIT_FAILURE);
+// 			}
+// 			std::string mdr(buffer);
+// 			Http.understand_request(cl_conf.req, mdr);
+// 			Http.print_request(cl_conf.req);
+// 			Http.create_response(cl_conf);
+// 			wait_events[i].events = EPOLLOUT;
+// 			epoll_ctl(epoll_fd, EPOLL_CTL_MOD, wait_events[i].data.fd, &wait_events[i]);
+// 			Http.format_response(cl_conf.res);
+// 		} else if (wait_events[i].events & EPOLLOUT) {
+// 			std::string formated_res = Http.format_response(cl_conf.res);
+// 			std::cout << formated_res << std::endl;
+// 			send(wait_events[i].data.fd, formated_res.c_str(), formated_res.size(), 0);
+// 			wait_events[i].events = EPOLLIN;
+// 			epoll_ctl(epoll_fd, EPOLL_CTL_MOD, wait_events[i].data.fd, &wait_events[i]);
+// 		} else {
+// 			std::cout << wait_events[i].events << std::endl;
+// 			std::cout << "Error could not handle socket event" << std::endl;
+// 		}
+// 	}
+// }
