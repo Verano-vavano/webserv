@@ -44,36 +44,35 @@ int socketOpen(HTTPConfig::t_config config) {
 	return (newSocket);
 }
 
-epoll_event epollinTheSocket(int socket_fd, int epoll_fd) {
+void HTTPServ::epollinTheSocket(int socket_fd) {
 	epoll_event ev;
 	ev.data.fd = socket_fd;
 	ev.events = EPOLLIN;
-	epoll_ctl(epoll_fd, EPOLL_CTL_ADD, socket_fd, &ev);
-	return (ev);
+	epoll_ctl(this->epoll_fd, EPOLL_CTL_ADD, socket_fd, &ev);
 }
 
 void HTTPServ::socketsInit(void) {
-	epoll_fd = epoll_create(1);
-	if (epoll_fd == -1) {
+	this->epoll_fd = epoll_create(1);
+	if (this->epoll_fd == -1) {
 		perror("epoll_create");
 		exit(EXIT_FAILURE);
 	}
+
 	std::vector<HTTPConfig::t_config>::iterator configs_it = this->conf.servers.begin();
 	for (; configs_it != this->conf.servers.end(); configs_it++) {
 		t_socket tmp;
 		tmp.fd = socketOpen(*configs_it);
 		tmp.port = configs_it->port;
 		tmp.is_client = false;
-		sockets.push_back(tmp);
-		if (sockets.back().fd != -1) {
-			epollinTheSocket(sockets.back().fd, epoll_fd);
-		}
+		if (tmp.fd != -1)
+			epollinTheSocket(tmp.fd);
+		this->sockets.push_back(tmp);
 	}
 }
 
 void HTTPServ::socketsClose(void) {
-	std::vector<t_socket>::iterator sockets_it = sockets.begin();
-	for(; sockets_it != sockets.end(); sockets_it++) {
+	std::vector<t_socket>::iterator sockets_it = this->sockets.begin();
+	for(; sockets_it != this->sockets.end(); sockets_it++) {
 		if (sockets_it->fd != -1) {
 			std::cout << "closing socket " << sockets_it->fd << std::endl;
 			close(sockets_it->fd);
@@ -99,7 +98,7 @@ t_response_creator&	HTTPServ::get_client_config(std::vector<t_socket> &cl, int f
 
 HTTPServ::t_socket *HTTPServ::find_socket(int fd) {
 	std::vector<t_socket>::iterator sockets_it = this->sockets.begin();
-	for(; sockets_it != sockets.end(); sockets_it++) {
+	for(; sockets_it != this->sockets.end(); sockets_it++) {
 		if (sockets_it->fd == fd)
 			return (&*sockets_it);
 	}
@@ -133,14 +132,14 @@ void HTTPServ::mainLoop(void) {
 	t_response_creator	tmp;
 
 	while (true) {
-		ulong sockets_count = sockets.size();
+		ulong sockets_count = this->sockets.size();
 		ulong i = 0;
 		epoll_event wait_events[sockets_count];
 
 		for (; i < sockets_count; i++)
 			wait_events[i].data.fd = -1;
 
-		epoll_wait(epoll_fd, wait_events, sockets.size(), -1);
+		epoll_wait(this->epoll_fd, wait_events, sockets_count, -1);
 
 		for (i = 0; i < sockets_count && wait_events[i].data.fd != -1; i++){
 			t_socket *matching_socket = find_socket(wait_events[i].data.fd);
@@ -169,7 +168,7 @@ void HTTPServ::mainLoop(void) {
 				}
 			} else {
 				t_socket newClientSocket = initClientSocket(*matching_socket);
-				epollinTheSocket(newClientSocket.fd, this->epoll_fd);
+				epollinTheSocket(newClientSocket.fd);
 			}
 		}
 	}

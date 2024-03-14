@@ -4,7 +4,6 @@
 # include "HTTPConfig.hpp"
 # include "HTTPProtocol.hpp"
 # include <iostream>
-#include <set>
 #include <sys/epoll.h>
 #include <vector>
 
@@ -16,10 +15,11 @@ class HTTPServ {
         HTTPServ(char *path, char *config_file);
 		HTTPServ(HTTPServ const & old);
 		HTTPServ & operator=(HTTPServ const & rhs);
+		~HTTPServ(void);
+
 		void socketsInit(void);
 		void mainLoop(void);
 		void socketsClose(void);
-		~HTTPServ(void);
 
     private:
 
@@ -31,18 +31,16 @@ class HTTPServ {
 		} t_socket;
 
 
-		int			epoll_fd;
-        HTTPConfig  conf;
-		std::vector<t_socket> sockets;
-		std::vector<int> sockets_fds;
-		std::set<int> clients_fds;
-		std::vector<epoll_event> epoll_events;
+		int						epoll_fd;
+        HTTPConfig				conf;
+		std::vector<t_socket>	sockets;
 
 		HTTPConfig::t_config*	get_config_client(int port);
-		t_response_creator&	get_client_config(std::vector<t_socket> &cl, int fd);
-		t_socket *find_socket(int fd);
-		t_socket initClientSocket(HTTPServ::t_socket server);
-		void	event_change(int fd, EPOLL_EVENTS event);
+		t_response_creator&		get_client_config(std::vector<t_socket> &cl, int fd);
+		t_socket				*find_socket(int fd);
+		t_socket				initClientSocket(HTTPServ::t_socket server);
+		void					event_change(int fd, EPOLL_EVENTS event);
+		void					epollinTheSocket(int socket_fd);
 };
 
 #endif /* HTTPSERV_HPP */
