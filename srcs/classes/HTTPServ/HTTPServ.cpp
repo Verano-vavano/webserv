@@ -1,16 +1,4 @@
 #include "HTTPServ.hpp"
-#include "HTTPProtocol.hpp"
-#include <asm-generic/socket.h>
-#include <cstdio>
-#include <cstdlib>
-#include <ostream>
-#include <sys/socket.h>
-#include <netinet/in.h> // sockaddr_in
-#include <fcntl.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/epoll.h>
-#include <vector>
 
 HTTPServ::HTTPServ(void) { return ; }
 

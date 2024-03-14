@@ -3,6 +3,8 @@
 
 # include "HTTPConfig.hpp"
 # include "HTTPProtocol.hpp"
+#include <unistd.h>
+#include <netinet/in.h> // sockaddr_in
 # include <iostream>
 #include <sys/epoll.h>
 #include <vector>
