@@ -16,6 +16,7 @@ void	HTTPConfig::print_server(t_config const &s) {
 	std::cout << "--SERVER--" << std::endl
 		<< "port = " << s.port << std::endl
 		<< "server_name = " << s.server_name << std::endl
+		<< "default_root = " << s.default_root.default_uri << " => " << s.default_root.replacement << " . " << s.default_root.index << " (" << s.default_root.alias << ")" << std::endl
 		<< "absolute_redirect = " << s.absolute_redirect << std::endl
 		<< "chunked_transfer_encoding = " << s.chunked_transfer_encoding << std::endl
 		<< "client_body_timeout = " << s.client_body_timeout << std::endl

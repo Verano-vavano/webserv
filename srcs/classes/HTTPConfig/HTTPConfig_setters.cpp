@@ -103,20 +103,18 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// LOCATION METHODS
 	if (this->in(method, "root", "alias", "index", NULL)) {
-		if (opt.blocks.top().substr(0, 8) != "location") { return (HTTPConfig::error(method + " outside of 'location' block", opt.line, opt.options)); }
-		else {
-			HTTPConfig::t_location	*tmp = &(serv->locations.back());
-			if (method == "root" || method == "alias") {
-				if (tmp->replacement != "" && HTTPConfig::warning("Overwriting already existing alias", opt.line, opt.options)) { return (1); }
-				if (split.size() == 1) { return (HTTPConfig::warning("No location for a uri", opt.line, opt.options)); }
-				if (split.size() != 2 && HTTPConfig::warning("Multiple locations for a uri", opt.line, opt.options)) { return (1); }
-				tmp->replacement = split[1];
-				tmp->alias = (method == "alias");
-			} else {
-				if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
-				else if (split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
-				serv->locations.back().index = split[1];
-			}
+		HTTPConfig::t_location	*tmp = &(serv->locations.back());
+		if (opt.blocks.top().substr(0, 8) != "location") { tmp = &(serv->default_root); }
+		if (method == "root" || method == "alias") {
+			if (tmp->replacement != "" && HTTPConfig::warning("Overwriting already existing alias", opt.line, opt.options)) { return (1); }
+			if (split.size() == 1) { return (HTTPConfig::warning("No location for a uri", opt.line, opt.options)); }
+			if (split.size() != 2 && HTTPConfig::warning("Multiple locations for a uri", opt.line, opt.options)) { return (1); }
+			tmp->replacement = split[1];
+			tmp->alias = (method == "alias");
+		} else { // index
+			if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
+			else if (split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
+			tmp->index = split[1];
 		}
 	}
 

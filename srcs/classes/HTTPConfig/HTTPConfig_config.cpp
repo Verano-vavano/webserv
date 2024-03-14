@@ -50,6 +50,7 @@ void	HTTPConfig::set_default_config(void) {
 	conf.server_name = DEFAULT_NAME;
 	conf.default_root.default_uri = "/";
 	conf.default_root.replacement = DEFAULT_LOCATION;
+	conf.default_root.alias = false;
 	conf.absolute_redirect = DEFAULT_REDIR;
 	conf.chunked_transfer_encoding = DEFAULT_CHUNKED;
 	conf.client_body_timeout = DEFAULT_BODY_TO;
@@ -75,6 +76,10 @@ HTTPConfig::t_config	& HTTPConfig::t_config::operator=(t_config const & rhs) {
 
 	this->port = rhs.port;
 	this->server_name = rhs.server_name;
+	this->default_root.default_uri = rhs.default_root.default_uri;
+	this->default_root.replacement = rhs.default_root.replacement;
+	this->default_root.index = rhs.default_root.index;
+	this->default_root.alias = rhs.default_root.alias;
 	this->absolute_redirect = rhs.absolute_redirect;
 	this->chunked_transfer_encoding = rhs.chunked_transfer_encoding;
 	this->client_body_timeout = rhs.client_body_timeout;
