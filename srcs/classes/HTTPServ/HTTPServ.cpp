@@ -58,13 +58,24 @@ void HTTPServ::socketsInit(void) {
 		perror("epoll_create");
 		exit(EXIT_FAILURE);
 	}
-	std::vector<HTTPConfig::t_config>::iterator servers = this->conf.servers.begin();
-	for (; servers != this->conf.servers.end(); servers++) {
-		sockets_fds.push_back(socketOpen(*servers));
-		if (sockets_fds.back() != -1)
-			epoll_events.push_back(epollinTheSocket(sockets_fds.back(), epoll_fd));
+	std::vector<HTTPConfig::t_config>::iterator configs_it = this->conf.servers.begin();
+	for (; configs_it != this->conf.servers.end(); configs_it++) {
+		t_socket tmp;
+		tmp.fd = socketOpen(*configs_it);
+		tmp.port = configs_it->port;
+		tmp.is_client = false;
+		sockets.push_back(tmp);
+		if (sockets.back().fd != -1) {
+			epollinTheSocket(sockets.back().fd, epoll_fd);
+		}
+	}
+	std::vector<t_socket>::iterator sockets_it = sockets.begin();
+	for(; sockets_it != sockets.end(); sockets_it++) {
+		std::cout << "---Printing a socket---" << std::endl << std::endl;
+		std::cout << "socket_fd = " << sockets_it->fd << " is_client = " <<sockets_it->is_client << std::endl;
 	}
 }
+
 void HTTPServ::socketsClose(void) {
 	std::vector<t_socket>::iterator sockets_it = sockets.begin();
 	for(; sockets_it != sockets.end(); sockets_it++) {
