@@ -129,7 +129,8 @@ HTTPServ::t_socket HTTPServ::initClientSocket(HTTPServ::t_socket server) {
 void HTTPServ::event_change(int fd, EPOLL_EVENTS event) {
 	epoll_event tmp;
 	tmp.data.fd = fd;
-	epoll_ctl(this->epoll_fd, event, fd, &tmp);
+	tmp.events = event;
+	epoll_ctl(this->epoll_fd, EPOLL_CTL_MOD, fd, &tmp);
 }
 
 void HTTPServ::mainLoop(void) {
