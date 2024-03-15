@@ -118,21 +118,24 @@ HTTPConfig::t_error	& HTTPConfig::t_error::operator=(t_error const & rhs) {
 
 	this->response = rhs.response;
 	this->uri = rhs.uri;
-	std::vector<int>	tmp(rhs.codes.begin(), rhs.codes.end());
+	std::set<int>	tmp(rhs.codes.begin(), rhs.codes.end());
 	this->codes = tmp;
 	return (*this);
 }
 
 HTTPConfig::t_location & HTTPConfig::t_location::operator=(t_location const & rhs) {
+	if (this == &rhs)
+		return (*this);
+
 	this->default_uri = rhs.default_uri;
 	this->replacement = rhs.replacement;
 	this->index = rhs.index;
 	this->alias = rhs.alias;
 
 	std::string	tmp;
-	for (std::vector<std::string>::const_iterator it = rhs.cgi.cgi_exec.begin(); it != rhs.cgi.cgi_exec.end(); it++) {
+	for (std::set<std::string>::const_iterator it = rhs.cgi.cgi_exec.begin(); it != rhs.cgi.cgi_exec.end(); it++) {
 		tmp = *it;
-		this->cgi.cgi_exec.push_back(tmp);
+		this->cgi.cgi_exec.insert(tmp);
 	}
 
 	HTTPConfig::copy_map_strstr(this->cgi.cgi_interpreter, rhs.cgi.cgi_interpreter);

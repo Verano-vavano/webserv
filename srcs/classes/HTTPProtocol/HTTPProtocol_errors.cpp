@@ -8,7 +8,7 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 	bool	found = false;
 
 	for (it = errors.begin(); it != errors.end(); it++) {
-		for (std::vector<int>::const_iterator it2 = it->codes.begin();
+		for (std::set<int>::const_iterator it2 = it->codes.begin();
 				it2 != it->codes.end(); it2++) {
 			if (*it2 == r.err_code) { found = true; break ; }
 		}

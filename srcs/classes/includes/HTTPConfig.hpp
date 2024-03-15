@@ -5,6 +5,7 @@
 # include <map>
 # include <vector>
 # include <stack>
+# include <set>
 # include <algorithm>
 # include <cctype>
 # include <cstring>
@@ -56,7 +57,7 @@ class HTTPConfig {
         typedef t_map_str_str t_header;
 
 		typedef struct {
-			std::vector<std::string>			cgi_exec; // Vector of executables
+			std::set<std::string>				cgi_exec; // Vector of executables
 			std::map<std::string, std::string>	cgi_interpreter; // Pairs extension / interpreter
 		}	t_cgi;
 
@@ -71,7 +72,7 @@ class HTTPConfig {
         }   t_location;
 
         typedef struct s_error {
-            std::vector<int>    codes;
+            std::set<int>    codes;
             int                 response;
             std::string         uri;
 

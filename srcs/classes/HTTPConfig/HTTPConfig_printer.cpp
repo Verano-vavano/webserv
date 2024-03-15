@@ -18,7 +18,7 @@ void	HTTPConfig::print_server(t_config const &s) {
 		<< "server_name = " << s.server_name << std::endl
 		<< "default_root = " << s.default_root.default_uri << " => " << s.default_root.replacement << " . " << s.default_root.index << " (" << s.default_root.alias << ")" << std::endl;
 		std::cout << "- " << s.default_root.default_uri << " => " << s.default_root.replacement << " . " << s.default_root.index << " (" << s.default_root.alias << ")" << std::endl;
-		for (std::vector<std::string>::const_iterator it2 = s.default_root.cgi.cgi_exec.begin(); it2 != s.default_root.cgi.cgi_exec.end(); it2++) { std::cout << "--exec = " << *it2 << std::endl; }
+		for (std::set<std::string>::const_iterator it2 = s.default_root.cgi.cgi_exec.begin(); it2 != s.default_root.cgi.cgi_exec.end(); it2++) { std::cout << "--exec = " << *it2 << std::endl; }
 		for (t_map_str_str::const_iterator it2 = s.default_root.cgi.cgi_interpreter.begin(); it2 != s.default_root.cgi.cgi_interpreter.end(); it2++) { std::cout << "--" << it2->first << "." << it2->second << std::endl; }
 		std::cout << "absolute_redirect = " << s.absolute_redirect << std::endl
 		<< "chunked_transfer_encoding = " << s.chunked_transfer_encoding << std::endl
@@ -37,7 +37,7 @@ void	HTTPConfig::print_server(t_config const &s) {
 	for (std::vector<HTTPConfig::t_error>::const_iterator it = s.error_page.begin();
 			it != s.error_page.end(); it++) {
 		std::cout << "- ";
-		for (std::vector<int>::const_iterator it2 = it->codes.begin(); it2 != it->codes.end(); it2++) {
+		for (std::set<int>::const_iterator it2 = it->codes.begin(); it2 != it->codes.end(); it2++) {
 			std::cout << *it2 << " ";
 		}
 		std::cout << "=> " << it->uri << " (" << it->response << ")" << std::endl;
@@ -46,7 +46,7 @@ void	HTTPConfig::print_server(t_config const &s) {
 	for (std::vector<HTTPConfig::t_location>::const_iterator it = s.locations.begin();
 			it != s.locations.end(); it++) {
 		std::cout << "- " << it->default_uri << " => " << it->replacement << " . " << it->index << " (" << it->alias << ")" << std::endl;
-		for (std::vector<std::string>::const_iterator it2 = it->cgi.cgi_exec.begin(); it2 != it->cgi.cgi_exec.end(); it2++) { std::cout << "--exec = " << *it2 << std::endl; }
+		for (std::set<std::string>::const_iterator it2 = it->cgi.cgi_exec.begin(); it2 != it->cgi.cgi_exec.end(); it2++) { std::cout << "--exec = " << *it2 << std::endl; }
 		for (t_map_str_str::const_iterator it2 = it->cgi.cgi_interpreter.begin(); it2 != it->cgi.cgi_interpreter.end(); it2++) { std::cout << "--" << it2->first << "." << it2->second << std::endl; }
 	}
 	std::cout << "Types :" << std::endl;

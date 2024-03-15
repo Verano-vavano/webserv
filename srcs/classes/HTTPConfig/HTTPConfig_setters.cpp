@@ -12,6 +12,10 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 	// LOCATION
 	if (method == "location") {
 		t_location	tmp;
+		if (this->servers.size())
+			tmp = this->servers.back().default_root;
+		else
+			tmp = this->default_config.default_root;
 		if (split.size() == 1) {
 			HTTPConfig::error("No URI for location (if root, specify '/')", opt.line, opt.options);
 			return (2 - (opt.options & O_ERROR_STOP));
@@ -117,7 +121,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 			if (method == "index")
 				tmp->index = split[1];
 			else if (method == "cgi_exec")
-				tmp->cgi.cgi_exec.push_back(split[1]);
+				tmp->cgi.cgi_exec.insert(split[1]);
 		} else {
 			if (split.size() != 3) { return (this->error("Invalid number of arguments", opt.line, opt.options)); }
 			std::pair<std::string, std::string>	p;
@@ -228,12 +232,12 @@ int	HTTPConfig::set_error_page(std::vector<std::string> &split, t_parser &opt) {
 	HTTPConfig::t_config	*serv = opt.current_serv;
 	HTTPConfig::t_error		err;
 
-	std::vector<int>	codes;
+	std::set<int>	codes;
 	int	error_code;
 	for (; index < split.size() - 1 && split[index][0] != '='; index++) {
 		error_code = std::atoi(split[index].c_str());
 		if ((error_code < 100 || error_code >= 600) && this->warning("Invalid error code", opt.line, opt.options)) { return (1); }
-		codes.push_back(error_code);
+		codes.insert(error_code);
 	}
 
 	err.codes = codes;
