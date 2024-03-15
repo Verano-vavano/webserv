@@ -102,7 +102,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	std::string	method = split.front();
 
 	// LOCATION METHODS
-	if (this->in(method, "root", "alias", "index", NULL)) {
+	if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", NULL)) {
 		HTTPConfig::t_location	*tmp = &(serv->locations.back());
 		if (opt.blocks.top().substr(0, 8) != "location") { tmp = &(serv->default_root); }
 		if (method == "root" || method == "alias") {
