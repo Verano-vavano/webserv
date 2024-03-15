@@ -117,7 +117,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 			if (method == "index")
 				tmp->index = split[1];
 			else if (method == "cgi_exec")
-				tmp->cgi.cgi_exec = split[1];
+				tmp->cgi.cgi_exec.push_back(split[1]);
 		} else {
 			if (split.size() != 3) { return (this->error("Invalid number of arguments", opt.line, opt.options)); }
 			std::pair<std::string, std::string>	p;

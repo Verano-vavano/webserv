@@ -56,16 +56,18 @@ class HTTPConfig {
         typedef t_map_str_str t_header;
 
 		typedef struct {
-			std::string							cgi_exec;
-			std::map<std::string, std::string>	cgi_interpreter;
+			std::vector<std::string>			cgi_exec; // Vector of executables
+			std::map<std::string, std::string>	cgi_interpreter; // Pairs extension / interpreter
 		}	t_cgi;
 
-        typedef struct {
+        typedef struct s_location {
             std::string default_uri;
             std::string replacement;
             std::string index;
 			t_cgi		cgi;
             bool        alias;
+
+			struct s_location & operator=(struct s_location const & rhs);
         }   t_location;
 
         typedef struct s_error {

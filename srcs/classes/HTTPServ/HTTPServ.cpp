@@ -1,10 +1,16 @@
 #include "HTTPServ.hpp"
 
+// Useful global variable opened in R/W on .launched
+// If sigint received, 'I' written in it, stopping epoll_wait
+// and assigning FD_CLOSED to the variable, escaping the main loop
+// If change takes too much time and epoll_wait restarts, it will loop once more
+static int	g_stop_fd = FD_NOT_OPEN;
+
 HTTPServ::HTTPServ(void) { return ; }
 
 HTTPServ::HTTPServ(char **conf) {
 	this->conf.configurate(conf[0], conf[1]);
-	// this->conf.print_config();
+	this->conf.print_config();
 }
 
 int socketOpen(HTTPConfig::t_config config) {

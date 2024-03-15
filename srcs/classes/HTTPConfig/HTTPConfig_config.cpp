@@ -76,10 +76,7 @@ HTTPConfig::t_config	& HTTPConfig::t_config::operator=(t_config const & rhs) {
 
 	this->port = rhs.port;
 	this->server_name = rhs.server_name;
-	this->default_root.default_uri = rhs.default_root.default_uri;
-	this->default_root.replacement = rhs.default_root.replacement;
-	this->default_root.index = rhs.default_root.index;
-	this->default_root.alias = rhs.default_root.alias;
+	this->default_root = rhs.default_root;
 	this->absolute_redirect = rhs.absolute_redirect;
 	this->chunked_transfer_encoding = rhs.chunked_transfer_encoding;
 	this->client_body_timeout = rhs.client_body_timeout;
@@ -105,12 +102,7 @@ HTTPConfig::t_config	& HTTPConfig::t_config::operator=(t_config const & rhs) {
 	HTTPConfig::t_location	tmp2;
 	for (std::vector<HTTPConfig::t_location>::const_iterator it = rhs.locations.begin();
 			it != rhs.locations.end(); it++) {
-		tmp2.default_uri = it->default_uri;
-		tmp2.replacement = it->replacement;
-		tmp2.index = it->index;
-		tmp2.alias = it->alias;
-		tmp2.cgi.cgi_exec = it->cgi.cgi_exec;
-		copy_map_strstr(tmp2.cgi.cgi_interpreter, it->cgi.cgi_interpreter);
+		tmp2 = *it;
 		this->locations.push_back(tmp2);
 	}
 
@@ -128,6 +120,22 @@ HTTPConfig::t_error	& HTTPConfig::t_error::operator=(t_error const & rhs) {
 	this->uri = rhs.uri;
 	std::vector<int>	tmp(rhs.codes.begin(), rhs.codes.end());
 	this->codes = tmp;
+	return (*this);
+}
+
+HTTPConfig::t_location & HTTPConfig::t_location::operator=(t_location const & rhs) {
+	this->default_uri = rhs.default_uri;
+	this->replacement = rhs.replacement;
+	this->index = rhs.index;
+	this->alias = rhs.alias;
+
+	std::string	tmp;
+	for (std::vector<std::string>::const_iterator it = rhs.cgi.cgi_exec.begin(); it != rhs.cgi.cgi_exec.end(); it++) {
+		tmp = *it;
+		this->cgi.cgi_exec.push_back(tmp);
+	}
+
+	HTTPConfig::copy_map_strstr(this->cgi.cgi_interpreter, rhs.cgi.cgi_interpreter);
 	return (*this);
 }
 
