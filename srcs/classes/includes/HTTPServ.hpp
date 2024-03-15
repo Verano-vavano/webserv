@@ -6,8 +6,16 @@
 #include <unistd.h>
 #include <netinet/in.h> // sockaddr_in
 # include <iostream>
+# include <fcntl.h>
+# include <signal.h>
 #include <sys/epoll.h>
 #include <vector>
+
+# define FD_NOT_OPEN 0
+# define FD_ERROR -1
+# define FD_CLOSED -2
+
+static int	g_stop_fd = FD_NOT_OPEN;
 
 class HTTPServ {
 
@@ -43,6 +51,8 @@ class HTTPServ {
 		t_socket				initClientSocket(HTTPServ::t_socket server);
 		void					event_change(int fd, EPOLL_EVENTS event);
 		void					epollinTheSocket(int socket_fd);
+
+		static void				sigint_handler(int signal);
 };
 
 #endif /* HTTPSERV_HPP */

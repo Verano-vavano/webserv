@@ -46,6 +46,12 @@ void HTTPServ::socketsInit(void) {
 		exit(EXIT_FAILURE);
 	}
 
+	g_stop_fd = open(".launched", O_RDWR | O_CREAT, 0666);
+	if (g_stop_fd == FD_ERROR) {
+		std::cerr << "Failed to create .launched" << std::endl;
+	}
+	this->epollinTheSocket(g_stop_fd);
+
 	std::vector<HTTPConfig::t_config>::iterator configs_it = this->conf.servers.begin();
 	for (; configs_it != this->conf.servers.end(); configs_it++) {
 		t_socket tmp;
@@ -115,26 +121,42 @@ void HTTPServ::event_change(int fd, EPOLL_EVENTS event) {
 	epoll_ctl(this->epoll_fd, EPOLL_CTL_MOD, fd, &tmp);
 }
 
+void	HTTPServ::sigint_handler(int signal) {
+	(void) signal;
+	if (g_stop_fd == FD_ERROR || g_stop_fd == FD_NOT_OPEN) { return ; }
+	write(g_stop_fd, "I", 1);
+	close(g_stop_fd);
+	remove("./.launched");
+	g_stop_fd = FD_CLOSED;
+	return ;
+}
+
 void HTTPServ::mainLoop(void) {
 	HTTPProtocol Http;
 	t_response_creator	tmp;
 
-	while (true) {
+	signal(SIGINT, this->sigint_handler);
+
+	while (g_stop_fd != FD_CLOSED) {
 		ulong sockets_count = this->sockets.size();
 		ulong i = 0;
-		epoll_event wait_events[sockets_count];
+		epoll_event wait_events[sockets_count + 1];
 
 		for (; i < sockets_count; i++)
 			wait_events[i].data.fd = -1;
 
 		std::cout << "WAIT START... ";
-		epoll_wait(this->epoll_fd, wait_events, sockets_count, -1);
+		epoll_wait(this->epoll_fd, wait_events, sockets_count + 1, -1);
 		std::cout << "END WAIT" << std::endl;
 
-		for (i = 0; i < sockets_count && wait_events[i].data.fd != -1; i++){
+		std::cout << "SOCKETS_COUNT = " << sockets_count + 1 << std::endl;
+		for (i = 0; i < sockets_count + 1 && wait_events[i].data.fd != -1; i++){
+			std::cout << g_stop_fd << " | " << wait_events[i].data.fd << std::endl;
 			t_socket *matching_socket = find_socket(wait_events[i].data.fd);
-			if (!matching_socket)
+			if (!matching_socket) {
+				std::cout << "QUITTING" << std::endl;
 				break;
+			}
 			if (matching_socket->is_client) {
 				if (wait_events[i].events == EPOLLIN) {
 					char buffer[1024] = { 0 };
@@ -154,7 +176,7 @@ void HTTPServ::mainLoop(void) {
 					std::cout << "RECEIVED REQUEST FROM " << matching_socket->fd << std::endl;
 					std::string request(buffer);
 					Http.understand_request(matching_socket->rc.req, request);
-					Http.print_request(matching_socket->rc.req);
+					//Http.print_request(matching_socket->rc.req);
 					Http.create_response(matching_socket->rc);
 					event_change(matching_socket->fd, EPOLLOUT);
 				} else if (wait_events[i].events == EPOLLOUT){

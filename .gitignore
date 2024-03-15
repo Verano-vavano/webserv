@@ -2,6 +2,7 @@
 valg*
 *.swp
 *.swo
+.launched
 tests
 webserv
 miniweb
