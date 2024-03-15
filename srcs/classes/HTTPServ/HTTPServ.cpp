@@ -100,7 +100,7 @@ HTTPServ::t_socket HTTPServ::initClientSocket(HTTPServ::t_socket server) {
 
 	newClientSocket.fd = accept(server.fd, (sockaddr*)&client_addr, &sock_addr_len);
 	newClientSocket.port = server.port;
-	std::cout << "\t new client socket  = " << newClientSocket.port << std::endl;
+	std::cout << "ACCEPTED NEW CLIENT (fd = " << newClientSocket.fd << ", port = " << newClientSocket.port << ")" << std::endl;
 	newClientSocket.is_client = true;
 	newClientSocket.rc.conf = get_config_client(newClientSocket.port);
 
@@ -127,7 +127,9 @@ void HTTPServ::mainLoop(void) {
 		for (; i < sockets_count; i++)
 			wait_events[i].data.fd = -1;
 
+		std::cout << "WAIT START... ";
 		epoll_wait(this->epoll_fd, wait_events, sockets_count, -1);
+		std::cout << "END WAIT" << std::endl;
 
 		for (i = 0; i < sockets_count && wait_events[i].data.fd != -1; i++){
 			t_socket *matching_socket = find_socket(wait_events[i].data.fd);
@@ -136,23 +138,34 @@ void HTTPServ::mainLoop(void) {
 			if (matching_socket->is_client) {
 				if (wait_events[i].events == EPOLLIN) {
 					char buffer[1024] = { 0 };
-					if (recv(matching_socket->fd, buffer, sizeof(buffer), 0) == -1) {
+					int	ret = recv(matching_socket->fd, buffer, sizeof(buffer), 0);
+				   	if (ret == -1) {
 						std::cout << "Could not read from client connection" << std::endl;
 						exit(EXIT_FAILURE);
+					} else if (ret == 0) {
+						epoll_ctl(this->epoll_fd, EPOLL_CTL_DEL, matching_socket->fd, &wait_events[i]);
+						std::vector<t_socket>::iterator	it = this->sockets.begin();
+						for (; it != this->sockets.end() && &*it != matching_socket; it++) {}
+						std::cout << "DELETED NEW CLIENT (fd = " << it->fd << ", port = " << it->port << ")" << std::endl;
+						close(it->fd);
+						this->sockets.erase(it);
+						continue ;
 					}
+					std::cout << "RECEIVED REQUEST FROM " << matching_socket->fd << std::endl;
 					std::string request(buffer);
 					Http.understand_request(matching_socket->rc.req, request);
 					Http.print_request(matching_socket->rc.req);
 					Http.create_response(matching_socket->rc);
 					event_change(matching_socket->fd, EPOLLOUT);
-					Http.format_response(matching_socket->rc.res);
 				} else if (wait_events[i].events == EPOLLOUT){
+					std::cout << "SENT RESPONSE TO " << matching_socket->fd << std::endl;
 					std::string res = Http.format_response(matching_socket->rc.res);
-					std::cout << res << std::endl;
+					//std::cout << res << std::endl;
 					send(matching_socket->fd, res.c_str(), res.size(), 0);
 					event_change(matching_socket->fd, EPOLLIN);
 				} else {
 					std::cout << "Could not handle event" << std::endl;
+					continue ;
 				}
 			} else {
 				t_socket newClientSocket = initClientSocket(*matching_socket);
