@@ -16,3 +16,8 @@ For boolean methods (absolute_redirect for example), not specifying an argument 
 To toggle it off, an 'off' argument must be specified.
 Hence "absolute_redirect;" == "absolute_redirect on;"
 To make so not specifying an argument toggles on and off, please specify the define TOGGLE_BOOL.
+
+
+CGIs:
+- cgi-exec will mark the following files as executables. Thus if the extension is not in the cgi-interpreter list, it will try to be executed as is.
+- cgi-interpreter will associate a file extension with an interpreter

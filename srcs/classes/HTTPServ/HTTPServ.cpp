@@ -188,7 +188,7 @@ void HTTPServ::mainLoop(void) {
 				} else if (wait_events[i].events == EPOLLOUT){
 					std::cout << "SENT RESPONSE TO " << matching_socket->fd << std::endl;
 					std::string res = Http.format_response(matching_socket->rc.res);
-					//std::cout << res << std::endl;
+					std::cout << res << std::endl;
 					send(matching_socket->fd, res.c_str(), res.size(), 0);
 					event_change(matching_socket->fd, EPOLLIN);
 				} else {

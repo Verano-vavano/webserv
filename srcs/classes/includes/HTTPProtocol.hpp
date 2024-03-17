@@ -8,6 +8,8 @@
 # include <string>
 # include <vector>
 # include <map>
+# include <unistd.h>
+# include <sys/wait.h>
 
 // DEFAULT TYPES
 # define HTML	"text/html"
@@ -38,6 +40,11 @@ typedef struct {
 	std::string				file_type;
 }	t_response_creator;
 
+typedef struct {
+	std::string file;
+	HTTPConfig::t_cgi const *cgi;
+} t_uri_cgi;
+
 
 // A small machine capable of understanding a user-client request
 // and also creating the adequate response according to a config file
@@ -53,11 +60,14 @@ class HTTPProtocol {
 		void		create_response(t_response_creator &r);
 		std::string	format_response(t_response &res);
 
+		static std::string	remove_useless_slashes(std::string const &uri);
+
 	private:
 		std::vector<std::string>	split_header_val(std::string val);
 
 		void	handle_method(t_response_creator &r);
 		void	handle_get(t_response_creator &r);
+
 
 		void	check_type(t_response_creator &r);
 
@@ -65,10 +75,13 @@ class HTTPProtocol {
 
 		void	set_headers(t_response_creator &r);
 
-		HTTPConfig::t_location	const get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
-		std::string				const get_complete_uri(std::string const &uri, HTTPConfig::t_config *conf);
-		std::string				const get_mime_type(HTTPConfig::t_config *config, std::string &file_type);
+		HTTPConfig::t_location	const &get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
+		t_uri_cgi	const	get_complete_uri(std::string const &uri, HTTPConfig::t_config *conf);
+		void				get_body(std::string const &uri, t_response_creator &r, int change);
+		std::string	const	get_mime_type(HTTPConfig::t_config *config, std::string &file_type);
 		static std::string		get_error_tag(int err_code);
+
+		static bool exec_cgi(std::string file, std::string *interpreter, t_response_creator &r);
 
 		static void	read_entire_file(std::string &buf, std::ifstream &file);
 

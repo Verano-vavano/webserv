@@ -16,19 +16,10 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 	}
 
 	if (found) {
-		std::string		full_uri = this->get_complete_uri(it->uri, r.conf);
-		//std::cout << "URI = [" << r.conf->path + full_uri << "]" << std::endl;
-		std::ifstream	file((r.conf->path + full_uri).c_str());
-		if (file && file.good()) {
-			//std::cout << "INSIDE" << std::endl;
-			if (it->response != -1)
-				r.err_code = it->response;
-			this->read_entire_file(r.res.body, file);
-			return ;
-		}
+		get_body(it->uri, r, it->response);
 	}
 
-	if (r.err_code != 200) {
+	if (r.err_code != 200 && r.res.body.size() == 0) {
 		r.res.body = "<!DOCTYPE html><body>[DEFAULT ERROR] " + get_error_tag(r.err_code) + "</body>";
 	}
 	return ;

@@ -3,3 +3,5 @@ retrocompatibilite HTTP1.0
 max_depth ?
 wildcards dans Accept et q=
 finir cgi
+DEFINE NO_DEFAULT_INTERPRETER
+Meilleur cgi_exec
