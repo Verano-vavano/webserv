@@ -1,4 +1,5 @@
 #include "HTTPConfig.hpp"
+#include "HTTPProtocol.hpp"
 
 // RETURN 2 : skip the block
 // RETURN 1 : quit
@@ -21,7 +22,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 			return (2 - (opt.options & O_ERROR_STOP));
 		}
 		else if (split.size() > 2 && HTTPConfig::warning("Multiple URI for location (not supported)", opt.line, opt.options)) { return (1); }
-		tmp.default_uri = split[1];
+		tmp.default_uri = HTTPProtocol::remove_useless_slashes(split[1]);
 		tmp.replacement = "";
 		opt.current_serv->locations.push_back(tmp);
 	}
@@ -38,8 +39,8 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 	// SERVER
 	else if (method == "server") {
 		t_config	tmp;
-		tmp = this->default_config;
 		tmp.port = 80;
+		tmp = this->default_config;
 		if (split.size() >= 2) {
 			tmp.port = std::atoi(split[1].c_str());
 			if (tmp.port == 0 && warning("Invalid server port at declaration", opt.line, opt.options)) { return (1); }
