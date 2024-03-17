@@ -17,6 +17,8 @@
 # define JS		"application/javascript"
 # define WEBP	"image/webp"
 
+# define CGI_TO	5
+
 # define CRLF "\r\n"
 
 typedef struct {

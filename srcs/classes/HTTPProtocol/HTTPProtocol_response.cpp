@@ -23,29 +23,6 @@ void	HTTPProtocol::handle_method(t_response_creator &r) {
 		r.err_code = 501;
 }
 
-std::string HTTPProtocol::get_error_tag(int err_code) {
-	std::ostringstream	s;
-	s << err_code;
-	std::string	err_mes;
-	switch (err_code) {
-		case 200:
-			err_mes = "OK";
-			break ;
-		case 404:
-			err_mes = "Not Found";
-			break ;
-		case 406:
-			err_mes = "Not Acceptable";
-			break ;
-		case 501:
-			err_mes = "Not Implemented";
-			break ;
-		default:
-			err_mes = "Unknown";
-	}
-	return (s.str() + " " + err_mes);
-}
-
 std::string	HTTPProtocol::format_response(t_response &res) {
 	return (res.status_line + CRLF + res.headers + CRLF + res.body);
 }

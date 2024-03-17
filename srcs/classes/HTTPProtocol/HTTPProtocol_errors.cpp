@@ -20,8 +20,34 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 	}
 
 	if (r.err_code != 200 && r.res.body.size() == 0) {
-		r.res.body = "<!DOCTYPE html><body>[DEFAULT ERROR] " + get_error_tag(r.err_code) + "</body>";
+		r.res.body = "[DEFAULT ERROR] " + get_error_tag(r.err_code);
 	}
 	return ;
 
+}
+
+std::string HTTPProtocol::get_error_tag(int err_code) {
+	std::ostringstream	s;
+	s << err_code;
+	std::string	err_mes;
+	switch (err_code) {
+		case 200:
+			err_mes = "OK";
+			break ;
+		case 404:
+			err_mes = "Not Found";
+			break ;
+		case 406:
+			err_mes = "Not Acceptable";
+			break ;
+		case 500:
+			err_mes = "Internal Servor Error";
+			break ;
+		case 501:
+			err_mes = "Not Implemented";
+			break ;
+		default:
+			err_mes = "Unknown";
+	}
+	return (s.str() + " " + err_mes);
 }

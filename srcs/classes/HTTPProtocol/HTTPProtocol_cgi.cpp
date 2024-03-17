@@ -2,7 +2,6 @@
 
 bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_response_creator &r) {
 	int	pipefd[2];
-	std::cout << "CGI = " << file << " and INTERPRETER = " << interpreter << std::endl;
 
 	if (pipe(pipefd) == -1) { return (1); }
 
@@ -32,14 +31,30 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 		char		buffer[4096];
 		ssize_t		bytes;
 
+		bool	timeout = true;
+		int		lol;
+		for (int i = 0; i < CGI_TO * 2; i++) {
+			std::cout << "Bonjour " << i << " and " << CGI_TO << std::endl;
+			if (waitpid(pid, &lol, WNOHANG) == pid) {
+				std::cout << "LOL\n";
+				timeout = false;
+				break ;
+			}
+			usleep(500000);
+		}
+		std::cout << "OUT" << std::endl;
+		if (timeout) {
+			std::cout << "TIMEOUT" << std::endl;
+			r.err_code = 500;
+			kill(pid, SIGKILL);
+			return (0);
+		}
+
 		while ((bytes = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0) {
 			buffer[bytes] = '\0';
 			ret += buffer;
 		}
 		close(pipefd[0]);
-
-		int	status;
-		waitpid(pid, &status, 0);
 
 		r.res.body = ret;
 
