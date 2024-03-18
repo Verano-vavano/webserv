@@ -86,6 +86,7 @@ class HTTPProtocol {
 		static bool exec_cgi(std::string file, std::string *interpreter, t_response_creator &r);
 
 		static void	read_entire_file(std::string &buf, std::ifstream &file);
+		static bool		is_wildcard_match(std::string input, std::string match);
 
 };
 
