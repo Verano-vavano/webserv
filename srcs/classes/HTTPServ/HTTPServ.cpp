@@ -183,12 +183,13 @@ void HTTPServ::mainLoop(void) {
 					std::string request(buffer);
 					Http.understand_request(matching_socket->rc.req, request);
 					//Http.print_request(matching_socket->rc.req);
+					if (matching_socket->rc.req.method == "POST")
+						this->users.handle_user(matching_socket->rc);
 					Http.create_response(matching_socket->rc);
 					event_change(matching_socket->fd, EPOLLOUT);
 				} else if (wait_events[i].events == EPOLLOUT){
-					std::cout << "SENT RESPONSE TO " << matching_socket->fd << std::endl;
 					std::string res = Http.format_response(matching_socket->rc.res);
-					std::cout << res << std::endl;
+					std::cout << "Answer will be " << std::endl << res << std::endl;
 					send(matching_socket->fd, res.c_str(), res.size(), 0);
 					event_change(matching_socket->fd, EPOLLIN);
 				} else {

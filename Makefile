@@ -6,7 +6,7 @@
 #    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/03/17 12:24:13 by hdupire          ###   ########.fr        #
+#    Updated: 2024/03/19 14:14:59 by tcharanc         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,10 +32,13 @@ SRCS_HTTPProt=HTTPProtocol_request.cpp \
 			  HTTPProtocol_utils.cpp \
 			  HTTPProtocol_printer.cpp
 
+SRCS_USERS=Users.cpp
+
 SRCS_CLASSES=$(addprefix classes/, \
 			 	$(addprefix HTTPServ/, ${SRCS_HTTPServ})\
 			 	$(addprefix HTTPConfig/, ${SRCS_HTTPConfig})\
 			 	$(addprefix HTTPProtocol/, ${SRCS_HTTPProt})\
+				$(addprefix Users/, ${SRCS_USE})\
 			 )
 
 SRCS=main.cpp\
