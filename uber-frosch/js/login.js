@@ -1,4 +1,5 @@
 const form = document.getElementById("form")
+const disconnect = document.getElementById("disconnect")
 
 function remove_popup() {
 	var popup = document.getElementsByClassName("popup");
@@ -23,6 +24,7 @@ function handle_res(res_json) {
 		display_popup("Tu es authentifie!");
 		console.log(`le cookie d'auth est ${res_json.auth}`)
 		document.cookie = `auth=${res_json.auth}`
+		setup_form();
 	} else if (res_json.status == "already"){
 		display_popup("Tu es deja authentifie");
 		console.log(`tu es deja authentifie!`);
@@ -50,4 +52,51 @@ async function handle_post(event){
 }
 
 
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+function disconnect_user(event) {
+	event.preventDefault();
+	auth = getCookie("auth")
+	document.cookie = `auth=`;
+	fetch(`${window.location}`, {
+		method: "POST",
+		body: JSON.stringify({
+			delete: `${auth}`,
+		}),
+		headers: {
+			"Content-type": "application/json; charset=UTF-8"
+		}
+	});
+	setup_form();
+}
+
 form.addEventListener("submit", handle_post)
+disconnect.addEventListener("submit", disconnect_user)
+
+function setup_form() {
+	var auth=getCookie("auth");
+	console.log(`auth is ${auth}`);
+	if (auth != "") {
+		disconnect.style.display = "block";
+		form.style.display = "none";
+	} else {
+		form.style.display = "block"
+		disconnect.style.display = "none";
+	}
+}
+
+window.onload = setup_form

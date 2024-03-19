@@ -56,7 +56,29 @@ std::string generate_cookie(void) {
 	ret << rand();
 	return (ret.str());
 }
+
+void Users::delete_user_auth(std::string body_json) {
+	int mid = body_json.find(':');
+	std::string auth = body_json.substr(mid, body_json.size() - mid);
+	auth = auth.substr(2, auth.size() - 4);
+	std::vector<t_user>::iterator users_it = this->users.begin();
+	for(; users_it != this->users.end(); users_it++) {
+		if (users_it->auth_key == auth)
+			users_it->auth_key = "";
+	}
+}
+
+bool is_delete_request(std::string body_json) {
+	ulong size = body_json.find("\":") - 5;
+	std::string mystr =  body_json.substr(5, size);
+	return (mystr == "delete");
+}
 void Users::handle_user(t_response_creator &rc) {
+	if (is_delete_request(rc.req.body)) {
+		delete_user_auth(rc.req.body);
+		rc.res.body = "";
+		return;
+	}
 	t_user recieved = this->parse_json(trim_body(rc.req.body));
 	t_user *matching_user = find_matching_user(recieved);
 	rc.res.body = "";
