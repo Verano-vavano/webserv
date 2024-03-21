@@ -71,7 +71,7 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 
 		// DELIM is end of block
 		if (delim.first == '}') {
-			if (opt.blocks.size() == 0 && HTTPConfig::error("Extra '}'", opt.line, opt.options)) { return (1); }
+			if (opt.blocks.size() == 0 || HTTPConfig::error("Extra '}'", opt.line, opt.options)) { return (1); }
 			//else if (cut != "" && HTTPConfig::error("Missing separator", opt.line, opt.options)) { return (1); }
 			else {
 				if (opt.blocks.top() == "server") {
