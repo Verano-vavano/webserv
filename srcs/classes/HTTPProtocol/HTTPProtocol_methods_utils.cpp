@@ -67,8 +67,13 @@ void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 			std::cout << "INTERPRETER = " << interpreter << std::endl;
 			if (exec_cgi(full_uri.file, &interpreter, r) == 0) { return ; }
 		}
-		std::cout << "HELLO " << r.file_type << std::endl;
-		if ((cgi->cgi_exec.find(uri) != cgi->cgi_exec.end() || (cgi->cgi_exec.find("." + r.file_type) != cgi->cgi_exec.end())) && exec_cgi(full_uri.file, NULL, r) == 0) { return ; } // A AMELIORER
+		for (std::set<std::string>::const_iterator it = cgi->cgi_exec.begin(); it != cgi->cgi_exec.end(); it++) {
+			if (is_wildcard_match(uri, *it)) {
+				std::cout << "MATCH" << std::endl;
+				exec_cgi(full_uri.file, NULL, r);
+				return ;
+			}
+		}
 	}
 	//std::cout << "URI = [" << r.conf->path + full_uri << "]" << std::endl;
 	std::ifstream	file((r.conf->path + full_uri.file).c_str());

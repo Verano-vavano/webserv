@@ -21,7 +21,7 @@ std::string	HTTPProtocol::remove_useless_slashes(std::string const &uri) {
 	return (ret);
 }
 
-bool	HTTPProtocol::is_wildcard_match(std::string input, std::string match) {
+bool	HTTPProtocol::is_wildcard_match(std::string const & input, std::string const & match) {
 	std::string	next_pattern;
 	unsigned long	i_index = 0;
 	unsigned long	i_end_pattern;

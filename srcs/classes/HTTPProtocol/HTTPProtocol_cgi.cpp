@@ -1,5 +1,7 @@
 #include "HTTPProtocol.hpp"
 
+#define EXECVE_FAILURE 127
+
 bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_response_creator &r) {
 	int	pipefd[2];
 
@@ -21,8 +23,10 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 			command[0] = const_cast<char *>(file.c_str());
 			command[1] = NULL;
 		}
+		std::cerr << "START EXEC" << std::endl;
 		execve(command[0], command, NULL);
-		return (1);
+		std::cerr << "EXEC FAILED" << std::endl;
+		exit(EXECVE_FAILURE);
 	}
 	else {
 		// FATHER PROCESS
@@ -32,21 +36,24 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 		ssize_t		bytes;
 
 		bool	timeout = true;
-		int		lol;
+		int	status;
 		for (int i = 0; i < CGI_TO * 2; i++) {
-			std::cout << "Bonjour " << i << " and " << CGI_TO << std::endl;
-			if (waitpid(pid, &lol, WNOHANG) == pid) {
-				std::cout << "LOL\n";
+			if (waitpid(pid, &status, WNOHANG) == pid) {
 				timeout = false;
 				break ;
 			}
 			usleep(500000);
 		}
-		std::cout << "OUT" << std::endl;
 		if (timeout) {
 			std::cout << "TIMEOUT" << std::endl;
 			r.err_code = 500;
 			kill(pid, SIGKILL);
+			return (0);
+		}
+		std::cout << "EXIT = " << WIFEXITED(status) << " and SIGNAL = " << WIFSIGNALED(status) << std::endl;
+		if (WIFEXITED(status) && WEXITSTATUS(status) == EXECVE_FAILURE) {
+			std::cout << "execve FAILED" << std::endl;
+			r.err_code = 500;
 			return (0);
 		}
 
