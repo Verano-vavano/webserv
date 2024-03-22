@@ -64,6 +64,7 @@ void	HTTPConfig::set_default_config(void) {
 	conf.keepalive_time = DEFAULT_KEEPALIVE_TIME;
 	conf.log_not_found = DEFAULT_LOG_NOT_FOUND;
 	conf.log_subrequest = DEFAULT_LOG_SUB;
+	conf.default_interpreter = DEFAULT_INTERPRETER;
 	conf.path = this->path;
 
 	return ;
@@ -90,6 +91,7 @@ HTTPConfig::t_config	& HTTPConfig::t_config::operator=(t_config const & rhs) {
 	this->keepalive_time = rhs.keepalive_time;
 	this->log_not_found = rhs.log_not_found;
 	this->log_subrequest = rhs.log_subrequest;
+	this->default_interpreter = rhs.default_interpreter;
 	this->path = rhs.path;
 
 	HTTPConfig::t_error	tmp;

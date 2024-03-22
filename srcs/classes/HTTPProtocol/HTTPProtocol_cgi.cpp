@@ -3,6 +3,11 @@
 // Useless define to specify it. A cgi shall not return 127 or it will be ignored
 #define EXECVE_FAILURE 127
 
+std::string	*HTTPProtocol::get_default_interpreter(std::string const & file_type) {
+	if (file_type == "py") { return (new std::string(PY)); }
+	return (NULL);
+}
+
 bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_response_creator &r) {
 	int	pipefd[2];
 
@@ -11,6 +16,9 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 	pid_t	pid = fork();
 	if (pid == -1) { return (1); }
 	else if (pid == 0) {
+		if (!interpreter && r.conf->default_interpreter) {
+			interpreter = get_default_interpreter(r.file_type);
+		}
 		// CHILD PROCESS
 		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);

@@ -2,6 +2,7 @@
 # define HTTPPROTOCOL_HPP
 
 # include "HTTPConfig.hpp"
+# include "HTTPDefines.hpp"
 
 # include <iostream>
 # include <sstream>
@@ -10,12 +11,6 @@
 # include <map>
 # include <unistd.h>
 # include <sys/wait.h>
-
-// DEFAULT TYPES
-# define HTML	"text/html"
-# define CSS	"text/css"
-# define JS		"application/javascript"
-# define WEBP	"image/webp"
 
 # define CGI_TO	5
 
@@ -84,6 +79,7 @@ class HTTPProtocol {
 		static std::string		get_error_tag(int err_code);
 
 		static bool exec_cgi(std::string file, std::string *interpreter, t_response_creator &r);
+		static std::string *get_default_interpreter(std::string const & file_type);
 
 		static void	read_entire_file(std::string &buf, std::ifstream &file);
 		static bool		is_wildcard_match(std::string const & input, std::string const & match);

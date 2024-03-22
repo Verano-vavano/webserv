@@ -85,7 +85,6 @@ void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 }
 
 std::string	const HTTPProtocol::get_mime_type(HTTPConfig::t_config *config, std::string &file_type) {
-	std::cout << "FILE TYPE = " << std::endl;
 	HTTPConfig::t_type	t_list = config->types;
 	if (t_list.find(file_type) != t_list.end()) {
 		return (t_list[file_type]);

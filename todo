@@ -1,8 +1,9 @@
-REGEX in nginx (crazy crazy, could be implemented in our shell lmao) (location ~ \.(gif|jpg|png)$)
-retrocompatibilite HTTP1.0
-max_depth ?
+Obligatoire
+retrocompatibilite HTTP1.0 (ou en tout cas message d'erreur)
 wildcards dans Accept et q=
-finir cgi
-DEFINE NO_DEFAULT_INTERPRETER
-Meilleur cgi_exec
-checker si location ok
+Opti location pour support wildcards et qu'un tour de boucle plutot que plusieurs find
+
+Potentiel
+REGEX in nginx (crazy crazy, could be implemented in our shell lmao) (location ~ \.(gif|jpg|png)$)
+max_depth ?
+Equivalence lists pour Accept ? (genre html = text/html = text/htm = plain/text) et adapter en ft de q=

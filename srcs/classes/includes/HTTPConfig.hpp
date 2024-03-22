@@ -40,6 +40,7 @@
 # define DEFAULT_KEEPALIVE_TIME 60
 # define DEFAULT_LOG_NOT_FOUND true
 # define DEFAULT_LOG_SUB false
+# define DEFAULT_INTERPRETER true
 
 class HTTPConfig {
 
@@ -97,6 +98,7 @@ class HTTPConfig {
             long                    keepalive_time;
             bool                    log_not_found;
             bool                    log_subrequest;
+	    bool		    default_interpreter;
             t_type                  types;
             t_header                headers;
             std::vector<t_location> locations;
