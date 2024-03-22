@@ -52,6 +52,11 @@ t_uri_cgi	const HTTPProtocol::get_complete_uri(std::string const &uri, HTTPConfi
 
 void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
 	t_uri_cgi	full_uri = this->get_complete_uri(uri, r.conf);
+	std::ifstream	file((r.conf->path + full_uri.file).c_str());
+	if (!file || !file.good()) {
+		r.err_code = 404;
+		return ;	
+	}
 
 	unsigned long	ext_index = full_uri.file.find_last_of(".");
 	if (ext_index != std::string::npos) {
@@ -64,28 +69,19 @@ void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 		std::map<std::string, std::string>::const_iterator int_iter = cgi->cgi_interpreter.find("." + r.file_type);
 		if (int_iter != cgi->cgi_interpreter.end()) {
 			std::string	interpreter = int_iter->second;
-			std::cout << "INTERPRETER = " << interpreter << std::endl;
 			if (exec_cgi(full_uri.file, &interpreter, r) == 0) { return ; }
 		}
 		for (std::set<std::string>::const_iterator it = cgi->cgi_exec.begin(); it != cgi->cgi_exec.end(); it++) {
 			if (is_wildcard_match(uri, *it)) {
-				std::cout << "MATCH" << std::endl;
 				exec_cgi(full_uri.file, NULL, r);
 				return ;
 			}
 		}
 	}
-	//std::cout << "URI = [" << r.conf->path + full_uri << "]" << std::endl;
-	std::ifstream	file((r.conf->path + full_uri.file).c_str());
-	if (file && file.good()) {
-		//std::cout << "INSIDE" << std::endl;
-		if (change != -1)
-			r.err_code = change;
-		this->read_entire_file(r.res.body, file);
-		return ;
-	}
-	else
-		r.err_code = 404;
+	if (change != -1)
+		r.err_code = change;
+	this->read_entire_file(r.res.body, file);
+	return ;
 }
 
 std::string	const HTTPProtocol::get_mime_type(HTTPConfig::t_config *config, std::string &file_type) {

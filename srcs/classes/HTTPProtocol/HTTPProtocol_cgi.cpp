@@ -1,5 +1,6 @@
 #include "HTTPProtocol.hpp"
 
+// Useless define to specify it. A cgi shall not return 127 or it will be ignored
 #define EXECVE_FAILURE 127
 
 bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_response_creator &r) {
@@ -23,9 +24,7 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 			command[0] = const_cast<char *>(file.c_str());
 			command[1] = NULL;
 		}
-		std::cerr << "START EXEC" << std::endl;
 		execve(command[0], command, NULL);
-		std::cerr << "EXEC FAILED" << std::endl;
 		exit(EXECVE_FAILURE);
 	}
 	else {
@@ -45,18 +44,19 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 			usleep(500000);
 		}
 		if (timeout) {
+			// timeout
 			std::cout << "TIMEOUT" << std::endl;
 			r.err_code = 500;
 			kill(pid, SIGKILL);
 			return (0);
 		}
-		std::cout << "EXIT = " << WIFEXITED(status) << " and SIGNAL = " << WIFSIGNALED(status) << std::endl;
 		if (WIFEXITED(status) && WEXITSTATUS(status) == EXECVE_FAILURE) {
-			std::cout << "execve FAILED" << std::endl;
+			// execve fail
 			r.err_code = 500;
 			return (0);
 		}
 
+		// Read output
 		while ((bytes = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0) {
 			buffer[bytes] = '\0';
 			ret += buffer;
