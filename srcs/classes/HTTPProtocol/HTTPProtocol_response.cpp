@@ -9,7 +9,9 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 
 	this->handle_method(rc); // Gets body from request method
 	rc.file_type = get_mime_type(rc.conf, rc.file_type);
-	if (rc.err_code == 200)
+	if (rc.req.http_version != "HTTP/1.1") {
+		rc.err_code = 505;
+	} else if (rc.err_code == 200)
 		this->check_type(rc); // Checks if file type matches Accept header
 	this->handle_error_code(rc); // Gets body if error
 	if (rc.req.method == "POST") {

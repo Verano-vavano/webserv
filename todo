@@ -1,9 +1,9 @@
-Obligatoire
-retrocompatibilite HTTP1.0 (ou en tout cas message d'erreur)
-wildcards dans Accept et q=
+-Obligatoire
+retrocompatibilite HTTP1.0
+q=
 Opti location pour support wildcards et qu'un tour de boucle plutot que plusieurs find
 
-Potentiel
+-Potentiel
 REGEX in nginx (crazy crazy, could be implemented in our shell lmao) (location ~ \.(gif|jpg|png)$)
 max_depth ?
 Equivalence lists pour Accept ? (genre html = text/html = text/htm = plain/text) et adapter en ft de q=

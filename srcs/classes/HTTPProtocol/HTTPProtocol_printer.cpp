@@ -5,6 +5,7 @@ void	HTTPProtocol::print_request(t_request &req) {
 	std::cout << "REQUEST SENT" << std::endl;
 	std::cout << "Method = " << req.method << std::endl;
 	std::cout << "URI = " << req.uri << std::endl;
+	std::cout << "HTTP = " << req.http_version << std::endl;
 	std::cout << "Headers :" << std::endl;
 	for (std::map<std::string, std::vector<std::string> >::const_iterator it = req.headers.begin();
 			it != req.headers.end(); it++) {

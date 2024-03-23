@@ -20,6 +20,7 @@ int    HTTPProtocol::understand_request(t_request &req, std::string &s) {
     }
     else
         req.uri = "NONE";
+    req.http_version = line.substr(sub_index, index - sub_index);
 
     // HEADERS are defined by a name and a list of values
     sub_index = index + 2; // sub_index points to the start of the headers and will move line to line
