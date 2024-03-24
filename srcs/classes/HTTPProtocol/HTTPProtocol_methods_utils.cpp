@@ -45,8 +45,6 @@ t_uri_cgi	const HTTPProtocol::get_complete_uri(std::string const &uri, HTTPConfi
 	else
 		ret.file = dir.replacement + "/" + better_uri;
 
-	std::cout << "FILE = " << ret.file << std::endl;
-
 	return (ret);
 }
 
