@@ -60,7 +60,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 int	HTTPConfig::set_define(std::string & cut, HTTPConfig::t_parser &opt) {
 	if (opt.blocks.size() != 0 && HTTPConfig::error("Invalid define location", opt.line, opt.options)) { return (1); }
 
-	int	start = 6;
+	unsigned int	start = 6;
 	for (; isspace(cut[start]); start++) {}
 	std::string	method = cut.substr(start);
 
@@ -111,7 +111,6 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 		HTTPConfig::t_location	*tmp = &(serv->locations.back());
 		if (opt.blocks.top().substr(0, 8) != "location") { tmp = &(serv->default_root); }
 		if (method == "root" || method == "alias") {
-			if (tmp->replacement != "" && HTTPConfig::warning("Overwriting already existing alias", opt.line, opt.options)) { return (1); }
 			if (split.size() == 1) { return (HTTPConfig::warning("No location for a uri", opt.line, opt.options)); }
 			if (split.size() != 2 && HTTPConfig::warning("Multiple locations for a uri", opt.line, opt.options)) { return (1); }
 			tmp->replacement = split[1];
