@@ -1,12 +1,16 @@
 -Obligatoire
-Sujet :
+SUJET :
 "poll() (ou équivalent) doit vérifier la lecture et l’écriture en même temps." ?
 timeout serveur
 "Définir une liste de méthodes HTTP acceptées pour la route."
 "Activer ou désactiver le listing des répertoires"
 Server_name
 Max body size
-Nous:
+
+BUGS:
+Quand commentaire l11 easy (location / {... }), boucle infinie
+
+NOUS:
 READ.ME
 Chunked encoding
 Body to

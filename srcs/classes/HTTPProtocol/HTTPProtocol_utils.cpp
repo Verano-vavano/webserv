@@ -48,3 +48,11 @@ bool	HTTPProtocol::is_wildcard_match(std::string const & input, std::string cons
 	}
 	return (true);
 }
+
+bool	HTTPProtocol::is_directory(std::string const & file) {
+	struct stat file_stat;
+	if (stat(file.c_str(), &file_stat) == 0) {
+		return (S_ISDIR(file_stat.st_mode));
+	}
+	return (false);
+}

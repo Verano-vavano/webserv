@@ -12,6 +12,10 @@
 # include <unistd.h>
 # include <sys/wait.h>
 
+// DIRECTORY LISTING
+# include <sys/stat.h>
+# include <dirent.h>
+
 # define CGI_TO	5
 
 # define CRLF "\r\n"
@@ -75,6 +79,7 @@ class HTTPProtocol {
 
 		HTTPConfig::t_location	const &get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
 		t_uri_cgi	const	get_complete_uri(std::string const &uri, HTTPConfig::t_config *conf);
+		static void	directory_listing(t_response_creator &r, std::string const & dir, std::string const &uri);
 		void				get_body(std::string const &uri, t_response_creator &r, int change);
 		std::string	const	get_mime_type(HTTPConfig::t_config *config, std::string &file_type);
 		static std::string		get_error_tag(int err_code);
@@ -84,6 +89,7 @@ class HTTPProtocol {
 
 		static void	read_entire_file(std::string &buf, std::ifstream &file);
 		static bool		is_wildcard_match(std::string const & input, std::string const & match);
+		static bool	is_directory(std::string const & file);
 
 };
 
