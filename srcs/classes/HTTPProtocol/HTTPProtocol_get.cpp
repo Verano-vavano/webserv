@@ -45,6 +45,8 @@ t_uri_cgi	const HTTPProtocol::get_complete_uri(std::string const &uri, HTTPConfi
 	else
 		ret.file = dir.replacement + "/" + better_uri;
 
+	ret.dir_listing = dir.dir_listing;
+
 	return (ret);
 }
 
@@ -82,9 +84,11 @@ void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & 
 
 void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
 	t_uri_cgi	full_uri = this->get_complete_uri(uri, r.conf);
-	std::cout << full_uri.file << " IS URI" << std::endl;
 	if (this->is_directory(full_uri.file)) {
-		this->directory_listing(r, full_uri.file, uri);
+		if (full_uri.dir_listing)
+			this->directory_listing(r, full_uri.file, uri);
+		else
+			r.err_code = 403;
 		return ;
 	}
 
@@ -118,16 +122,4 @@ void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 		r.err_code = change;
 	this->read_entire_file(r.res.body, file);
 	return ;
-}
-
-std::string	const HTTPProtocol::get_mime_type(HTTPConfig::t_config *config, std::string &file_type) {
-	HTTPConfig::t_type	t_list = config->types;
-	if (t_list.find(file_type) != t_list.end()) {
-		return (t_list[file_type]);
-	}
-	else if (file_type == "html") { return (HTML); }
-	else if (file_type == "css") { return (CSS); }
-	else if (file_type == "js") { return (JS); }
-	else if (file_type == "webp") { return (WEBP); }
-	return (config->default_type);
 }

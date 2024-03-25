@@ -107,9 +107,9 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	std::string	method = split.front();
 
 	// LOCATION METHODS
-	if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", NULL)) {
+	if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", "dir_listing", NULL)) {
 		HTTPConfig::t_location	*tmp = &(serv->locations.back());
-		if (opt.blocks.top().substr(0, 8) != "location") { tmp = &(serv->default_root); }
+		if (opt.blocks.size() == 0 || opt.blocks.top().substr(0, 8) != "location") { tmp = &(serv->default_root); }
 		if (method == "root" || method == "alias") {
 			if (split.size() == 1) { return (HTTPConfig::warning("No location for a uri", opt.line, opt.options)); }
 			if (split.size() != 2 && HTTPConfig::warning("Multiple locations for a uri", opt.line, opt.options)) { return (1); }
@@ -122,12 +122,21 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 				tmp->index = split[1];
 			else if (method == "cgi_exec")
 				tmp->cgi.cgi_exec.insert(split[1]);
-		} else {
+		} else if (method == "cgi_interpreter") {
 			if (split.size() != 3) { return (this->error("Invalid number of arguments", opt.line, opt.options)); }
 			std::pair<std::string, std::string>	p;
 			p.first = split[1];
 			p.second = split[2];
 			tmp->cgi.cgi_interpreter.insert(p);
+		} else if (method == "dir_listing") {
+			bool	on, easy;
+			easy = (split.size() != 1);
+			if (!easy) { on = (opt.options & O_TOGGLE_BOOL); }
+			else {
+				if (split.size() > 2 && this->warning("More than one argument to boolean method " + method, opt.line, opt.options)) { return (1); }
+				on = (split[1] == "on");
+			}
+			tmp->dir_listing = (easy ? on : !(tmp->dir_listing & on));
 		}
 	}
 

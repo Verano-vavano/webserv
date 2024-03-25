@@ -45,6 +45,7 @@ typedef struct {
 typedef struct {
 	std::string file;
 	HTTPConfig::t_cgi const *cgi;
+	bool	dir_listing;
 } t_uri_cgi;
 
 

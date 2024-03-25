@@ -56,3 +56,15 @@ bool	HTTPProtocol::is_directory(std::string const & file) {
 	}
 	return (false);
 }
+
+std::string	const HTTPProtocol::get_mime_type(HTTPConfig::t_config *config, std::string &file_type) {
+	HTTPConfig::t_type	t_list = config->types;
+	if (t_list.find(file_type) != t_list.end()) {
+		return (t_list[file_type]);
+	}
+	else if (file_type == "html") { return (HTML); }
+	else if (file_type == "css") { return (CSS); }
+	else if (file_type == "js") { return (JS); }
+	else if (file_type == "webp") { return (WEBP); }
+	return (config->default_type);
+}

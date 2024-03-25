@@ -32,6 +32,9 @@ std::string HTTPProtocol::get_error_tag(int err_code) {
 		case 200:
 			err_mes = "OK";
 			break ;
+		case 403:
+			err_mes = "Forbidden";
+			break ;
 		case 404:
 			err_mes = "Not Found";
 			break ;

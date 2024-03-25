@@ -67,6 +67,7 @@ class HTTPConfig {
             std::string replacement;
             std::string index;
 			t_cgi		cgi;
+	    bool	dir_listing;
             bool        alias;
 
 			struct s_location & operator=(struct s_location const & rhs);

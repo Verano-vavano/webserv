@@ -50,6 +50,7 @@ void	HTTPConfig::set_default_config(void) {
 	conf.server_name = DEFAULT_NAME;
 	conf.default_root.default_uri = "/";
 	conf.default_root.replacement = DEFAULT_LOCATION;
+	conf.default_root.dir_listing = false;
 	conf.default_root.alias = false;
 	conf.absolute_redirect = DEFAULT_REDIR;
 	conf.chunked_transfer_encoding = DEFAULT_CHUNKED;
@@ -133,6 +134,7 @@ HTTPConfig::t_location & HTTPConfig::t_location::operator=(t_location const & rh
 	this->replacement = rhs.replacement;
 	this->index = rhs.index;
 	this->alias = rhs.alias;
+	this->dir_listing = rhs.dir_listing;
 
 	std::string	tmp;
 	for (std::set<std::string>::const_iterator it = rhs.cgi.cgi_exec.begin(); it != rhs.cgi.cgi_exec.end(); it++) {

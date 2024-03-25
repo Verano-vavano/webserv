@@ -10,7 +10,6 @@ HTTPServ::HTTPServ(void) { return ; }
 
 HTTPServ::HTTPServ(char **conf) {
 	this->conf.configurate(conf[0], conf[1]);
-	this->conf.print_config();
 }
 
 int socketOpen(HTTPConfig::t_config config) {

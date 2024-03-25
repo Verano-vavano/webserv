@@ -3,14 +3,13 @@ SUJET :
 "poll() (ou équivalent) doit vérifier la lecture et l’écriture en même temps." ?
 timeout serveur
 "Définir une liste de méthodes HTTP acceptées pour la route."
-"Activer ou désactiver le listing des répertoires"
-Server_name
 Max body size
 
 BUGS:
-Quand commentaire l11 easy (location / {... }), boucle infinie
+Tester si commentaire de block skip block en SPACE MODE (je crois que j'ai oublié de le faire)
 
 NOUS:
+Refaire boolean methods en plus joli
 READ.ME
 Chunked encoding
 Body to
@@ -21,6 +20,8 @@ Ignore invalid headers
 Keepalive (req and time)
 Log not found
 Log sub
+Server_name
+Allow /.. in directory listing ? (idk, seems dangerous)
 
 -Potentiel
 retrocompatibilite HTTP1.0
