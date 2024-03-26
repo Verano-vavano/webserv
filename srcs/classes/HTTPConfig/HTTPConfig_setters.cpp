@@ -95,6 +95,19 @@ int	HTTPConfig::set_type(std::string & cut, HTTPConfig::t_parser &opt) {
 	return (0);
 }
 
+int	HTTPConfig::set_methods(std::vector<std::string> const & split, t_parser &opt) {
+	bool	allow = (split[0] == "methods");
+
+	std::string	method_name;
+	for (std::vector<std::string>::const_iterator it = split.begin() + 1; it !=split.end(); it++) {
+		method_name = it->substr(it->find_first_not_of("/"));
+		std::cout << method_name << std::endl;
+	}
+	(void) opt;
+	(void) allow;
+	return (0);
+}
+
 
 int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	std::vector<std::string>	split;
@@ -104,8 +117,13 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	std::string	method = split.front();
 
+	// METHODS
+	if (method == "methods" || method == "not_methods") {
+		return (this->set_methods(split, opt));
+	}
+
 	// LOCATION METHODS
-	if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", "dir_listing", NULL)) {
+	else if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", "dir_listing", NULL)) {
 		HTTPConfig::t_location	*tmp = &(serv->locations.back());
 		if (opt.blocks.size() == 0 || opt.blocks.top().substr(0, 8) != "location") { tmp = &(serv->default_root); }
 		if (method == "root" || method == "alias") {
