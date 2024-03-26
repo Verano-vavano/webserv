@@ -112,7 +112,6 @@ HTTPServ::t_socket HTTPServ::initClientSocket(HTTPServ::t_socket server) {
 
 	newClientSocket.fd = accept(server.fd, (sockaddr*)&client_addr, &sock_addr_len);
 	newClientSocket.port = server.port;
-	std::cout << "ACCEPTED NEW CLIENT (fd = " << newClientSocket.fd << ", port = " << newClientSocket.port << ")" << std::endl;
 	newClientSocket.is_client = true;
 	newClientSocket.rc.conf = get_config_client(newClientSocket.port);
 
@@ -151,20 +150,16 @@ void HTTPServ::mainLoop(void) {
 		for (; i < sockets_count; i++)
 			wait_events[i].data.fd = -1;
 
-		std::cout << "WAIT START... ";
 		epoll_wait(this->epoll_fd, wait_events, sockets_count + 1, -1);
-		std::cout << "END WAIT" << std::endl;
 
-		std::cout << "SOCKETS_COUNT = " << sockets_count + 1 << std::endl;
 		for (i = 0; i < sockets_count + 1 && wait_events[i].data.fd != -1; i++){
-			std::cout << g_stop_fd << " | " << wait_events[i].data.fd << std::endl;
 			t_socket *matching_socket = find_socket(wait_events[i].data.fd);
 			if (!matching_socket) {
 				std::cout << "QUITTING" << std::endl;
 				break;
 			}
 			if (matching_socket->is_client) {
-				if (wait_events[i].events == EPOLLIN) {
+				if (wait_events[i].events & EPOLLIN) {
 					char buffer[1024] = { 0 };
 					int	ret = recv(matching_socket->fd, buffer, sizeof(buffer), 0);
 				   	if (ret == -1) {
@@ -187,13 +182,13 @@ void HTTPServ::mainLoop(void) {
 						this->users.handle_user(matching_socket->rc);
 					Http.create_response(matching_socket->rc);
 					event_change(matching_socket->fd, EPOLLOUT);
-				} else if (wait_events[i].events == EPOLLOUT){
+				} else if (wait_events[i].events & EPOLLOUT){
 					std::string res = Http.format_response(matching_socket->rc.res);
 					std::cout << "Answer will be " << std::endl << res << std::endl;
 					send(matching_socket->fd, res.c_str(), res.size(), 0);
 					event_change(matching_socket->fd, EPOLLIN);
 				} else {
-					std::cout << "Could not handle event" << std::endl;
+					std::cout << "Could not handle event " << wait_events[i].events << std::endl;
 					continue ;
 				}
 			} else {

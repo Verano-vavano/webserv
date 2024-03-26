@@ -137,7 +137,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	// 1 NAND 1 = 0, 0 NAND 1 = 1 so if B = 1, A is 'switched'
 	// 1 NAND 0 = 1, 0 NAND 0 = 1 so if B = 0, A is true
 	else if (this->in(method, "absolute_redirect", "chunked_transfer_encoding",
-			"ignore_invalid_headers", "log_not_found", "log_subrequest", NULL)) {
+			"ignore_invalid_headers", "log_not_found", "log_subrequest", "default_interpreter", NULL)) {
 		bool	on, easy;
 		easy = (split.size() != 1);
 		if (!easy) { on = (opt.options & O_TOGGLE_BOOL); }
@@ -152,6 +152,9 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 				break ;
 			case 'c':
 				serv->chunked_transfer_encoding = (easy ? on : !(serv->chunked_transfer_encoding & on));
+				break ;
+			case 'd':
+				serv->default_interpreter = (easy ? on : !(serv->default_interpreter & on));
 				break ;
 			case 'i':
 				serv->ignore_invalid_headers = (easy ? on : !(serv->ignore_invalid_headers & on));

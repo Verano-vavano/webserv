@@ -45,13 +45,54 @@ t_uri_cgi	const HTTPProtocol::get_complete_uri(std::string const &uri, HTTPConfi
 	else
 		ret.file = dir.replacement + "/" + better_uri;
 
-	std::cout << "FILE = " << ret.file << std::endl;
-
 	return (ret);
+}
+
+void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & dir, std::string const &uri) {
+	DIR*	directory = opendir(dir.c_str());
+	if (!directory) {
+		r.err_code = 403;
+		return ;
+	}
+
+	r.file_type = "html";
+	std::string & body = r.res.body;
+	std::string	better_dir = HTTPProtocol::remove_useless_slashes(dir);
+
+	body = "<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head><body><h1>";
+	body += better_dir + " listing</h1><ul>";
+
+	struct dirent*	entry;
+	std::string	file;
+	std::string	complete_uri = uri;
+	if (uri.size() && uri.at(uri.size() - 1) != '/') {
+		complete_uri += "/";
+	}
+	while ((entry = readdir(directory))) {
+		file = entry->d_name;
+		// Maybe add a slash if there is not
+		body += "<a href=" + complete_uri + file + "><li>" + file + "</a></li>";
+	}
+
+	body += "</ul></body></html>";
+
+	closedir(directory);
+	return ;
 }
 
 void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
 	t_uri_cgi	full_uri = this->get_complete_uri(uri, r.conf);
+	std::cout << full_uri.file << " IS URI" << std::endl;
+	if (this->is_directory(full_uri.file)) {
+		this->directory_listing(r, full_uri.file, uri);
+		return ;
+	}
+
+	std::ifstream	file((r.conf->path + full_uri.file).c_str());
+	if (!file || !file.good()) {
+		r.err_code = 404;
+		return ;	
+	}
 
 	unsigned long	ext_index = full_uri.file.find_last_of(".");
 	if (ext_index != std::string::npos) {
@@ -64,27 +105,22 @@ void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 		std::map<std::string, std::string>::const_iterator int_iter = cgi->cgi_interpreter.find("." + r.file_type);
 		if (int_iter != cgi->cgi_interpreter.end()) {
 			std::string	interpreter = int_iter->second;
-			std::cout << "INTERPRETER = " << interpreter << std::endl;
 			if (exec_cgi(full_uri.file, &interpreter, r) == 0) { return ; }
 		}
-		std::cout << "HELLO " << r.file_type << std::endl;
-		if ((cgi->cgi_exec.find(uri) != cgi->cgi_exec.end() || (cgi->cgi_exec.find("." + r.file_type) != cgi->cgi_exec.end())) && exec_cgi(full_uri.file, NULL, r) == 0) { return ; } // A AMELIORER
+		for (std::set<std::string>::const_iterator it = cgi->cgi_exec.begin(); it != cgi->cgi_exec.end(); it++) {
+			if (is_wildcard_match(uri, *it)) {
+				exec_cgi(full_uri.file, NULL, r);
+				return ;
+			}
+		}
 	}
-	//std::cout << "URI = [" << r.conf->path + full_uri << "]" << std::endl;
-	std::ifstream	file((r.conf->path + full_uri.file).c_str());
-	if (file && file.good()) {
-		//std::cout << "INSIDE" << std::endl;
-		if (change != -1)
-			r.err_code = change;
-		this->read_entire_file(r.res.body, file);
-		return ;
-	}
-	else
-		r.err_code = 404;
+	if (change != -1)
+		r.err_code = change;
+	this->read_entire_file(r.res.body, file);
+	return ;
 }
 
 std::string	const HTTPProtocol::get_mime_type(HTTPConfig::t_config *config, std::string &file_type) {
-	std::cout << "FILE TYPE = " << std::endl;
 	HTTPConfig::t_type	t_list = config->types;
 	if (t_list.find(file_type) != t_list.end()) {
 		return (t_list[file_type]);

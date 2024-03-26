@@ -17,9 +17,7 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 
 	if (found) {
 		get_body(it->uri, r, it->response);
-	}
-
-	if (r.err_code != 200 && r.res.body.size() == 0) {
+	} else if (r.err_code != 200) {
 		r.res.body = "[DEFAULT ERROR] " + get_error_tag(r.err_code);
 	}
 	return ;
@@ -45,6 +43,9 @@ std::string HTTPProtocol::get_error_tag(int err_code) {
 			break ;
 		case 501:
 			err_mes = "Not Implemented";
+			break ;
+		case 505:
+			err_mes = "HTTP Version Not Supported";
 			break ;
 		default:
 			err_mes = "Unknown";

@@ -1,5 +1,13 @@
 #include "HTTPProtocol.hpp"
 
+// Useless define to specify it. A cgi shall not return 127 or it will be ignored
+#define EXECVE_FAILURE 127
+
+std::string	*HTTPProtocol::get_default_interpreter(std::string const & file_type) {
+	if (file_type == "py") { return (new std::string(PY)); }
+	return (NULL);
+}
+
 bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_response_creator &r) {
 	int	pipefd[2];
 
@@ -8,6 +16,9 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 	pid_t	pid = fork();
 	if (pid == -1) { return (1); }
 	else if (pid == 0) {
+		if (!interpreter && r.conf->default_interpreter) {
+			interpreter = get_default_interpreter(r.file_type);
+		}
 		// CHILD PROCESS
 		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);
@@ -22,7 +33,7 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 			command[1] = NULL;
 		}
 		execve(command[0], command, NULL);
-		return (1);
+		exit(EXECVE_FAILURE);
 	}
 	else {
 		// FATHER PROCESS
@@ -32,24 +43,28 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 		ssize_t		bytes;
 
 		bool	timeout = true;
-		int		lol;
+		int	status;
 		for (int i = 0; i < CGI_TO * 2; i++) {
-			std::cout << "Bonjour " << i << " and " << CGI_TO << std::endl;
-			if (waitpid(pid, &lol, WNOHANG) == pid) {
-				std::cout << "LOL\n";
+			if (waitpid(pid, &status, WNOHANG) == pid) {
 				timeout = false;
 				break ;
 			}
 			usleep(500000);
 		}
-		std::cout << "OUT" << std::endl;
 		if (timeout) {
+			// timeout
 			std::cout << "TIMEOUT" << std::endl;
 			r.err_code = 500;
 			kill(pid, SIGKILL);
 			return (0);
 		}
+		if (WIFEXITED(status) && WEXITSTATUS(status) == EXECVE_FAILURE) {
+			// execve fail
+			r.err_code = 500;
+			return (0);
+		}
 
+		// Read output
 		while ((bytes = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0) {
 			buffer[bytes] = '\0';
 			ret += buffer;
