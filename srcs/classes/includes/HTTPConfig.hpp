@@ -45,103 +45,103 @@ class HTTPConfig {
 
 	public:
 		HTTPConfig(void);
-        HTTPConfig(char const **conf);
-        HTTPConfig(std::string const path, std::string const config_file);
+		HTTPConfig(char const **conf);
+		HTTPConfig(std::string const path, std::string const config_file);
 		~HTTPConfig(void);
 
-        void 	configurate(std::string const path, std::string const config_file);
+		void 	configurate(std::string const path, std::string const config_file);
 		void	print_config(void) const;
 
-        typedef std::map<std::string, std::string> t_map_str_str;
-        typedef t_map_str_str t_type;
-        typedef t_map_str_str t_header;
+		typedef std::map<std::string, std::string> t_map_str_str;
+		typedef t_map_str_str t_type;
+		typedef t_map_str_str t_header;
 
 		typedef struct {
 			std::set<std::string>				cgi_exec; // Vector of executables
 			std::map<std::string, std::string>	cgi_interpreter; // Pairs extension / interpreter
 		}	t_cgi;
 
-        typedef struct s_location {
-            std::string default_uri;
-            std::string replacement;
-            std::string index;
+		typedef struct s_location {
+			std::string default_uri;
+			std::string replacement;
+			std::string index;
 			t_cgi		cgi;
-            bool        alias;
+			bool		alias;
 
 			struct s_location & operator=(struct s_location const & rhs);
-        }   t_location;
+		}   t_location;
 
-        typedef struct s_error {
-            std::set<int>    codes;
-            int                 response;
-            std::string         uri;
+		typedef struct s_error {
+			std::set<int>	codes;
+			int				 response;
+			std::string		 uri;
 
 			struct s_error & operator=(struct s_error const & rhs);
-        }   t_error;
+		}   t_error;
 
-        typedef struct s_config {
-            int                     port;
-            std::string             server_name;
+		typedef struct s_config {
+			int					 port;
+			std::string			 server_name;
 			t_location				default_root;
-            bool                    absolute_redirect;
-            bool                    chunked_transfer_encoding;
-            long                    client_body_timeout;
-            long                    client_body_buffer_size;
-            short                   client_body_in_file_only;
-            long                    client_header_buffer_size;
-            long                    client_max_body_size;
-            std::string             default_type;
-            std::vector<t_error>    error_page;
-            bool                    ignore_invalid_headers;
-            long                    keepalive_requests;
-            long                    keepalive_time;
-            bool                    log_not_found;
-            bool                    log_subrequest;
-            t_type                  types;
-            t_header                headers;
-            std::vector<t_location> locations;
+			bool					absolute_redirect;
+			bool					chunked_transfer_encoding;
+			long					client_body_timeout;
+			long					client_body_buffer_size;
+			short				   client_body_in_file_only;
+			long					client_header_buffer_size;
+			long					client_max_body_size;
+			std::string			 default_type;
+			std::vector<t_error>	error_page;
+			bool					ignore_invalid_headers;
+			long					keepalive_requests;
+			long					keepalive_time;
+			bool					log_not_found;
+			bool					log_subrequest;
+			t_type				  types;
+			t_header				headers;
+			std::vector<t_location> locations;
 			std::string				path;
 
 			struct s_config & operator=(struct s_config const & rhs);
-        }   t_config;
+		}   t_config;
 
-        t_config                default_config;
-        std::vector<t_config>   servers;
-        std::string             path;
+		t_config				default_config;
+		std::vector<t_config>   servers;
+		std::string			 path;
 
-    private:
-        // CONFIG OPTIONS
+	private:
+		// CONFIG OPTIONS
 		void	set_default_config(void);
 
 		static void	copy_map_strstr(t_map_str_str & n, t_map_str_str const & old);
 
 
-        // CONFIG PARSER
+		// CONFIG PARSER
 
-        typedef struct {
-            std::stack<std::string> blocks;
-            bool                    in_http;
-            t_config                *current_serv;
-            int                     options;
-            unsigned long           line;
-        }   t_parser;
+		typedef struct {
+			std::stack<std::string> blocks;
+			bool					in_http;
+			t_config				*current_serv;
+			int					 options;
+			unsigned long		   line;
+		}   t_parser;
 
-        bool	parse_infile(std::ifstream &f, bool space_mode);
+		bool	parse_infile(std::ifstream &f, bool space_mode);
 
-        int understand_the_line(std::string buffer, std::string & temp, t_parser &opt);
-        int understand_the_cut(std::string & cut, t_parser &opt);
+		int understand_the_line(std::string buffer, std::string & temp, t_parser &opt);
+		int understand_the_cut(std::string & cut, t_parser &opt);
 
-        int set_define(std::string & cut, t_parser &opt);
-        int set_type(std::string & cut, t_parser &opt);
-        int set_block(std::string & cut, t_parser &opt);
-        int set_other(std::string & cut, t_parser &opt);
+		int set_define(std::string & cut, t_parser &opt);
+		int set_type(std::string & cut, t_parser &opt);
+		int set_block(std::string & cut, t_parser &opt);
+		int set_other(std::string & cut, t_parser &opt);
 
 		int	set_error_page(std::vector<std::string> &split, t_parser &opt);
 
-        static std::pair<char, int>     search_delim(std::string const buffer, t_parser &opt);
-        static std::string              trim_buffer(char *buffer);
-        static std::string              trim_buffer(std::string const & buffer);
-        static void                     split_cut(std::vector<std::string> &s, std::string const & cut);
+		static std::pair<char, int>	 search_delim(std::string const buffer, t_parser &opt);
+		static std::string			  trim_buffer(char *buffer);
+		static std::string			  trim_buffer(std::string const & buffer);
+		static void					 split_cut(std::vector<std::string> &s, std::string const & cut);
 		static void						skip_block(std::string & buffer, int start);
 		static bool						in(std::string const s, ...);
 		static long						translate_time(std::string arg);

@@ -1,11 +1,11 @@
 #include "HTTPConfig.hpp"
 
 bool	HTTPConfig::parse_infile(std::ifstream &f, bool space_mode) {
-	char                    buffer[BUFFER_SIZE];
+	char					buffer[BUFFER_SIZE];
 	std::string				line;
 	std::string				temp = "";
-	std::streamsize         bytes;
-	HTTPConfig::t_parser    opt;
+	std::streamsize		 bytes;
+	HTTPConfig::t_parser	opt;
 
 	if (BUFFER_SIZE < 2) {
 		std::cerr << "Buffer size too small (check HTTPConfig.hpp or use custom flag -D to define a new one)" << std::endl;
@@ -44,8 +44,8 @@ bool	HTTPConfig::parse_infile(std::ifstream &f, bool space_mode) {
 // 1 = Error parsing && ERROR_STOP on
 int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTPConfig::t_parser &opt) {
 	std::string				cmd;
-	std::pair<char, int>    delim;
-	std::string             cut;
+	std::pair<char, int>	delim;
+	std::string			 cut;
 	int						ret;
 
 	temp = "";
