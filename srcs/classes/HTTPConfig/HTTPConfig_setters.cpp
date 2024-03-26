@@ -13,10 +13,8 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 	// LOCATION
 	if (method == "location") {
 		t_location	tmp;
-		if (this->servers.size())
-			tmp = this->servers.back().default_root;
-		else
-			tmp = this->default_config.default_root;
+		tmp.replacement = "";
+		tmp = opt.current_serv->default_root;
 		if (split.size() == 1) {
 			HTTPConfig::error("No URI for location (if root, specify '/')", opt.line, opt.options);
 			return (2 - (opt.options & O_ERROR_STOP));
@@ -24,7 +22,6 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 		else if (split.size() > 2 && HTTPConfig::warning("Multiple URI for location (not supported)", opt.line, opt.options)) { return (1); }
 		tmp.default_uri = HTTPProtocol::remove_useless_slashes(split[1]);
 		if (tmp.default_uri.size() && tmp.default_uri[tmp.default_uri.size() - 1] != '/') { tmp.default_uri += "/"; }
-		tmp.replacement = "";
 		opt.current_serv->locations.push_back(tmp);
 	}
 
