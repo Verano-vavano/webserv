@@ -15,13 +15,12 @@
 # define FD_NOT_OPEN 0
 # define FD_ERROR -1
 # define FD_CLOSED -2
-
 class HTTPServ {
 
 	public:
 		HTTPServ(void);
-        HTTPServ(char **conf);
-        HTTPServ(char *path, char *config_file);
+		HTTPServ(char **conf);
+		HTTPServ(char *path, char *config_file);
 		HTTPServ(HTTPServ const & old);
 		HTTPServ & operator=(HTTPServ const & rhs);
 		~HTTPServ(void);
@@ -30,7 +29,7 @@ class HTTPServ {
 		void mainLoop(void);
 		void socketsClose(void);
 
-    private:
+	private:
 
 		typedef struct s_socket {
 			int fd;
@@ -40,7 +39,7 @@ class HTTPServ {
 		} t_socket;
 
 		int						epoll_fd;
-        HTTPConfig				conf;
+		HTTPConfig				conf;
 		std::vector<t_socket>	sockets;
 		Users					users;
 
@@ -52,6 +51,7 @@ class HTTPServ {
 		void					epollinTheSocket(int socket_fd);
 
 		static void				sigint_handler(int signal);
+
 };
 
 #endif /* HTTPSERV_HPP */

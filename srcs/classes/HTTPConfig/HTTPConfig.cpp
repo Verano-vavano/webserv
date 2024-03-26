@@ -4,12 +4,12 @@ HTTPConfig::HTTPConfig(void) {}
 
 HTTPConfig::HTTPConfig(char const **conf) {
 	this->configurate(conf[0], conf[1]);
-    return ;
+	return ;
 }
 
 HTTPConfig::HTTPConfig(std::string const path, std::string const config_file) {
 	this->configurate(path, config_file);
-    return ;
+	return ;
 }
 
 HTTPConfig::~HTTPConfig(void) { return ; }

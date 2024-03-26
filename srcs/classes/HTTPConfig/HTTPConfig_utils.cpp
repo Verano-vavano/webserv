@@ -1,7 +1,7 @@
 #include "HTTPConfig.hpp"
 
-std::pair<char, int>    HTTPConfig::search_delim(std::string const buffer, HTTPConfig::t_parser &opt) {
-	std::pair<char, int>    ret;
+std::pair<char, int>	HTTPConfig::search_delim(std::string const buffer, HTTPConfig::t_parser &opt) {
+	std::pair<char, int>	ret;
 
 	ret.first = 0;
 	for (int i = 0; buffer[i]; i++) {
