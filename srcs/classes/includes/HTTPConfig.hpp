@@ -24,7 +24,7 @@
 
 # define ISSPACE " \f\n\r\t\v"
 
-# define DEFAULT_PORT 80
+# define DEFAULT_PORT 8080
 # define DEFAULT_NAME "localhost"
 # define DEFAULT_LOCATION "./"
 # define DEFAULT_REDIR true
@@ -66,7 +66,8 @@ class HTTPConfig {
             std::string default_uri;
             std::string replacement;
             std::string index;
-			t_cgi		cgi;
+	    t_cgi	cgi;
+	    std::vector<std::string>	methods;
 	    bool	dir_listing;
             bool        alias;
 
@@ -148,6 +149,7 @@ class HTTPConfig {
 		static void						skip_block(std::string & buffer, int start);
 		static bool						in(std::string const s, ...);
 		static long						translate_time(std::string arg);
+	static bool	boolean_switch(bool &var, t_parser const &opt, std::vector<std::string> const & split);
 
 		static bool	warning(std::string const message, unsigned long line, int mask);
 		static bool	error(std::string const message, unsigned long line, int mask);

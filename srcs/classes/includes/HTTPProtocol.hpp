@@ -17,6 +17,8 @@
 # include <dirent.h>
 
 # define CGI_TO	5
+# define CGI_LOOP 200
+# define CGI_SLEEP CGI_TO * 1000000 / CGI_LOOP
 
 # define CRLF "\r\n"
 

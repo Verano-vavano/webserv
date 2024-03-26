@@ -21,3 +21,17 @@ To make so not specifying an argument toggles on and off, please specify the def
 CGIs:
 - cgi-exec will mark the following files as executables. Thus if the extension is not in the cgi-interpreter list, it will try to be executed as is.
 - cgi-interpreter will associate a file extension with an interpreter
+Every executably marked file will be executed.
+
+dir_listing is a boolean method linked to a location that will enable or disable the directory listing for said location. On a non location scope, it will be applied to / (although not recommanded)
+
+methods is a list applied to a location that will enable methods. Wildcards are allowed, but risky. If the method starts with /, it will be forbidden. If not_methods used, it will disable by default. Thus:
+methods std; # enables all standard methods;
+methods /std; # disables all standard methods;
+methods * /get; # enables all methods except get;
+methods std /get /post;
+methods std; not_methods get post;
+not_methods * /get; # disables all methods except get;
+All leading slashes but one are ignored (///get == /get)
+By default, only GET, POST and DELETE methods are allowed.
+std is a keyword representing the default methods.

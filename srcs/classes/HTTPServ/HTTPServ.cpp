@@ -10,6 +10,7 @@ HTTPServ::HTTPServ(void) { return ; }
 
 HTTPServ::HTTPServ(char **conf) {
 	this->conf.configurate(conf[0], conf[1]);
+	this->conf.print_config();
 }
 
 int socketOpen(HTTPConfig::t_config config) {
@@ -168,12 +169,10 @@ void HTTPServ::mainLoop(void) {
 						epoll_ctl(this->epoll_fd, EPOLL_CTL_DEL, matching_socket->fd, &wait_events[i]);
 						std::vector<t_socket>::iterator	it = this->sockets.begin();
 						for (; it != this->sockets.end() && &*it != matching_socket; it++) {}
-						std::cout << "DELETED NEW CLIENT (fd = " << it->fd << ", port = " << it->port << ")" << std::endl;
 						close(it->fd);
 						this->sockets.erase(it);
 						continue ;
 					}
-					std::cout << "RECEIVED REQUEST FROM " << matching_socket->fd << std::endl;
 					std::string request(buffer);
 					Http.understand_request(matching_socket->rc.req, request);
 					//Http.print_request(matching_socket->rc.req);
@@ -183,7 +182,7 @@ void HTTPServ::mainLoop(void) {
 					event_change(matching_socket->fd, EPOLLOUT);
 				} else if (wait_events[i].events & EPOLLOUT){
 					std::string res = Http.format_response(matching_socket->rc.res);
-					std::cout << "Answer will be " << std::endl << res << std::endl;
+					//std::cout << "Answer will be " << std::endl << res << std::endl;
 					send(matching_socket->fd, res.c_str(), res.size(), 0);
 					event_change(matching_socket->fd, EPOLLIN);
 				} else {

@@ -44,12 +44,12 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 
 		bool	timeout = true;
 		int	status;
-		for (int i = 0; i < CGI_TO * 2; i++) {
+		for (int i = 0; i < CGI_LOOP; i++) {
 			if (waitpid(pid, &status, WNOHANG) == pid) {
 				timeout = false;
 				break ;
 			}
-			usleep(500000);
+			usleep(CGI_SLEEP);
 		}
 		if (timeout) {
 			// timeout
@@ -60,8 +60,7 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 		}
 		if (WIFEXITED(status) && WEXITSTATUS(status) == EXECVE_FAILURE) {
 			// execve fail
-			r.err_code = 500;
-			return (0);
+			return (1);
 		}
 
 		// Read output
