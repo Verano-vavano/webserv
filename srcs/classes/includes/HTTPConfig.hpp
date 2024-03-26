@@ -62,24 +62,15 @@ class HTTPConfig {
 			std::map<std::string, std::string>	cgi_interpreter; // Pairs extension / interpreter
 		}	t_cgi;
 
-<<<<<<< Updated upstream
-		typedef struct s_location {
+        	typedef struct s_location {
 			std::string default_uri;
 			std::string replacement;
 			std::string index;
-			t_cgi		cgi;
-			bool		alias;
-=======
-        typedef struct s_location {
-            std::string default_uri;
-            std::string replacement;
-            std::string index;
-	    t_cgi	cgi;
-	    std::map<std::string, bool>	methods;
-	    bool	dir_listing;
-            bool        alias;
+			t_cgi	cgi;
+			std::map<std::string, bool>	methods;
+			bool	dir_listing;
+			bool        alias;
 
->>>>>>> Stashed changes
 			struct s_location & operator=(struct s_location const & rhs);
 		}   t_location;
 
