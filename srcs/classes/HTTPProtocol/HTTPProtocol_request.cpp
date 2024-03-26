@@ -34,6 +34,12 @@ int	HTTPProtocol::understand_request(t_request &req, std::string &s) {
 		if (new_el.first.find("\n") != std::string::npos) {
 			return (400);
 		}
+		//HTTP key are case insensitive, so store them as lowercase
+		std::clog << "initial key : " << new_el.first << "\033[0m\n";//debug
+		for (size_t i = 0 ; i < new_el.first.size() ; i++) {
+			new_el.first[i] = tolower(new_el.first[i]);
+		}
+		std::clog << "lowered key : " << new_el.first << "\033[0m\n";//debug
 		sub_sub_index++;
 		sub_index = s.find("\r\n", sub_index);
 		new_el.second = HTTPProtocol::split_header_val(s.substr(sub_sub_index, sub_index - sub_sub_index));
