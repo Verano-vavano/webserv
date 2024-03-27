@@ -95,6 +95,16 @@ int	HTTPConfig::set_type(std::string & cut, HTTPConfig::t_parser &opt) {
 	return (0);
 }
 
+void	HTTPConfig::set_methods_rescue_funk(std::pair<std::string, bool> &entry, t_location *location) {
+	std::map<std::string, bool>::iterator	finder;
+	finder = location->methods.find(entry.first);
+	if (finder != location->methods.end()) {
+		finder->second = entry.second;
+	} else {
+		location->methods.insert(entry);
+	}
+}
+
 int	HTTPConfig::set_methods(std::vector<std::string> const & split, t_parser &opt) {
 	bool	allow = (split[0] == "methods");
 	t_location	*location;
@@ -106,17 +116,18 @@ int	HTTPConfig::set_methods(std::vector<std::string> const & split, t_parser &op
 
 	bool		notd;
 	std::pair<std::string, bool>		entry;
-	std::map<std::string, bool>::iterator	finder;
 	for (std::vector<std::string>::const_iterator it = split.begin() + 1; it !=split.end(); it++) {
 		notd = (it->at(0) == '/');
 		entry.first = this->to_upper(it->substr(it->find_first_not_of("/")));
 		entry.second = (allow == !notd);
-		finder = location->methods.find(entry.first);
-		if (finder != location->methods.end()) {
-			finder->second = entry.second;
-		} else {
-			location->methods.insert(entry);
+		if (entry.first == "STD") {
+			entry.first = "GET";
+			this->set_methods_rescue_funk(entry, location);
+			entry.first = "POST";
+			this->set_methods_rescue_funk(entry, location);
+			entry.first = "DELETE";
 		}
+		this->set_methods_rescue_funk(entry, location);
 	}
 	return (0);
 }

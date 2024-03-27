@@ -138,6 +138,7 @@ class HTTPConfig {
 		int set_define(std::string & cut, t_parser &opt);
 		int set_type(std::string & cut, t_parser &opt);
 		int set_block(std::string & cut, t_parser &opt);
+		static void	set_methods_rescue_funk(std::pair<std::string, bool> &entry, t_location *location);
 		int set_methods(std::vector<std::string> const & split, t_parser &opt);
 		int set_other(std::string & cut, t_parser &opt);
 
