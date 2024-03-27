@@ -181,9 +181,14 @@ void HTTPServ::mainLoop(void) {
 					Http.create_response(matching_socket->rc);
 					event_change(matching_socket->fd, EPOLLOUT);
 				} else if (wait_events[i].events & EPOLLOUT){
-					std::string res = Http.format_response(matching_socket->rc.res);
-					//std::cout << "Answer will be " << std::endl << res << std::endl;
-					send(matching_socket->fd, res.c_str(), res.size(), 0);
+					if (!matching_socket->rc.conf->chunked_transfer_encoding) {
+						std::string res = Http.format_response(matching_socket->rc.res);
+						this->send_data(matching_socket->fd, res.c_str(), res.size());
+						//std::cout << "Answer will be " << std::endl << res << std::endl;
+						std::cout << "RESPONSE SENT" << std::endl;
+					} else {
+						this->send_chunked_response(matching_socket->fd, matching_socket->rc);
+					}
 					event_change(matching_socket->fd, EPOLLIN);
 				} else {
 					std::cout << "Could not handle event " << wait_events[i].events << std::endl;

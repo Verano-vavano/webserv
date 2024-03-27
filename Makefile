@@ -6,13 +6,14 @@
 #    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/03/25 01:28:23 by hdupire          ###   ########.fr        #
+#    Updated: 2024/03/27 15:49:25 by hdupire          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME=./miniweb
 
-SRCS_HTTPServ=HTTPServ.cpp
+SRCS_HTTPServ=HTTPServ.cpp \
+	      HTTPServ_send.cpp
 
 SRCS_HTTPConfig=HTTPConfig.cpp \
 				HTTPConfig_config.cpp \

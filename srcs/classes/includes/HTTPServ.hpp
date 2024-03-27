@@ -50,6 +50,9 @@ class HTTPServ {
 		void					event_change(int fd, EPOLL_EVENTS event);
 		void					epollinTheSocket(int socket_fd);
 
+		static void	send_data(int fd, const char *data, size_t size);
+		static void		send_chunked_response(int fd, t_response_creator const & rc);
+
 		static void				sigint_handler(int signal);
 
 };

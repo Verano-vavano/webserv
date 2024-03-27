@@ -127,7 +127,7 @@ int	HTTPConfig::set_methods(std::vector<std::string> const & split, t_parser &op
 			this->set_methods_rescue_funk(entry, location);
 			entry.first = "DELETE";
 		}
-		this->set_methods_rescue_funk(entry, location);
+	this->set_methods_rescue_funk(entry, location);
 	}
 	return (0);
 }

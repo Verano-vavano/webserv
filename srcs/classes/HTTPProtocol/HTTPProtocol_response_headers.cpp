@@ -5,6 +5,10 @@ void	HTTPProtocol::set_headers(t_response_creator &r) {
 	std::ostringstream	s;
 
 	h += "Content-Type: " + r.file_type + CRLF;
-	s << r.res.body.size();
-	h += "Content-Length: " + s.str() + CRLF;
+	if (!r.conf->chunked_transfer_encoding) {
+		s << r.res.body.size();
+		h += "Content-Length: " + s.str() + CRLF;
+	} else {
+		h += "Transfer-Encoding: chunked" + std::string(CRLF);
+	}
 }

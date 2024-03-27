@@ -9,7 +9,7 @@ Tester si commentaire de block skip block en SPACE MODE (je crois que j'ai oubli
 
 NOUS:
 READ.ME
-Chunked encoding
+Chunked encoding (chunked but no infile specified, chunked while reading infile)
 Body to
 Body Buf size
 Body infile

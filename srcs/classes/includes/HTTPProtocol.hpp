@@ -21,6 +21,7 @@
 # define CGI_SLEEP CGI_TO * 1000000 / CGI_LOOP
 
 # define CRLF "\r\n"
+# define CHUNK_END "0\r\n\r\n"
 
 typedef struct {
 	std::string											method;
@@ -42,6 +43,7 @@ typedef struct {
 	HTTPConfig::t_config	*conf;
 	int						err_code;
 	std::string				file_type;
+	std::string				file;
 }	t_response_creator;
 
 typedef struct {
