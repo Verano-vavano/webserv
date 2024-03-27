@@ -97,14 +97,27 @@ int	HTTPConfig::set_type(std::string & cut, HTTPConfig::t_parser &opt) {
 
 int	HTTPConfig::set_methods(std::vector<std::string> const & split, t_parser &opt) {
 	bool	allow = (split[0] == "methods");
-
-	std::string	method_name;
-	for (std::vector<std::string>::const_iterator it = split.begin() + 1; it !=split.end(); it++) {
-		method_name = it->substr(it->find_first_not_of("/"));
-		std::cout << method_name << std::endl;
+	t_location	*location;
+	if (opt.blocks.size() && opt.blocks.top().substr(0, 8) == "location") {
+		location = &(opt.current_serv->locations.back());
+	} else {
+		location = &(opt.current_serv->default_root);
 	}
-	(void) opt;
-	(void) allow;
+
+	bool		notd;
+	std::pair<std::string, bool>		entry;
+	std::map<std::string, bool>::iterator	finder;
+	for (std::vector<std::string>::const_iterator it = split.begin() + 1; it !=split.end(); it++) {
+		notd = (it->at(0) == '/');
+		entry.first = this->to_upper(it->substr(it->find_first_not_of("/")));
+		entry.second = (allow == !notd);
+		finder = location->methods.find(entry.first);
+		if (finder != location->methods.end()) {
+			finder->second = entry.second;
+		} else {
+			location->methods.insert(entry);
+		}
+	}
 	return (0);
 }
 

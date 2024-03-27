@@ -112,3 +112,12 @@ bool	HTTPConfig::boolean_switch(bool &var, t_parser const & opt, std::vector<std
 	var = (easy ? on : !(var & on));
 	return (0);
 }
+
+
+std::string	HTTPConfig::to_upper(std::string const & old) {
+	std::string	ret = old;
+	for (unsigned int i = 0; i < ret.size(); i++) {
+		if (islower(ret[i])) { ret[i] = toupper(ret[i]); }
+	}
+	return (ret);
+}

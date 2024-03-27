@@ -151,6 +151,7 @@ class HTTPConfig {
 		static bool						in(std::string const s, ...);
 		static long						translate_time(std::string arg);
 	static bool	boolean_switch(bool &var, t_parser const &opt, std::vector<std::string> const & split);
+	static std::string	to_upper(std::string const & old);
 
 		static bool	warning(std::string const message, unsigned long line, int mask);
 		static bool	error(std::string const message, unsigned long line, int mask);
@@ -160,5 +161,7 @@ class HTTPConfig {
 		// PRINTER
 		static void	print_server(t_config const &s);
 };
+
+std::ostream&	operator<<(std::ostream& out, HTTPConfig::t_location const & obj);
 
 #endif /* HTTPCONFIG_HPP */

@@ -136,6 +136,13 @@ HTTPConfig::t_location & HTTPConfig::t_location::operator=(t_location const & rh
 	this->alias = rhs.alias;
 	this->dir_listing = rhs.dir_listing;
 
+	std::pair<std::string, bool> entry;
+	for (std::map<std::string, bool>::const_iterator it = rhs.methods.begin(); it != rhs.methods.end(); it++) {
+		entry.first = it->first;
+		entry.second = it->second;
+		this->methods.insert(entry);
+	}
+
 	std::string	tmp;
 	for (std::set<std::string>::const_iterator it = rhs.cgi.cgi_exec.begin(); it != rhs.cgi.cgi_exec.end(); it++) {
 		tmp = *it;
