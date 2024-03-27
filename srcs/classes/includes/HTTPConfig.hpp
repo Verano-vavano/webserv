@@ -148,7 +148,7 @@ class HTTPConfig {
 		static std::string			  trim_buffer(char *buffer);
 		static std::string			  trim_buffer(std::string const & buffer);
 		static void					 split_cut(std::vector<std::string> &s, std::string const & cut);
-		static void						skip_block(std::string & buffer, int start);
+		static void						skip_block(std::string & buffer, unsigned int start);
 		static bool						in(std::string const s, ...);
 		static long						translate_time(std::string arg);
 	static bool	boolean_switch(bool &var, t_parser const &opt, std::vector<std::string> const & split);

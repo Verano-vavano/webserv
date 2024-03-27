@@ -108,7 +108,7 @@ void	HTTPConfig::set_methods_rescue_funk(std::pair<std::string, bool> &entry, t_
 int	HTTPConfig::set_methods(std::vector<std::string> const & split, t_parser &opt) {
 	bool	allow = (split[0] == "methods");
 	t_location	*location;
-	if (opt.blocks.size() && opt.blocks.top().substr(0, 8) == "location") {
+	if (opt.blocks.size() && opt.blocks.top().size() >= 8 && opt.blocks.top().substr(0, 8) == "location") {
 		location = &(opt.current_serv->locations.back());
 	} else {
 		location = &(opt.current_serv->default_root);

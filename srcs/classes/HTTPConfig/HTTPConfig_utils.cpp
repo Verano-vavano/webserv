@@ -51,9 +51,10 @@ void	HTTPConfig::split_cut(std::vector<std::string> &s, std::string const & cut)
 	return ;
 }
 
-void	HTTPConfig::skip_block(std::string & buffer, int start) {
-	for (; buffer[start] != '}'; start++) {}
-	buffer = buffer.substr(start + 1);
+void	HTTPConfig::skip_block(std::string & buffer, unsigned int start) {
+	for (; start < buffer.size() && buffer[start] != '}'; start++) {}
+	if (start == buffer.size()) { buffer = ""; }
+	else { buffer = buffer.substr(start + 1); }
 }
 
 // checks if s is in the NULL-terminated va_list
