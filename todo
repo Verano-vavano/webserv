@@ -3,13 +3,13 @@ SUJET :
 "poll() (ou équivalent) doit vérifier la lecture et l’écriture en même temps." ?
 timeout serveur
 Max body size
+Disable POST according to methods
 
 BUGS:
 Tester si commentaire de block skip block en SPACE MODE (je crois que j'ai oublié de le faire)
 
 NOUS:
 READ.ME
-Chunked encoding (chunked but no infile specified, chunked while reading infile)
 Body to
 Body Buf size
 Body infile

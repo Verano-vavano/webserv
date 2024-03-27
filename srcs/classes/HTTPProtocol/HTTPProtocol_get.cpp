@@ -41,18 +41,12 @@ t_uri_cgi	const HTTPProtocol::get_complete_uri(std::string const &uri, HTTPConfi
 	}
 
 	if (dir.alias) {
-		std::cout << "ALIAS" << std::endl;
 		ret.file = dir.replacement + "/" + filename;
 	} else if (file == "/" || file == "") {
-		std::cout << "NO FILE" << std::endl;
 		ret.file = dir.replacement + "/" + better_uri + "/" + filename;
 	} else {
-		std::cout << "ELSE" << std::endl;
-		std::cout << "REPLACEMENT = [" << dir.replacement << "]" << std::endl;
 		ret.file = dir.replacement + "/" + better_uri;
 	}
-
-	std::cout << "FILE TO OPEN IS " << ret.file << std::endl;
 
 	ret.dir_listing = dir.dir_listing;
 
@@ -93,7 +87,6 @@ void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & 
 
 void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
 	t_uri_cgi	full_uri = this->get_complete_uri(uri, r.conf);
-	std::cout << full_uri.file << " is FILE" << std::endl;
 	if (this->is_directory(full_uri.file)) {
 		if (full_uri.dir_listing)
 			this->directory_listing(r, full_uri.file, uri);
@@ -127,6 +120,12 @@ void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 	}
 	if (change != -1)
 		r.err_code = change;
+
+	if (r.conf->chunked_transfer_encoding) {
+		r.file = full_uri.file;
+		return ;
+	}
+
 	this->read_entire_file(r.res.body, file);
 	return ;
 }

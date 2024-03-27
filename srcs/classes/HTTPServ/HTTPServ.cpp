@@ -141,10 +141,11 @@ void HTTPServ::mainLoop(void) {
 	t_response_creator	tmp;
 
 	signal(SIGINT, this->sigint_handler);
+	
+	ulong sockets_count = 0;
+	ulong i = 0;
 
 	while (g_stop_fd != FD_CLOSED) {
-		ulong sockets_count = this->sockets.size();
-		ulong i = 0;
 		epoll_event wait_events[sockets_count + 1];
 
 		for (; i < sockets_count; i++)
@@ -199,6 +200,8 @@ void HTTPServ::mainLoop(void) {
 				epollinTheSocket(newClientSocket.fd);
 			}
 		}
+		sockets_count = this->sockets.size();
+		i = 0;
 	}
 }
 

@@ -6,9 +6,6 @@ void	HTTPProtocol::handle_method(t_response_creator &r) {
 	if (uri_with_slash[uri_with_slash.size() - 1] != '/') { uri_with_slash += "/"; }
 	HTTPConfig::t_location const	&dir = get_dir_uri(uri_with_slash, r.conf);
 	if (r.req.method == "GET") {
-		for (std::map<std::string, bool>::const_iterator it = dir.methods.begin(); it != dir.methods.end(); it++) {
-			std::cout << "- " << it->first << ":" << it->second << std::endl;
-		}
 		std::map<std::string, bool>::const_iterator f = dir.methods.find("GET");
 		if (f == dir.methods.end() || f->second == true)
 			this->handle_get(r);
