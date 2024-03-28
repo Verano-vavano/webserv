@@ -5,6 +5,7 @@ void	HTTPProtocol::handle_method(t_response_creator &r) {
 	std::string	uri_with_slash = better_uri;
 	if (uri_with_slash[uri_with_slash.size() - 1] != '/') { uri_with_slash += "/"; }
 	HTTPConfig::t_location const	&dir = get_dir_uri(uri_with_slash, r.conf);
+	r.file = "";
 	if (r.req.method == "GET") {
 		std::map<std::string, bool>::const_iterator f = dir.methods.find("GET");
 		if (f == dir.methods.end() || f->second == true)
