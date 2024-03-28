@@ -11,4 +11,9 @@ void	HTTPProtocol::set_headers(t_response_creator &r) {
 	} else {
 		h += "Transfer-Encoding: chunked" + std::string(CRLF);
 	}
+	if (r.n_req <= 0) {
+		h += "Connection: close" + std::string(CRLF);
+	} else {
+		h += "Connection: keep-alive" + std::string(CRLF);
+	}
 }

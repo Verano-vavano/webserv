@@ -44,6 +44,7 @@ typedef struct {
 	int						err_code;
 	std::string				file_type;
 	std::string				file;
+	long	n_req;
 }	t_response_creator;
 
 typedef struct {

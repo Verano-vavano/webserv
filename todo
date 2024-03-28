@@ -4,8 +4,10 @@ SUJET :
 timeout serveur
 Max body size
 Disable POST according to methods
+DELETE
 
 BUGS:
+Valgrind bugs
 
 NOUS:
 READ.ME
@@ -14,7 +16,7 @@ Body Buf size
 Body infile
 Header buf size
 Ignore invalid headers
-Keepalive (req and time)
+Keepalive (time)
 Log not found
 Log sub
 Server_name

@@ -48,7 +48,6 @@ void	HTTPServ::send_chunked_file_content(int fd, t_response_creator const & rc) 
 
 void	HTTPServ::send_chunked_response(int fd, t_response_creator const &rc) {
 	std::string	to_send = rc.res.status_line + CRLF + rc.res.headers + CRLF;
-	std::cout << to_send;
 	send_data(fd, to_send.c_str(), to_send.size());
 	if (rc.file == "") {
 		send_chunked_body_content(fd, rc);
