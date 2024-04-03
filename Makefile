@@ -6,7 +6,7 @@
 #    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/04/03 19:06:20 by tmongell         ###   ########.fr        #
+#    Updated: 2024/04/03 19:21:56 by tmongell         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,6 +25,7 @@ SRCS_HTTPConfig=HTTPConfig.cpp \
 SRCS_HTTPProt=HTTPProtocol_request.cpp \
 			  HTTPProtocol_response.cpp \
 			  HTTPProtocol_methods.cpp \
+			  HTTPProtocol_methods_utils.cpp \
 			  HTTPProtocol_get.cpp \
 			  HTTPProtocol_cgi.cpp \
 			  HTTPProtocol_accept.cpp \
