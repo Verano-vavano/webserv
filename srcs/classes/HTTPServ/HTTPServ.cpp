@@ -160,7 +160,7 @@ void HTTPServ::mainLoop(void) {
 			}
 			if (matching_socket->is_client) {
 				if (wait_events[i].events & EPOLLIN) {
-					char buffer[1024] = { 0 };
+					char buffer[102400] = { 0 };
 					int	ret = recv(matching_socket->fd, buffer, sizeof(buffer), 0);
 				   	if (ret == -1) {
 						std::cout << "Could not read from client connection" << std::endl;
@@ -175,11 +175,17 @@ void HTTPServ::mainLoop(void) {
 						continue ;
 					}
 					std::cout << "RECEIVED REQUEST FROM " << matching_socket->fd << std::endl;
+					//will segfault if buffer is too large, find a way to loop until all has been read
+					//todo
 					std::string request(buffer);
 					Http.understand_request(matching_socket->rc.req, request);
-					//Http.print_request(matching_socket->rc.req);
-					if (matching_socket->rc.req.method == "POST")
-						this->users.handle_user(matching_socket->rc);
+//move everything in this if to the HTTPProtocol::handle_post methode
+					if (matching_socket->rc.req.method == "POST") {
+						if (matching_socket->rc.req.headers.count("content-type") > 0
+						&&matching_socket->rc.req.headers["content-type"][0].find("application/json") != std::string::npos) {
+							this->users.handle_user(matching_socket->rc);
+						}//end of the if that should be moved
+					}
 					Http.create_response(matching_socket->rc);
 					event_change(matching_socket->fd, EPOLLOUT);
 				} else if (wait_events[i].events & EPOLLOUT){
@@ -200,3 +206,4 @@ void HTTPServ::mainLoop(void) {
 }
 
 HTTPServ::~HTTPServ(void) { return ; }
+

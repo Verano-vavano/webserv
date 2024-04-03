@@ -24,9 +24,13 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 void	HTTPProtocol::handle_method(t_response_creator &r) {
 	if (r.req.method == "GET") {
 		this->handle_get(r);
-	}
-	else if (r.req.method != "POST")
+	} else if (r.req.method == "POST") {
+		this->handle_post(r);
+	} else if (r.req.method == "DELETE") {
+		this->handle_delete(r);
+	} else {
 		r.err_code = 501;
+	}
 }
 
 std::string	HTTPProtocol::format_response(t_response &res) {

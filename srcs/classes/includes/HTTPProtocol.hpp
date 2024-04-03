@@ -69,6 +69,8 @@ class HTTPProtocol {
 
 		void	handle_method(t_response_creator &r);
 		void	handle_get(t_response_creator &r);
+		void	handle_post(t_response_creator &r);
+		void	handle_delete(t_response_creator &r);
 
 
 		void	check_type(t_response_creator &r);
@@ -90,6 +92,11 @@ class HTTPProtocol {
 		static void	read_entire_file(std::string &buf, std::ifstream &file);
 		static bool		is_wildcard_match(std::string const & input, std::string const & match);
 		static bool	is_directory(std::string const & file);
+
+
+		bool		path_in_dir(std::string& uri, std::vector<std::string>& allowed);
+		bool		body_too_large(t_request& req, size_t size_max);
+		std::string	get_full_path(std::string& uri, HTTPConfig::t_config* conf);
 
 };
 

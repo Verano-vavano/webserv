@@ -24,7 +24,7 @@ int	HTTPProtocol::understand_request(t_request &req, std::string &s) {
 
 	// HEADERS are defined by a name and a list of values
 	sub_index = index + 2; // sub_index points to the start of the headers and will move line to line
-	index = s.find("\r\n\r\n", sub_index) + 1; // index points to the end of the headers
+	index = s.find("\r\n\r\n", sub_index); // index points to the end of the headers
 
 	std::pair<std::string, std::vector<std::string> > new_el;
 	while (sub_index < index) {
@@ -35,11 +35,9 @@ int	HTTPProtocol::understand_request(t_request &req, std::string &s) {
 			return (400);
 		}
 		//HTTP key are case insensitive, so store them as lowercase
-		std::clog << "initial key : " << new_el.first << "\033[0m\n";//debug
 		for (size_t i = 0 ; i < new_el.first.size() ; i++) {
 			new_el.first[i] = tolower(new_el.first[i]);
 		}
-		std::clog << "lowered key : " << new_el.first << "\033[0m\n";//debug
 		sub_sub_index++;
 		sub_index = s.find("\r\n", sub_index);
 		new_el.second = HTTPProtocol::split_header_val(s.substr(sub_sub_index, sub_index - sub_sub_index));
@@ -48,6 +46,7 @@ int	HTTPProtocol::understand_request(t_request &req, std::string &s) {
 	}
 
 	// BODY
+	index += 4; //skip nl between header and body ("\r\n\r\n") is 4 char
 	req.body = s.substr(index);
 
 	/* DEBUG
