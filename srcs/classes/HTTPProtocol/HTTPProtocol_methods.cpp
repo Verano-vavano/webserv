@@ -1,4 +1,22 @@
 #include "HTTPProtocol.hpp"
+/*
+void	HTTPProtocol::handle_method(t_response_creator &r) {
+	std::string	better_uri = remove_useless_slashes(r.req.uri);
+	std::string	uri_with_slash = better_uri;
+	if (uri_with_slash[uri_with_slash.size() - 1] != '/') { uri_with_slash += "/"; }
+	HTTPConfig::t_location const	&dir = get_dir_uri(uri_with_slash, r.conf);
+	r.file = "";
+	if (r.req.method == "GET") {
+		std::map<std::string, bool>::const_iterator f = dir.methods.find("GET");
+		if (f == dir.methods.end() || f->second == true)
+			this->handle_get(r);
+		else
+			r.err_code = 403;
+	}
+	else if (r.req.method != "POST")
+		r.err_code = 501;
+}
+*/
 
 void	HTTPProtocol::handle_get(t_response_creator &r) {
 	std::string	&uri = r.req.uri;
@@ -9,7 +27,6 @@ void	HTTPProtocol::handle_get(t_response_creator &r) {
 
 	this->get_body(uri, r, -1);
 }
-
 
 void	HTTPProtocol::handle_post(t_response_creator &r) {
 	//check if uri is good

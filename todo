@@ -2,25 +2,25 @@
 SUJET :
 "poll() (ou équivalent) doit vérifier la lecture et l’écriture en même temps." ?
 timeout serveur
-"Définir une liste de méthodes HTTP acceptées pour la route."
-"Activer ou désactiver le listing des répertoires"
-Server_name
 Max body size
+Disable POST according to methods
+DELETE
 
 BUGS:
-Quand commentaire l11 easy (location / {... }), boucle infinie
+Valgrind bugs
 
 NOUS:
 READ.ME
-Chunked encoding
 Body to
 Body Buf size
 Body infile
 Header buf size
 Ignore invalid headers
-Keepalive (req and time)
+Keepalive (time)
 Log not found
 Log sub
+Server_name
+Allow /.. in directory listing ? (idk, seems dangerous)
 
 -Potentiel
 retrocompatibilite HTTP1.0
@@ -28,3 +28,4 @@ REGEX in nginx (crazy crazy, could be implemented in our shell lmao) (location ~
 max_depth ?
 Equivalence lists pour Accept ? (genre html = text/html = text/htm = plain/text) et adapter en ft de q=
 Opti location pour support wildcards et qu'un tour de boucle plutot que plusieurs find
+Gérer requêtes POST en CGI (comme Nginx)

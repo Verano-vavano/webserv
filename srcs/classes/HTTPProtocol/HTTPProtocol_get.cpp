@@ -23,8 +23,10 @@ HTTPConfig::t_location	const &HTTPProtocol::get_dir_uri(std::string const &uri, 
 
 t_uri_cgi	const HTTPProtocol::get_complete_uri(std::string const &uri, HTTPConfig::t_config *conf) {
 	std::string	better_uri = remove_useless_slashes(uri);
-	HTTPConfig::t_location const	&dir = get_dir_uri(better_uri, conf);
-	std::string	file = better_uri.substr(dir.default_uri.length());
+	std::string	uri_with_slash = better_uri;
+	if (uri_with_slash[uri_with_slash.size() - 1] != '/') { uri_with_slash += "/"; }
+	HTTPConfig::t_location const	&dir = get_dir_uri(uri_with_slash, conf);
+	std::string	file = uri_with_slash.substr(dir.default_uri.length());
 
 	t_uri_cgi ret;
 	ret.cgi = NULL;
@@ -38,12 +40,15 @@ t_uri_cgi	const HTTPProtocol::get_complete_uri(std::string const &uri, HTTPConfi
 		ret.cgi = &dir.cgi;
 	}
 
-	if (dir.alias)
+	if (dir.alias) {
 		ret.file = dir.replacement + "/" + filename;
-	else if (file == "/" || file == "")
+	} else if (file == "/" || file == "") {
 		ret.file = dir.replacement + "/" + better_uri + "/" + filename;
-	else
+	} else {
 		ret.file = dir.replacement + "/" + better_uri;
+	}
+
+	ret.dir_listing = dir.dir_listing;
 
 	return (ret);
 }
@@ -82,9 +87,11 @@ void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & 
 
 void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
 	t_uri_cgi	full_uri = this->get_complete_uri(uri, r.conf);
-	std::cout << full_uri.file << " IS URI" << std::endl;
 	if (this->is_directory(full_uri.file)) {
-		this->directory_listing(r, full_uri.file, uri);
+		if (full_uri.dir_listing)
+			this->directory_listing(r, full_uri.file, uri);
+		else
+			r.err_code = 403;
 		return ;
 	}
 
@@ -108,28 +115,19 @@ void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 			if (exec_cgi(full_uri.file, &interpreter, r) == 0) { return ; }
 		}
 		for (std::set<std::string>::const_iterator it = cgi->cgi_exec.begin(); it != cgi->cgi_exec.end(); it++) {
-			if (is_wildcard_match(uri, *it)) {
-				exec_cgi(full_uri.file, NULL, r);
-				return ;
-			}
+			if (is_wildcard_match(uri, *it) && exec_cgi(full_uri.file, NULL, r) == 0) { return ; }
 		}
 	}
 	if (change != -1)
 		r.err_code = change;
+
+	if (r.conf->chunked_transfer_encoding) {
+		r.file = full_uri.file;
+		return ;
+	}
+
 	this->read_entire_file(r.res.body, file);
 	return ;
-}
-
-std::string	const HTTPProtocol::get_mime_type(HTTPConfig::t_config *config, std::string &file_type) {
-	HTTPConfig::t_type	t_list = config->types;
-	if (t_list.find(file_type) != t_list.end()) {
-		return (t_list[file_type]);
-	}
-	else if (file_type == "html") { return (HTML); }
-	else if (file_type == "css") { return (CSS); }
-	else if (file_type == "js") { return (JS); }
-	else if (file_type == "webp") { return (WEBP); }
-	return (config->default_type);
 }
 
 bool	HTTPProtocol::path_in_dir(std::string& uri, std::vector<std::string>& allowed) {
@@ -193,4 +191,3 @@ bool	HTTPProtocol::body_too_large(t_request& req, size_t size_max) {
 		return false;
 	}
 }
-

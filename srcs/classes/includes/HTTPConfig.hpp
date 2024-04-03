@@ -24,7 +24,7 @@
 
 # define ISSPACE " \f\n\r\t\v"
 
-# define DEFAULT_PORT 80
+# define DEFAULT_PORT 8080
 # define DEFAULT_NAME "localhost"
 # define DEFAULT_LOCATION "./"
 # define DEFAULT_REDIR true
@@ -62,12 +62,14 @@ class HTTPConfig {
 			std::map<std::string, std::string>	cgi_interpreter; // Pairs extension / interpreter
 		}	t_cgi;
 
-		typedef struct s_location {
+        	typedef struct s_location {
 			std::string default_uri;
 			std::string replacement;
 			std::string index;
-			t_cgi		cgi;
-			bool		alias;
+			t_cgi	cgi;
+			std::map<std::string, bool>	methods;
+			bool	dir_listing;
+			bool        alias;
 
 			struct s_location & operator=(struct s_location const & rhs);
 		}   t_location;
@@ -137,6 +139,8 @@ class HTTPConfig {
 		int set_define(std::string & cut, t_parser &opt);
 		int set_type(std::string & cut, t_parser &opt);
 		int set_block(std::string & cut, t_parser &opt);
+		static void	set_methods_rescue_funk(std::pair<std::string, bool> &entry, t_location *location);
+		int set_methods(std::vector<std::string> const & split, t_parser &opt);
 		int set_other(std::string & cut, t_parser &opt);
 
 		int	set_error_page(std::vector<std::string> &split, t_parser &opt);
@@ -145,9 +149,11 @@ class HTTPConfig {
 		static std::string			  trim_buffer(char *buffer);
 		static std::string			  trim_buffer(std::string const & buffer);
 		static void					 split_cut(std::vector<std::string> &s, std::string const & cut);
-		static void						skip_block(std::string & buffer, int start);
+		static void						skip_block(std::string & buffer, unsigned int start);
 		static bool						in(std::string const s, ...);
 		static long						translate_time(std::string arg);
+	static bool	boolean_switch(bool &var, t_parser const &opt, std::vector<std::string> const & split);
+	static std::string	to_upper(std::string const & old);
 
 		static bool	warning(std::string const message, unsigned long line, int mask);
 		static bool	error(std::string const message, unsigned long line, int mask);
@@ -157,5 +163,7 @@ class HTTPConfig {
 		// PRINTER
 		static void	print_server(t_config const &s);
 };
+
+std::ostream&	operator<<(std::ostream& out, HTTPConfig::t_location const & obj);
 
 #endif /* HTTPCONFIG_HPP */

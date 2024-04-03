@@ -8,7 +8,7 @@ static int	g_stop_fd = FD_NOT_OPEN;
 
 HTTPServ::HTTPServ(void) { return ; }
 
-HTTPServ::HTTPServ(char **conf) {
+HTTPServ::HTTPServ(char **conf): sockets(0) {
 	this->conf.configurate(conf[0], conf[1]);
 	this->conf.print_config();
 }
@@ -114,6 +114,7 @@ HTTPServ::t_socket HTTPServ::initClientSocket(HTTPServ::t_socket server) {
 	newClientSocket.port = server.port;
 	newClientSocket.is_client = true;
 	newClientSocket.rc.conf = get_config_client(newClientSocket.port);
+	newClientSocket.rc.n_req = newClientSocket.rc.conf->keepalive_requests;
 
 	this->sockets.push_back(newClientSocket);
 	return (newClientSocket);
@@ -124,6 +125,14 @@ void HTTPServ::event_change(int fd, EPOLL_EVENTS event) {
 	tmp.data.fd = fd;
 	tmp.events = event;
 	epoll_ctl(this->epoll_fd, EPOLL_CTL_MOD, fd, &tmp);
+}
+
+void	HTTPServ::delete_client(t_socket *matching_socket, epoll_event *ev) {
+	epoll_ctl(this->epoll_fd, EPOLL_CTL_DEL, matching_socket->fd, ev);
+	std::vector<t_socket>::iterator	it = this->sockets.begin();
+	for (; it != this->sockets.end() && &*it != matching_socket; it++) {}
+	close(it->fd);
+	this->sockets.erase(it);
 }
 
 void	HTTPServ::sigint_handler(int signal) {
@@ -141,10 +150,11 @@ void HTTPServ::mainLoop(void) {
 	t_response_creator	tmp;
 
 	signal(SIGINT, this->sigint_handler);
+	
+	ulong sockets_count = 0;
+	ulong i = 0;
 
 	while (g_stop_fd != FD_CLOSED) {
-		ulong sockets_count = this->sockets.size();
-		ulong i = 0;
 		epoll_event wait_events[sockets_count + 1];
 
 		for (; i < sockets_count; i++)
@@ -162,19 +172,14 @@ void HTTPServ::mainLoop(void) {
 				if (wait_events[i].events & EPOLLIN) {
 					char buffer[102400] = { 0 };
 					int	ret = recv(matching_socket->fd, buffer, sizeof(buffer), 0);
+					matching_socket->rc.n_req--;
 				   	if (ret == -1) {
 						std::cout << "Could not read from client connection" << std::endl;
 						exit(EXIT_FAILURE);
 					} else if (ret == 0) {
-						epoll_ctl(this->epoll_fd, EPOLL_CTL_DEL, matching_socket->fd, &wait_events[i]);
-						std::vector<t_socket>::iterator	it = this->sockets.begin();
-						for (; it != this->sockets.end() && &*it != matching_socket; it++) {}
-						std::cout << "DELETED NEW CLIENT (fd = " << it->fd << ", port = " << it->port << ")" << std::endl;
-						close(it->fd);
-						this->sockets.erase(it);
+						this->delete_client(matching_socket, &wait_events[i]);
 						continue ;
 					}
-					std::cout << "RECEIVED REQUEST FROM " << matching_socket->fd << std::endl;
 					//will segfault if buffer is too large, find a way to loop until all has been read
 					//todo
 					std::string request(buffer);
@@ -189,10 +194,18 @@ void HTTPServ::mainLoop(void) {
 					Http.create_response(matching_socket->rc);
 					event_change(matching_socket->fd, EPOLLOUT);
 				} else if (wait_events[i].events & EPOLLOUT){
-					std::string res = Http.format_response(matching_socket->rc.res);
-					std::cout << "Answer will be " << std::endl << res << std::endl;
-					send(matching_socket->fd, res.c_str(), res.size(), 0);
-					event_change(matching_socket->fd, EPOLLIN);
+					if (!matching_socket->rc.conf->chunked_transfer_encoding) {
+						std::string res = Http.format_response(matching_socket->rc.res);
+						this->send_data(matching_socket->fd, res.c_str(), res.size());
+					} else {
+						this->send_chunked_response(matching_socket->fd, matching_socket->rc);
+					}
+					if (matching_socket->rc.n_req <= 0) {
+						std::cerr << "Disconnecting client" << std::endl;
+						this->delete_client(matching_socket, &wait_events[i]);
+					} else {
+						event_change(matching_socket->fd, EPOLLIN);
+					}
 				} else {
 					std::cout << "Could not handle event " << wait_events[i].events << std::endl;
 					continue ;
@@ -202,6 +215,8 @@ void HTTPServ::mainLoop(void) {
 				epollinTheSocket(newClientSocket.fd);
 			}
 		}
+		sockets_count = this->sockets.size();
+		i = 0;
 	}
 }
 

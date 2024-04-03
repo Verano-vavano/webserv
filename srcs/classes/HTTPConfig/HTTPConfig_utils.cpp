@@ -51,9 +51,10 @@ void	HTTPConfig::split_cut(std::vector<std::string> &s, std::string const & cut)
 	return ;
 }
 
-void	HTTPConfig::skip_block(std::string & buffer, int start) {
-	for (; buffer[start] != '}'; start++) {}
-	buffer.substr(start + 1);
+void	HTTPConfig::skip_block(std::string & buffer, unsigned int start) {
+	for (; start < buffer.size() && buffer[start] != '}'; start++) {}
+	if (start == buffer.size()) { buffer = ""; }
+	else { buffer = buffer.substr(start + 1); }
 }
 
 // checks if s is in the NULL-terminated va_list
@@ -95,5 +96,29 @@ long	HTTPConfig::translate_time(std::string arg) {
 			break ;
 	}
 
+	return (ret);
+}
+
+// For the TOGGLE_BOOL define, we use one of the properties of the NAND gate
+// 1 NAND 1 = 0, 0 NAND 1 = 1 so if B = 1, A is 'switched'
+// 1 NAND 0 = 1, 0 NAND 0 = 1 so if B = 0, A is true
+bool	HTTPConfig::boolean_switch(bool &var, t_parser const & opt, std::vector<std::string> const & split) {
+	bool	on, easy;
+	easy = (split.size() != 1);
+	if (!easy) { on = (opt.options & O_TOGGLE_BOOL); }
+	else {
+		if (split.size() > 2 && HTTPConfig::warning("More than one argument to boolean method " + split[0], opt.line, opt.options)) { return (1); }
+		on = (split[1] == "on");
+	}
+	var = (easy ? on : !(var & on));
+	return (0);
+}
+
+
+std::string	HTTPConfig::to_upper(std::string const & old) {
+	std::string	ret = old;
+	for (unsigned int i = 0; i < ret.size(); i++) {
+		if (islower(ret[i])) { ret[i] = toupper(ret[i]); }
+	}
 	return (ret);
 }

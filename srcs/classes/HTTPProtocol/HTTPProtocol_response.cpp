@@ -13,10 +13,10 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 		rc.err_code = 505;
 	} else if (rc.err_code == 200)
 		this->check_type(rc); // Checks if file type matches Accept header
-	this->handle_error_code(rc); // Gets body if error
 	if (rc.req.method == "POST") {
 		rc.file_type = "application/json; charset=UTF-8";
 	}
+	this->handle_error_code(rc); // Gets body if error
 	this->set_headers(rc); // Sets headers wow
 	rc.res.status_line = "HTTP/1.1 " + this->get_error_tag(rc.err_code);
 }

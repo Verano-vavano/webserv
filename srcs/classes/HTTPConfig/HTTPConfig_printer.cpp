@@ -16,11 +16,8 @@ void	HTTPConfig::print_server(t_config const &s) {
 	std::cout << "--SERVER--" << "\n"
 		<< "port = " << s.port << "\n"
 		<< "server_name = " << s.server_name << "\n"
-		<< "default_root = " << s.default_root.default_uri << " => " << s.default_root.replacement << " . " << s.default_root.index << " (" << s.default_root.alias << ")" << "\n";
-		std::cout << "- " << s.default_root.default_uri << " => " << s.default_root.replacement << " . " << s.default_root.index << " (" << s.default_root.alias << ")" << "\n";
-		for (std::set<std::string>::const_iterator it2 = s.default_root.cgi.cgi_exec.begin(); it2 != s.default_root.cgi.cgi_exec.end(); it2++) { std::cout << "--exec = " << *it2 << "\n"; }
-		for (t_map_str_str::const_iterator it2 = s.default_root.cgi.cgi_interpreter.begin(); it2 != s.default_root.cgi.cgi_interpreter.end(); it2++) { std::cout << "--" << it2->first << "." << it2->second << "\n"; }
-		std::cout << "absolute_redirect = " << s.absolute_redirect << "\n"
+		<< "default_root :\n" << s.default_root << "\n"
+		<< "absolute_redirect = " << s.absolute_redirect << "\n"
 		<< "chunked_transfer_encoding = " << s.chunked_transfer_encoding << "\n"
 		<< "client_body_timeout = " << s.client_body_timeout << "\n"
 		<< "client_body_buffer_size = " << s.client_body_buffer_size << "\n"
@@ -46,9 +43,7 @@ void	HTTPConfig::print_server(t_config const &s) {
 	std::cout << "Locations :" << std::endl;
 	for (std::vector<HTTPConfig::t_location>::const_iterator it = s.locations.begin();
 			it != s.locations.end(); it++) {
-		std::cout << "- " << it->default_uri << " => " << it->replacement << " . " << it->index << " (" << it->alias << ")" << std::endl;
-		for (std::set<std::string>::const_iterator it2 = it->cgi.cgi_exec.begin(); it2 != it->cgi.cgi_exec.end(); it2++) { std::cout << "--exec = " << *it2 << std::endl; }
-		for (t_map_str_str::const_iterator it2 = it->cgi.cgi_interpreter.begin(); it2 != it->cgi.cgi_interpreter.end(); it2++) { std::cout << "--" << it2->first << "." << it2->second << std::endl; }
+		std::cout << *it << "\n";
 	}
 	std::cout << "Types :" << std::endl;
 	for (std::map<std::string, std::string>::const_iterator it = s.types.begin(); it != s.types.end(); it++) {
@@ -59,6 +54,19 @@ void	HTTPConfig::print_server(t_config const &s) {
 		std::cout << "- " << it->first << " | " << it->second << std::endl;
 	}
 	return ;
+}
+
+std::ostream&	operator<<(std::ostream& out, HTTPConfig::t_location const & obj) {
+	out << "\tDEF = " << obj.default_uri << "\n";
+	out << "\tREPL = " << obj.replacement << "\n";
+	out << "\tIND = " << obj.index << "\n";
+	out << "\tALIAS = " << obj.alias << "\n";
+	out << "\tDIR = " << obj.dir_listing << "\n";
+	out << "\tMETHODS =";
+	for (std::map<std::string, bool>::const_iterator it = obj.methods.begin(); it != obj.methods.end(); it++) {
+		out << " " << it->first << "(" << it->second << ")";
+	}
+	return (out);
 }
 
 

@@ -13,17 +13,15 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 	// LOCATION
 	if (method == "location") {
 		t_location	tmp;
-		if (this->servers.size())
-			tmp = this->servers.back().default_root;
-		else
-			tmp = this->default_config.default_root;
+		tmp.replacement = "";
+		tmp = opt.current_serv->default_root;
 		if (split.size() == 1) {
 			HTTPConfig::error("No URI for location (if root, specify '/')", opt.line, opt.options);
 			return (2 - (opt.options & O_ERROR_STOP));
 		}
 		else if (split.size() > 2 && HTTPConfig::warning("Multiple URI for location (not supported)", opt.line, opt.options)) { return (1); }
 		tmp.default_uri = HTTPProtocol::remove_useless_slashes(split[1]);
-		tmp.replacement = "";
+		if (tmp.default_uri.size() && tmp.default_uri[tmp.default_uri.size() - 1] != '/') { tmp.default_uri += "/"; }
 		opt.current_serv->locations.push_back(tmp);
 	}
 
@@ -60,7 +58,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 int	HTTPConfig::set_define(std::string & cut, HTTPConfig::t_parser &opt) {
 	if (opt.blocks.size() != 0 && HTTPConfig::error("Invalid define location", opt.line, opt.options)) { return (1); }
 
-	int	start = 6;
+	unsigned int	start = 6;
 	for (; isspace(cut[start]); start++) {}
 	std::string	method = cut.substr(start);
 
@@ -97,6 +95,43 @@ int	HTTPConfig::set_type(std::string & cut, HTTPConfig::t_parser &opt) {
 	return (0);
 }
 
+void	HTTPConfig::set_methods_rescue_funk(std::pair<std::string, bool> &entry, t_location *location) {
+	std::map<std::string, bool>::iterator	finder;
+	finder = location->methods.find(entry.first);
+	if (finder != location->methods.end()) {
+		finder->second = entry.second;
+	} else {
+		location->methods.insert(entry);
+	}
+}
+
+int	HTTPConfig::set_methods(std::vector<std::string> const & split, t_parser &opt) {
+	bool	allow = (split[0] == "methods");
+	t_location	*location;
+	if (opt.blocks.size() && opt.blocks.top().size() >= 8 && opt.blocks.top().substr(0, 8) == "location") {
+		location = &(opt.current_serv->locations.back());
+	} else {
+		location = &(opt.current_serv->default_root);
+	}
+
+	bool		notd;
+	std::pair<std::string, bool>		entry;
+	for (std::vector<std::string>::const_iterator it = split.begin() + 1; it !=split.end(); it++) {
+		notd = (it->at(0) == '/');
+		entry.first = this->to_upper(it->substr(it->find_first_not_of("/")));
+		entry.second = (allow == !notd);
+		if (entry.first == "STD") {
+			entry.first = "GET";
+			this->set_methods_rescue_funk(entry, location);
+			entry.first = "POST";
+			this->set_methods_rescue_funk(entry, location);
+			entry.first = "DELETE";
+		}
+	this->set_methods_rescue_funk(entry, location);
+	}
+	return (0);
+}
+
 
 int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	std::vector<std::string>	split;
@@ -106,12 +141,16 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	std::string	method = split.front();
 
+	// METHODS
+	if (method == "methods" || method == "not_methods") {
+		return (this->set_methods(split, opt));
+	}
+
 	// LOCATION METHODS
-	if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", NULL)) {
+	else if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", "dir_listing", NULL)) {
 		HTTPConfig::t_location	*tmp = &(serv->locations.back());
-		if (opt.blocks.top().substr(0, 8) != "location") { tmp = &(serv->default_root); }
+		if (opt.blocks.size() == 0 || opt.blocks.top().substr(0, 8) != "location") { tmp = &(serv->default_root); }
 		if (method == "root" || method == "alias") {
-			if (tmp->replacement != "" && HTTPConfig::warning("Overwriting already existing alias", opt.line, opt.options)) { return (1); }
 			if (split.size() == 1) { return (HTTPConfig::warning("No location for a uri", opt.line, opt.options)); }
 			if (split.size() != 2 && HTTPConfig::warning("Multiple locations for a uri", opt.line, opt.options)) { return (1); }
 			tmp->replacement = split[1];
@@ -123,47 +162,39 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 				tmp->index = split[1];
 			else if (method == "cgi_exec")
 				tmp->cgi.cgi_exec.insert(split[1]);
-		} else {
+		} else if (method == "cgi_interpreter") {
 			if (split.size() != 3) { return (this->error("Invalid number of arguments", opt.line, opt.options)); }
 			std::pair<std::string, std::string>	p;
 			p.first = split[1];
 			p.second = split[2];
 			tmp->cgi.cgi_interpreter.insert(p);
+		} else if (method == "dir_listing") {
+			if (this->boolean_switch(tmp->dir_listing, opt, split)) { return (1); };
 		}
 	}
 
 	// BOOLEAN METHODS
-	// For the TOGGLE_BOOL define, we use one of the properties of the NAND gate
-	// 1 NAND 1 = 0, 0 NAND 1 = 1 so if B = 1, A is 'switched'
-	// 1 NAND 0 = 1, 0 NAND 0 = 1 so if B = 0, A is true
 	else if (this->in(method, "absolute_redirect", "chunked_transfer_encoding",
 			"ignore_invalid_headers", "log_not_found", "log_subrequest", "default_interpreter", NULL)) {
-		bool	on, easy;
-		easy = (split.size() != 1);
-		if (!easy) { on = (opt.options & O_TOGGLE_BOOL); }
-		else {
-			if (split.size() > 2 && this->warning("More than one argument to boolean method " + method, opt.line, opt.options)) { return (1); }
-			on = (split[1] == "on");
-		}
-
 		switch (method[0]) { // ugly switch on the first letter, saves some CPU time
 			case 'a':
-				serv->absolute_redirect = (easy ? on : !(serv->absolute_redirect & on));
+				if (this->boolean_switch(serv->absolute_redirect, opt, split)) { return (1); };
 				break ;
 			case 'c':
-				serv->chunked_transfer_encoding = (easy ? on : !(serv->chunked_transfer_encoding & on));
+				if (this->boolean_switch(serv->chunked_transfer_encoding, opt, split)) { return (1); };
 				break ;
 			case 'd':
-				serv->default_interpreter = (easy ? on : !(serv->default_interpreter & on));
+				if (this->boolean_switch(serv->default_interpreter, opt, split)) { return (1); };
 				break ;
 			case 'i':
-				serv->ignore_invalid_headers = (easy ? on : !(serv->ignore_invalid_headers & on));
+				if (this->boolean_switch(serv->ignore_invalid_headers, opt, split)) { return (1); };
 				break ;
 			default: // l
-				if (method == "log_not_found")
-					serv->log_not_found = (easy ? on : !(serv->log_not_found & on));
-				else
-					serv->log_subrequest = (easy ? on : !(serv->log_subrequest & on));
+				if (method == "log_not_found") {
+					if (this->boolean_switch(serv->log_not_found, opt, split)) { return (1); }
+				} else {
+					if (this->boolean_switch(serv->log_subrequest, opt, split)) { return (1); }
+				}
 				break ;
 		}
 	}

@@ -18,18 +18,28 @@ bool	HTTPConfig::parse_infile(std::ifstream &f, bool space_mode) {
 	opt.in_http = false;
 	opt.current_serv = &(this->default_config);
 	bytes = BUFFER_SIZE - 1;
+	int	ret = 0;
 	do {
 		if (opt.options & O_SPACE_MODE) {
 			std::getline(f, line);
 			opt.line++;
+			line = temp + line;
+			if (ret == -1) {
+				bool	fine = (line.find("}") != line.npos);
+				this->skip_block(line, 0);
+				temp = "";
+				if (!fine) { continue ; }
+			}
 			if (f.eof()) { break ; }
-			if (this->understand_the_line(temp + line, temp, opt) == 1)
+			ret = this->understand_the_line(line, temp, opt);
+			if (ret == 1)
 				return (1);
 		} else {
 			f.read(buffer, BUFFER_SIZE - 1);
 			bytes = f.gcount();
 			buffer[bytes] = '\0';
-			if (this->understand_the_line(temp + buffer, temp, opt) == 1)
+			ret = this->understand_the_line(temp + buffer, temp, opt);
+			if (ret == 1)
 				return (1);
 		}
 	} while (bytes == BUFFER_SIZE - 1);
@@ -39,17 +49,18 @@ bool	HTTPConfig::parse_infile(std::ifstream &f, bool space_mode) {
 }
 
 
-// -1 = Continue
-// 0 = OK
+// -1 = Continue but skip block
+// 0 = Continue
 // 1 = Error parsing && ERROR_STOP on
 int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTPConfig::t_parser &opt) {
 	std::string				cmd;
-	std::pair<char, int>	delim;
+	std::pair<char, unsigned int>	delim;
 	std::string			 cut;
 	int						ret;
 
 	temp = "";
 	while (true) {
+		ret = 0;
 		delim = this->search_delim(buffer, opt);
 		if (!delim.first && !(opt.options & O_SPACE_MODE)) {
 			// if no delim, then we haven't read enough
@@ -67,14 +78,14 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 		cut = this->trim_buffer(cmd);
 		// Empty line in space mode (ignored)
 		if ((opt.options & O_SPACE_MODE) && delim.first != '}' && cut.empty())
-			return (-1);
+			return (0);
 
 		// DELIM is end of block
 		if (delim.first == '}') {
-			if (opt.blocks.size() == 0 || HTTPConfig::error("Extra '}'", opt.line, opt.options)) { return (1); }
+			if (opt.blocks.size() == 0 && HTTPConfig::error("Extra '}'", opt.line, opt.options)) { return (1); }
 			//else if (cut != "" && HTTPConfig::error("Missing separator", opt.line, opt.options)) { return (1); }
-			else {
-				if (opt.blocks.top() == "server") {
+			else if (opt.blocks.size() != 0) {
+				if (opt.blocks.size() >= 6 && opt.blocks.top().substr(0, 6) == "server") {
 					opt.current_serv = &(this->default_config);
 				}
 				opt.blocks.pop();
@@ -85,12 +96,19 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 
 		// DELIM is start of block
 		else if (delim.first == '{') {
-			ret = this->set_block(cut, opt);
+			if (cut.size() && cut[0] != '#')
+				ret = this->set_block(cut, opt);
+			else
+				ret = 2;
 			if (ret == 2) {
 				this->skip_block(buffer, delim.second);
+				if (buffer == "") {
+					return (-1);
+				}
 				continue ;
 			}
-			opt.blocks.push(cut);
+			else
+				opt.blocks.push(cut);
 		}
 
 		// DELIM is ; or \n (SPACE_MODE)

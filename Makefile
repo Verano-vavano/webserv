@@ -6,13 +6,14 @@
 #    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/03/19 14:27:33 by tcharanc         ###   ########.fr        #
+#    Updated: 2024/04/03 19:06:20 by tmongell         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME=./miniweb
 
-SRCS_HTTPServ=HTTPServ.cpp
+SRCS_HTTPServ=HTTPServ.cpp \
+	      HTTPServ_send.cpp
 
 SRCS_HTTPConfig=HTTPConfig.cpp \
 				HTTPConfig_config.cpp \
@@ -24,7 +25,7 @@ SRCS_HTTPConfig=HTTPConfig.cpp \
 SRCS_HTTPProt=HTTPProtocol_request.cpp \
 			  HTTPProtocol_response.cpp \
 			  HTTPProtocol_methods.cpp \
-			  HTTPProtocol_methods_utils.cpp \
+			  HTTPProtocol_get.cpp \
 			  HTTPProtocol_cgi.cpp \
 			  HTTPProtocol_accept.cpp \
 			  HTTPProtocol_errors.cpp \
@@ -139,6 +140,7 @@ bonus: ${NAME}
 ${NAME}: ${DEST}
 	@$(call max_count)
 	@$(call move_progress_bar, COUNT)
+	@printf "\033[0m"
 	@${GCC} ${CFLAGS} ${DEST} -o ${NAME} ${INCLUDES}
 	@printf "${GREEN}${BOLD}"
 	@echo "WEBSERV COMPILED"

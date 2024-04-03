@@ -17,8 +17,11 @@
 # include <dirent.h>
 
 # define CGI_TO	5
+# define CGI_LOOP 200
+# define CGI_SLEEP CGI_TO * 1000000 / CGI_LOOP
 
 # define CRLF "\r\n"
+# define CHUNK_END "0\r\n\r\n"
 
 typedef struct {
 	std::string											method;
@@ -40,11 +43,14 @@ typedef struct {
 	HTTPConfig::t_config	*conf;
 	int						err_code;
 	std::string				file_type;
+	std::string				file;
+	long	n_req;
 }	t_response_creator;
 
 typedef struct {
 	std::string file;
 	HTTPConfig::t_cgi const *cgi;
+	bool	dir_listing;
 } t_uri_cgi;
 
 
