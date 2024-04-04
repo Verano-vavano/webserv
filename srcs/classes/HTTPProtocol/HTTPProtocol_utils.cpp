@@ -68,3 +68,17 @@ std::string	const HTTPProtocol::get_mime_type(HTTPConfig::t_config *config, std:
 	else if (file_type == "webp") { return (WEBP); }
 	return (config->default_type);
 }
+
+/* function that check the content-type of a request.
+ * it will return true if the content-type header contain the string type.
+ * it does not check a strict equality, as the field may contain other data too.
+ */
+bool	t_request::content_is_type(std::string type) {
+	if (this->headers.count("content-type") == 0) { 
+		return false;
+	}
+	if (this->headers["content-type"][0].find(type) == std::string::npos) {
+		return false;
+	}
+	return true;
+}

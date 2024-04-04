@@ -29,6 +29,7 @@ typedef struct {
 	std::string											http_version;
 	std::map<std::string, std::vector<std::string> >	headers;
 	std::string											body;
+	bool												content_is_type(std::string type);
 }	t_request;
 
 typedef struct {
@@ -102,7 +103,8 @@ class HTTPProtocol {
 
 		bool		path_in_dir(std::string& uri, std::vector<std::string>& allowed);
 		bool		body_too_large(t_request& req, size_t size_max);
-		std::string	get_full_path(std::string& uri, HTTPConfig::t_config* conf);
+		std::string	get_full_path_dir(std::string& uri, HTTPConfig::t_config* conf);
+		std::string	get_full_path_file(std::string& uri, HTTPConfig::t_config* conf);
 
 };
 
