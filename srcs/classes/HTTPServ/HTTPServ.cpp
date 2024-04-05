@@ -185,11 +185,12 @@ void HTTPServ::mainLoop(void) {
 					std::string request(buffer);
 					Http.understand_request(matching_socket->rc.req, request);
 //move everything in this if to the HTTPProtocol::handle_post methode
-					if (matching_socket->rc.req.method == "POST") {
-						if (matching_socket->rc.req.headers.count("content-type") > 0
-						&&matching_socket->rc.req.headers["content-type"][0].find("application/json") != std::string::npos) {
-							this->users.handle_user(matching_socket->rc);
-						}//end of the if that should be moved
+//					if (matching_socket->rc.req.method == "POST") {
+//						if (matching_socket->rc.req.headers.count("content-type") > 0
+//						&&matching_socket->rc.req.headers["content-type"][0].find("application/json") != std::string::npos) {
+//							this->users.handle_user(matching_socket->rc);
+//						}
+//end of the if that should be moved
 					}
 					Http.create_response(matching_socket->rc);
 					event_change(matching_socket->fd, EPOLLOUT);

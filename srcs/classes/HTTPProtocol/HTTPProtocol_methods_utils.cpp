@@ -1,10 +1,19 @@
 #include "HTTPProtocol.hpp"
 
+/* function that check if a given path is inside a list of directory.
+ * it' first argument is the path to check
+ * it's second argument is the list of allowed directory.
+ * the function check if the path begin with one of the allowed path :
+ * /path/to/file belong to /, to /path, but not to /to/ for example
+ */
 bool	HTTPProtocol::path_in_dir(std::string& uri, std::vector<std::string>& allowed) {
 	//fill path allowed (until parsing and default values are completed)  //TMP
 	if (allowed.empty()) {
 		allowed.push_back("/uploaded");
+		allowed.push_back("/upload");
 		allowed.push_back("/images");
+		allowed.push_back("/bonjour/lol/uploaded");
+		allowed.push_back("/bonjour/lol/upload");
 	}//end tmp
 	for (size_t i = 0 ; i < allowed.size(); i++) {
 		if (uri.rfind(allowed[i], 0) != std::string::npos) {
@@ -101,6 +110,11 @@ std::string	HTTPProtocol::get_full_path_file(std::string& uri, HTTPConfig::t_con
 	return ("");
 }
 
+/* function that check if the body of a request is bigger than the max allowed upload size
+ * it first check the content-length header (if it exist)
+ * it then check the size() methode of the body, to avoid being fooled by a lie
+ * it will return true if either value is bigger than the max size, false else.
+ */
 bool	HTTPProtocol::body_too_large(t_request& req, size_t size_max) {
 	size_t	body_size = 0;
 	if (req.headers.count("content-length") > 0) {
