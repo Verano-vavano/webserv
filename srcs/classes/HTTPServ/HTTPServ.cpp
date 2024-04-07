@@ -120,7 +120,7 @@ HTTPServ::t_socket HTTPServ::initClientSocket(HTTPServ::t_socket server) {
 	return (newClientSocket);
 }
 
-void HTTPServ::event_change(int fd, EPOLL_EVENTS event) {
+void HTTPServ::event_change(int fd, unsigned int event) {
 	epoll_event tmp;
 	tmp.data.fd = fd;
 	tmp.events = event;
@@ -170,19 +170,18 @@ void HTTPServ::mainLoop(void) {
 			}
 			if (matching_socket->is_client) {
 				if (wait_events[i].events & EPOLLIN) {
-					char buffer[1024] = { 0 };
-					int	ret = recv(matching_socket->fd, buffer, sizeof(buffer), 0);
+					std::cout << "EPOLLIN" << std::endl;
 					matching_socket->rc.n_req--;
+					int	ret = Http.read_and_understand_request(matching_socket->fd, matching_socket->rc);
 				   	if (ret == -1) {
 						std::cout << "Could not read from client connection" << std::endl;
 						exit(EXIT_FAILURE);
 					} else if (ret == 0) {
+						std::cout << "Bye bye" << std::endl;
 						this->delete_client(matching_socket, &wait_events[i]);
 						continue ;
 					}
-					std::string request(buffer);
-					Http.understand_request(matching_socket->rc.req, request);
-					//Http.print_request(matching_socket->rc.req);
+					Http.print_request(matching_socket->rc.req);
 					if (matching_socket->rc.req.method == "POST")
 						this->users.handle_user(matching_socket->rc);
 					Http.create_response(matching_socket->rc);

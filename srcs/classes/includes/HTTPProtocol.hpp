@@ -21,6 +21,7 @@
 # define CGI_SLEEP CGI_TO * 1000000 / CGI_LOOP
 
 # define CRLF "\r\n"
+# define DIV_END "\r\n\r\n"
 # define CHUNK_END "0\r\n\r\n"
 
 typedef struct {
@@ -62,7 +63,8 @@ class HTTPProtocol {
 		HTTPProtocol(void) { return ; }
 		~HTTPProtocol(void) { return ; }
 
-		int			understand_request(t_request &req, std::string &s);
+		//int			understand_request(t_request &req, std::string &s);
+		int		read_and_understand_request(int fd, t_response_creator &r);
 		void		print_request(t_request &req);
 
 		void		create_response(t_response_creator &r);
@@ -71,7 +73,11 @@ class HTTPProtocol {
 		static std::string	remove_useless_slashes(std::string const &uri);
 
 	private:
+		// PARSER
+		static bool	check_div_end(std::string const & buf);
 		std::vector<std::string>	split_header_val(std::string val);
+		void	parse_headers(std::string & s, t_response_creator & r);
+		static void	empty_fd_in(int fd);
 
 		void	handle_method(t_response_creator &r);
 		void	handle_get(t_response_creator &r);
@@ -96,6 +102,7 @@ class HTTPProtocol {
 		static void	read_entire_file(std::string &buf, std::ifstream &file);
 		static bool		is_wildcard_match(std::string const & input, std::string const & match);
 		static bool	is_directory(std::string const & file);
+
 
 };
 

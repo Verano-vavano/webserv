@@ -204,7 +204,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 		if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
 		else if (!this->in(method, "error_page", "add_header", NULL) && split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
 
-		long	ret = std::atol(split[1].c_str());
+		long	ret = std::max((long) 2, std::atol(split[1].c_str()));
 		switch (method[0]) {
 			case 'c':
 				if (method == "client_body_timeout") {

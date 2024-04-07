@@ -47,7 +47,7 @@ class HTTPServ {
 		t_response_creator&		get_client_config(std::vector<t_socket> &cl, int fd);
 		t_socket				*find_socket(int fd);
 		t_socket				initClientSocket(HTTPServ::t_socket server);
-		void					event_change(int fd, EPOLL_EVENTS event);
+		void					event_change(int fd, unsigned int event);
 		void					delete_client(t_socket *matching_socket, epoll_event *ev);
 		void					epollinTheSocket(int socket_fd);
 
