@@ -138,7 +138,6 @@ void	HTTPServ::delete_client(t_socket *matching_socket, epoll_event *ev) {
 void	HTTPServ::sigint_handler(int signal) {
 	(void) signal;
 	if (g_stop_fd == FD_ERROR || g_stop_fd == FD_NOT_OPEN) { return ; }
-	write(g_stop_fd, "I", 1);
 	close(g_stop_fd);
 	remove("./.launched");
 	g_stop_fd = FD_CLOSED;
@@ -150,7 +149,7 @@ void HTTPServ::mainLoop(void) {
 	t_response_creator	tmp;
 
 	signal(SIGINT, this->sigint_handler);
-	
+
 	ulong sockets_count = 0;
 	ulong i = 0;
 

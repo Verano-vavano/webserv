@@ -78,6 +78,7 @@ class HTTPProtocol {
 		std::vector<std::string>	split_header_val(std::string val);
 		void	parse_headers(std::string & s, t_response_creator & r);
 		static void	empty_fd_in(int fd);
+		short		read_crlfcrlf(int fd, t_response_creator &r, long buf_size, std::string & req, unsigned long length);
 
 		void	handle_method(t_response_creator &r);
 		void	handle_get(t_response_creator &r);

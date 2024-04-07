@@ -120,6 +120,7 @@ bool	HTTPProtocol::check_div_end(std::string const & buf) {
 	return (false);
 }
 
+// Empties the file descriptor so that it's fully read
 void	HTTPProtocol::empty_fd_in(int fd) {
 	int	bytes;
 
@@ -127,39 +128,53 @@ void	HTTPProtocol::empty_fd_in(int fd) {
 	recv(fd, NULL, bytes, 0);
 }
 
+short	HTTPProtocol::read_crlfcrlf(int fd, t_response_creator &r, long buf_size, std::string & req, unsigned long length) {
+	char		buffer[buf_size];
+	std::string	buf_to_str;
+	long		ret;
+
+	// We loop indefinitely until we reach the first CRLFCRLF, marking the end of the headers
+	do {
+		ret = recv(fd, buffer, buf_size - 1, 0);
+		if (ret == -1) { r.err_code = 500; this->empty_fd_in(fd); return (1); } // RECV FAILED. Internal Server Error
+		else if (ret == 0 && length == 0) { return (0); } // Nothing has been read. The client disconnected
+		else if (ret == 0) { r.err_code = 400; this->empty_fd_in(fd); return (1); } // NO CRLFCRLF. Bad request
+		buffer[ret] = '\0';
+		buf_to_str = std::string(buffer);
+		req += buf_to_str;
+	} while (ret == buf_size - 1 && !this->check_div_end(buf_to_str));
+
+	return (-1);
+}
+
 // Method to read client EPOLLIN and parse it into r.req variable.
 // -1 = Fatal error (no use case for now)
 // 0 = Client disconnection
 // 1 = No Error
 int	HTTPProtocol::read_and_understand_request(int fd, t_response_creator &r) {
-	char		buffer[r.conf->client_header_buffer_size];
-	std::string	buf_to_str;
 	std::string	request;
-	int		ret;
-	bool		readed = false;
+	short	ret;
 
-	// We loop indefinitely until we reach the first CRLFCRLF, marking the end of the headers
-	do {
-		ret = recv(fd, buffer, r.conf->client_header_buffer_size - 1, 0);
-		if (ret == -1) { r.err_code = 500; this->empty_fd_in(fd); return (1); } // RECV FAILED. Internal Server Error
-		else if (ret == 0 && !readed) { return (0); } // Nothing has been read. The client disconnected
-		else if (ret == 0) { r.err_code = 400; this->empty_fd_in(fd); return (1); } // NO CRLFCRLF. Bad request
-		buffer[ret] = '\0';
-		buf_to_str = std::string(buffer);
-		request += buf_to_str;
-	} while (ret == r.conf->client_header_buffer_size - 1 && !this->check_div_end(buf_to_str));
+	// HEADERS reading
+	ret = this->read_crlfcrlf(fd, r, r.conf->client_header_buffer_size, request, 0);
+	if (ret != -1) { return (ret); }
+
 	this->parse_headers(request, r);
-	
-	std::cout << "What's left ? [" << request << "]" << std::endl;
+	request = request.substr(3);
+	// If GET, no body required. Optimised to skip
 	if (r.req.method == "GET") { this->empty_fd_in(fd); return (1); }
 
 	std::map<std::string, std::vector<std::string> >::const_iterator	finder = r.req.headers.find("content-length");
 	if (finder == r.req.headers.end()) { r.err_code = 400; this->empty_fd_in(fd); return (1); } // No Content-Length header (required for body length)
-	
-	/*unsigned long	bytes_read = 0;
-	unsigned long	bytes_to_read = atol(finder->second[0]);
-	char		buffer_body[r.conf->client_body_buffer_size];*/
-	return (1);
+
+	// BODY reading
+	ret = this->read_crlfcrlf(fd, r, r.conf->client_body_buffer_size, request, atol(finder->second[0].c_str()));
+
+	r.req.body = request;
+	std::cout << "Body == [" << request << "]" << std::endl;
+	this->empty_fd_in(fd);
+
+	return (ret == -1 ? 1: ret);
 }
 
 std::vector<std::string>	HTTPProtocol::split_header_val(std::string val) {

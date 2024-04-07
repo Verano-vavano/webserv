@@ -1,7 +1,6 @@
 #include "HTTPProtocol.hpp"
 
 void	HTTPProtocol::check_type(t_response_creator &r) {
-	HTTPProtocol::print_request(r.req);
 	std::map<std::string, std::vector<std::string> >::iterator	accept = r.req.headers.find("Accept");
 	if (accept == r.req.headers.end()) { return ; }
 
