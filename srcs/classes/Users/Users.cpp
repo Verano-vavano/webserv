@@ -69,12 +69,14 @@ void Users::delete_user_auth(std::string body_json) {
 }
 
 bool is_delete_request(std::string body_json) {
-	ulong size = body_json.find("\":") - 5;
-	std::string mystr =  body_json.substr(5, size);
+	ulong size = body_json.find("\":") - 2;
+	std::string mystr =  body_json.substr(2, size);
+	std::cout << "IT IS " << mystr << std::endl;
 	return (mystr == "delete");
 }
 void Users::handle_user(t_response_creator &rc) {
 	if (is_delete_request(rc.req.body)) {
+		std::cout << "Delete" << std::endl;
 		delete_user_auth(rc.req.body);
 		rc.res.body = "";
 		return;
@@ -85,18 +87,22 @@ void Users::handle_user(t_response_creator &rc) {
 	rc.res.body += "{\n";
 
 	if (!matching_user) {
+		std::cout << "Created"<< std::endl;
 		this->users.push_back(recieved);
 		rc.res.body += format_json_line("status", "created", true);
 	}
 	else if (matching_user->auth_key.size()) {
+		std::cout << "Idk" << std::endl;
 		rc.res.body += format_json_line("status", "already", true);
 	}
 	else if (recieved.password == matching_user->password){
+		std::cout << "Good" << std::endl;
 		matching_user->auth_key = generate_cookie();
 		rc.res.body += format_json_line("status", "ok", false);
 		rc.res.body += format_json_line("auth", matching_user->auth_key, true);
 	}
 	else {
+		std::cout << "Bad" << std::endl;
 		rc.res.body += format_json_line("status", "wrong", true);
 	}
 	rc.res.body += "}";
