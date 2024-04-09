@@ -2,60 +2,6 @@
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 
-/*
-int	HTTPProtocol::understand_request(t_request &req, std::string &s) {
-	std::string line;
-	int		 index = 0;
-	int		 sub_index = 0;
-	int		 sub_sub_index = 0;
-
-	// REQUEST LINE
-	index = s.find("\r\n");
-	line = s.substr(0, index);
-
-	sub_index = line.find(' '); // after method
-	req.method = line.substr(0, sub_index);
-	sub_index++;
-	sub_sub_index = line.find(' ', sub_index); // after either HTTP or uri
-	if (sub_sub_index < index) {
-		req.uri = line.substr(sub_index, sub_sub_index - sub_index);
-		sub_index = sub_sub_index + 1;
-	}
-	else
-		req.uri = "NONE";
-	req.http_version = line.substr(sub_index, index - sub_index);
-
-	// HEADERS are defined by a name and a list of values
-	sub_index = index + 2; // sub_index points to the start of the headers and will move line to line
-	index = s.find("\r\n\r\n", sub_index); // index points to the end of the headers
-
-	std::pair<std::string, std::vector<std::string> > new_el;
-	while (sub_index < index) {
-		sub_sub_index = s.find(':', sub_index);
-		new_el.first = s.substr(sub_index, sub_sub_index - sub_index);
-		// If \n in key, then bad s lol
-		if (new_el.first.find("\n") != std::string::npos) {
-			return (400);
-		}
-		//HTTP key are case insensitive, so store them as lowercase
-		for (size_t i = 0 ; i < new_el.first.size() ; i++) {
-			new_el.first[i] = tolower(new_el.first[i]);
-		}
-		sub_sub_index++;
-		sub_index = s.find("\r\n", sub_index);
-		new_el.second = HTTPProtocol::split_header_val(s.substr(sub_sub_index, sub_index - sub_sub_index));
-		req.headers.insert(new_el);
-		sub_index += 2;
-	}
-
-	// BODY
-	index += 4; //skip nl between header and body ("\r\n\r\n") is 4 char
-	req.body = s.substr(index);
-
-
-	return (200);
-}*/
-
 void	HTTPProtocol::parse_headers(std::string & s, t_response_creator & r) {
 	std::string line;
 	int		 index = 0;
@@ -133,17 +79,22 @@ short	HTTPProtocol::read_crlfcrlf(int fd, t_response_creator &r, long buf_size, 
 	char		buffer[buf_size];
 	std::string	buf_to_str;
 	long		ret;
+	long		to_read = buf_size - 1;
+	bool		sized = (length != 0);
 
+	if (static_cast<long> (length) > r.conf->client_max_body_size) { r.err_code = 413; return (1); }
 	// We loop indefinitely until we reach the first CRLFCRLF, marking the end of the headers
 	do {
-		ret = recv(fd, buffer, buf_size - 1, 0);
+		if (length) { to_read = std::min(length, static_cast<unsigned long> (buf_size - 1)); }
+		ret = recv(fd, buffer, to_read, 0);
 		if (ret == -1) { r.err_code = 500; this->empty_fd_in(fd); return (1); } // RECV FAILED. Internal Server Error
 		else if (ret == 0 && length == 0) { return (0); } // Nothing has been read. The client disconnected
 		else if (ret == 0) { r.err_code = 400; this->empty_fd_in(fd); return (1); } // NO CRLFCRLF. Bad request
 		buffer[ret] = '\0';
 		buf_to_str = std::string(buffer);
 		req += buf_to_str;
-	} while (ret == buf_size - 1 && !this->check_div_end(buf_to_str));
+		length -= ret;
+	} while (ret == buf_size - 1 && !this->check_div_end(buf_to_str) && (!sized || length));
 
 	return (-1);
 }
@@ -171,8 +122,8 @@ int	HTTPProtocol::read_and_understand_request(int fd, t_response_creator &r) {
 	// BODY reading
 	ret = this->read_crlfcrlf(fd, r, r.conf->client_body_buffer_size, request, atol(finder->second[0].c_str()));
 
-	r.req.body = request;
-	std::cout << "Body == [" << request << "]" << std::endl;
+	if (ret == -1)
+		r.req.body = request;
 	this->empty_fd_in(fd);
 
 	return (ret == -1 ? 1: ret);

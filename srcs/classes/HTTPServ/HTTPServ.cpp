@@ -31,7 +31,7 @@ int socketOpen(HTTPConfig::t_config config) {
 		return (-1);
 	}
 	// int = number of request will be queued before refusing requests.
-	if (listen(newSocket, 5) == -1) {
+	if (listen(newSocket, 250) == -1) {
 		perror("listen");
 		exit(EXIT_FAILURE);
 	}
@@ -138,6 +138,7 @@ void	HTTPServ::delete_client(t_socket *matching_socket, epoll_event *ev) {
 void	HTTPServ::sigint_handler(int signal) {
 	(void) signal;
 	if (g_stop_fd == FD_ERROR || g_stop_fd == FD_NOT_OPEN) { return ; }
+	write(g_stop_fd, "I", 1);
 	close(g_stop_fd);
 	remove("./.launched");
 	g_stop_fd = FD_CLOSED;
@@ -149,6 +150,7 @@ void HTTPServ::mainLoop(void) {
 	t_response_creator	tmp;
 
 	signal(SIGINT, this->sigint_handler);
+	signal(SIGPIPE, SIG_IGN);
 
 	ulong sockets_count = 0;
 	ulong i = 0;
@@ -156,7 +158,7 @@ void HTTPServ::mainLoop(void) {
 	while (g_stop_fd != FD_CLOSED) {
 		epoll_event wait_events[sockets_count + 1];
 
-		for (; i < sockets_count; i++)
+		for (; i < sockets_count + 1; i++)
 			wait_events[i].data.fd = -1;
 
 		epoll_wait(this->epoll_fd, wait_events, sockets_count + 1, -1);
@@ -169,13 +171,9 @@ void HTTPServ::mainLoop(void) {
 			}
 			if (matching_socket->is_client) {
 				if (wait_events[i].events & EPOLLIN) {
-<<<<<<< HEAD
 					std::cout << "EPOLLIN" << std::endl;
-=======
-					char buffer[102400] = { 0 };
-					int	ret = recv(matching_socket->fd, buffer, sizeof(buffer), 0);
->>>>>>> 1188b5f74b34804ede4f5b14787c920c2fc21998
 					matching_socket->rc.n_req--;
+					matching_socket->rc.err_code = 200;
 					int	ret = Http.read_and_understand_request(matching_socket->fd, matching_socket->rc);
 				   	if (ret == -1) {
 						std::cout << "Could not read from client connection" << std::endl;
