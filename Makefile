@@ -1,15 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: hdupire <marvin@42.fr>                     +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/06/28 11:34:46 by hdupire           #+#    #+#              #
-#    Updated: 2024/04/07 21:08:00 by hdupire          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 NAME=./miniweb
 
 SRCS_HTTPServ=HTTPServ.cpp \
@@ -25,6 +13,7 @@ SRCS_HTTPConfig=HTTPConfig.cpp \
 SRCS_HTTPProt=HTTPProtocol_request.cpp \
 			  HTTPProtocol_response.cpp \
 			  HTTPProtocol_methods.cpp \
+			  HTTPProtocol_methods_utils.cpp \
 			  HTTPProtocol_get.cpp \
 			  HTTPProtocol_cgi.cpp \
 			  HTTPProtocol_accept.cpp \
@@ -140,6 +129,7 @@ bonus: ${NAME}
 ${NAME}: ${DEST}
 	@$(call max_count)
 	@$(call move_progress_bar, COUNT)
+	@printf "\033[0m"
 	@${GCC} ${CFLAGS} ${DEST} -o ${NAME} ${INCLUDES}
 	@printf "${GREEN}${BOLD}"
 	@echo "WEBSERV COMPILED"

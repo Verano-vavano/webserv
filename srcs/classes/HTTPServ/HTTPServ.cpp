@@ -180,9 +180,6 @@ void HTTPServ::mainLoop(void) {
 						this->delete_client(matching_socket, &wait_events[i]);
 						continue ;
 					}
-					//Http.print_request(matching_socket->rc.req);
-					if (matching_socket->rc.req.method == "POST")
-						this->users.handle_user(matching_socket->rc);
 					Http.create_response(matching_socket->rc);
 					event_change(matching_socket->fd, EPOLLOUT);
 				} else if (wait_events[i].events & EPOLLOUT){
@@ -213,3 +210,4 @@ void HTTPServ::mainLoop(void) {
 }
 
 HTTPServ::~HTTPServ(void) { return ; }
+

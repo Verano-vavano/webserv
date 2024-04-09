@@ -74,9 +74,8 @@ bool is_delete_request(std::string body_json) {
 	std::cout << "IT IS " << mystr << std::endl;
 	return (mystr == "delete");
 }
-void Users::handle_user(t_response_creator &rc) {
-	if (is_delete_request(rc.req.body)) {
-		std::cout << "Delete" << std::endl;
+void Users::handle_user(t_response_creator &rc) { //HERE
+	if (is_delete_request(rc.req.body)) { //remove this once the DELETE metode is implemented
 		delete_user_auth(rc.req.body);
 		rc.res.body = "";
 		return;

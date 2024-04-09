@@ -27,7 +27,7 @@ int	HTTPProtocol::understand_request(t_request &req, std::string &s) {
 
 	// HEADERS are defined by a name and a list of values
 	sub_index = index + 2; // sub_index points to the start of the headers and will move line to line
-	index = s.find("\r\n\r\n", sub_index) + 1; // index points to the end of the headers
+	index = s.find("\r\n\r\n", sub_index); // index points to the end of the headers
 
 	std::pair<std::string, std::vector<std::string> > new_el;
 	while (sub_index < index) {
@@ -49,6 +49,7 @@ int	HTTPProtocol::understand_request(t_request &req, std::string &s) {
 	}
 
 	// BODY
+	index += 4; //skip nl between header and body ("\r\n\r\n") is 4 char
 	req.body = s.substr(index);
 
 
