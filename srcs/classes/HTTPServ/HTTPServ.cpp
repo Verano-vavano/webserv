@@ -169,7 +169,12 @@ void HTTPServ::mainLoop(void) {
 			}
 			if (matching_socket->is_client) {
 				if (wait_events[i].events & EPOLLIN) {
+<<<<<<< HEAD
 					std::cout << "EPOLLIN" << std::endl;
+=======
+					char buffer[102400] = { 0 };
+					int	ret = recv(matching_socket->fd, buffer, sizeof(buffer), 0);
+>>>>>>> 1188b5f74b34804ede4f5b14787c920c2fc21998
 					matching_socket->rc.n_req--;
 					int	ret = Http.read_and_understand_request(matching_socket->fd, matching_socket->rc);
 				   	if (ret == -1) {
