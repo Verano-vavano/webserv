@@ -2,18 +2,27 @@
 
 void	HTTPProtocol::set_headers(t_response_creator &r) {
 	std::string	&h = r.res.headers;
+	std::string const crlf = std::string(CRLF);
 	std::ostringstream	s;
 
-	h += "Content-Type: " + r.file_type + CRLF;
+	h += "Content-Type: " + r.file_type + crlf;
 	if (!r.conf->chunked_transfer_encoding) {
 		s << r.res.body.size();
-		h += "Content-Length: " + s.str() + CRLF;
+		h += "Content-Length: " + s.str() + crlf;
 	} else {
-		h += "Transfer-Encoding: chunked" + std::string(CRLF);
+		h += "Transfer-Encoding: chunked" + crlf;
 	}
 	if (r.n_req <= 0) {
-		h += "Connection: close" + std::string(CRLF);
+		h += "Connection: close" + crlf;
 	} else {
-		h += "Connection: keep-alive" + std::string(CRLF);
+		h += "Connection: keep-alive" + crlf;
+	}
+	if (r.err_code == 405) {
+		h += "Accept:";
+		for (std::set<std::string>::const_iterator it = r.location->methods.begin();
+				it != r.location->methods.end(); it++) {
+			h += " " + *it;
+		}
+		h += crlf;
 	}
 }

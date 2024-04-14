@@ -67,7 +67,7 @@ class HTTPConfig {
 			std::string replacement;
 			std::string index;
 			t_cgi	cgi;
-			std::map<std::string, bool>	methods;
+			std::set<std::string>	methods;
 			bool	dir_listing;
 			bool        alias;
 
@@ -104,7 +104,6 @@ class HTTPConfig {
 			t_type				  types;
 			t_header				headers;
 			std::vector<t_location> locations;
-			std::vector<std::string> upload_path;
 			std::string				path;
 
 			struct s_config & operator=(struct s_config const & rhs);
@@ -139,7 +138,7 @@ class HTTPConfig {
 		int set_define(std::string & cut, t_parser &opt);
 		int set_type(std::string & cut, t_parser &opt);
 		int set_block(std::string & cut, t_parser &opt);
-		static void	set_methods_rescue_funk(std::pair<std::string, bool> &entry, t_location *location);
+		static void	set_methods_rescue_funk(std::string const &entry, t_location *location, bool allow);
 		int set_methods(std::vector<std::string> const & split, t_parser &opt);
 		int set_other(std::string & cut, t_parser &opt);
 

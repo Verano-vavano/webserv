@@ -63,8 +63,8 @@ std::ostream&	operator<<(std::ostream& out, HTTPConfig::t_location const & obj) 
 	out << "\tALIAS = " << obj.alias << "\n";
 	out << "\tDIR = " << obj.dir_listing << "\n";
 	out << "\tMETHODS =";
-	for (std::map<std::string, bool>::const_iterator it = obj.methods.begin(); it != obj.methods.end(); it++) {
-		out << " " << it->first << "(" << it->second << ")";
+	for (std::set<std::string>::const_iterator it = obj.methods.begin(); it != obj.methods.end(); it++) {
+		out << " " << *it;
 	}
 	return (out);
 }

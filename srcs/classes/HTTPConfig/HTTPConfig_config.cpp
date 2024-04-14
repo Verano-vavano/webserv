@@ -52,6 +52,9 @@ void	HTTPConfig::set_default_config(void) {
 	conf.default_root.replacement = DEFAULT_LOCATION;
 	conf.default_root.dir_listing = false;
 	conf.default_root.alias = false;
+	conf.default_root.methods.insert("GET");
+	conf.default_root.methods.insert("POST");
+	conf.default_root.methods.insert("DELETE");
 	conf.absolute_redirect = DEFAULT_REDIR;
 	conf.chunked_transfer_encoding = DEFAULT_CHUNKED;
 	conf.client_body_timeout = DEFAULT_BODY_TO;
@@ -136,11 +139,8 @@ HTTPConfig::t_location & HTTPConfig::t_location::operator=(t_location const & rh
 	this->alias = rhs.alias;
 	this->dir_listing = rhs.dir_listing;
 
-	std::pair<std::string, bool> entry;
-	for (std::map<std::string, bool>::const_iterator it = rhs.methods.begin(); it != rhs.methods.end(); it++) {
-		entry.first = it->first;
-		entry.second = it->second;
-		this->methods.insert(entry);
+	for (std::set<std::string>::const_iterator it = rhs.methods.begin(); it != rhs.methods.end(); it++) {
+		this->methods.insert(*it);
 	}
 
 	std::string	tmp;

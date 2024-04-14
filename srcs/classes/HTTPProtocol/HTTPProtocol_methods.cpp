@@ -26,12 +26,6 @@ void	HTTPProtocol::handle_post(t_response_creator &r) {
 		r.err_code = 413;
 		return;
 	}
-	//check if uri in upload folder (if not, 403)
-	if (!path_in_dir(r.req.uri, r.conf->upload_path)) {
-		std::cout << "\033[31mERROR:" << r.req.uri << " is not a valid upload uri" << "\033[0m" << std::endl;
-		r.err_code = 403;
-		return;
-	}
 	//get the full path of the file
 	std::string	full_path = get_full_path_dir(r.req.uri, r.conf);
 	if (full_path.empty()) {
@@ -62,12 +56,6 @@ void	HTTPProtocol::handle_delete(t_response_creator &r) {
 	if (r.req.uri.empty() || r.req.uri[0] != '/') {
 		r.err_code = 400;
 		return ;
-	}
-	//check if uri in upload folder
-	if (!path_in_dir(r.req.uri, r.conf->upload_path)) {
-		std::cout << "\033[31m" << r.req.uri << " is not a valid upload uri" << "\033[0m" << std::endl;
-		r.err_code = 403;
-		return;
 	}
 	//get file fullpath
 	std::string	full_path = get_full_path_file(r.req.uri, r.conf);
