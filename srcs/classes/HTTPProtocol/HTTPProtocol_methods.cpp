@@ -11,10 +11,15 @@ void	HTTPProtocol::handle_get(t_response_creator &r) {
 }
 
 void	HTTPProtocol::handle_post(t_response_creator &r) {
+	if (r.location->post_func == "CLIENT_MANAGER") {
+		this->post_client(r);
+		return ;
+	}
 	//handle login case
 	if (r.req.content_is_type("application/json")) {
 		std::clog << "json detected, atempting to log in" << "\033[0m\n";//debug
 		//not implemented : need access to the Users::handle_user methode
+		return ;
 	}
 	//check if uri is good
 	if (r.req.uri.empty() || r.req.uri[0] != '/') {

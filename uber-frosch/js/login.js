@@ -38,7 +38,7 @@ async function handle_post(event){
 	const user = document.getElementById("username").value;
 	const password = document.getElementById("password").value;
 	// // window.location.href = "http://localhost:8080/"
-	const res = await fetch(`${window.location}`, {
+	const res = await fetch(`/client`, {
 		method: "POST",
 		body: JSON.stringify({
 			user: `${user}`,
@@ -72,7 +72,7 @@ function disconnect_user(event) {
 	event.preventDefault();
 	auth = getCookie("auth")
 	document.cookie = `auth=`;
-	fetch(`${window.location}`, {
+	fetch(`/client`, {
 		method: "POST",
 		body: JSON.stringify({
 			delete: `${auth}`,

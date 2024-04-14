@@ -67,6 +67,7 @@ class HTTPConfig {
 			std::string replacement;
 			std::string index;
 			std::string post_func;
+			std::string	del_func;
 			t_cgi	cgi;
 			std::set<std::string>	methods;
 			bool	dir_listing;

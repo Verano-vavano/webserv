@@ -139,7 +139,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	}
 
 	// LOCATION METHODS
-	else if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", "dir_listing", "post_func", NULL)) {
+	else if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", "dir_listing", "post_func", "del_func", "func", NULL)) {
 		HTTPConfig::t_location	*tmp = this->get_cur_location(opt);
 		if (opt.blocks.size() == 0 || opt.blocks.top().substr(0, 8) != "location") { tmp = &(serv->default_root); }
 		if (method == "root" || method == "alias") {
@@ -163,8 +163,14 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 		} else if (method == "dir_listing") {
 			if (this->boolean_switch(tmp->dir_listing, opt, split)) { return (1); };
 		} else {
-			if (split.size() >= 2)
-				tmp->post_func = this->to_upper(split[1]);
+			// FUNC METHODS
+			if (split.size() >= 2) {
+				std::string	func = this->to_upper(split[1]);
+				if (method == "func" || method == "post_func")
+					tmp->post_func = func;
+				if (method == "func" || method == "del_func")
+					tmp->del_func = func;
+			}
 			else { return (this->error("Need one argument", opt.line, opt.options)); }
 		}
 	}

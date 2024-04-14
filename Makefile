@@ -15,6 +15,7 @@ SRCS_HTTPProt=HTTPProtocol_request.cpp \
 			  HTTPProtocol_methods.cpp \
 			  HTTPProtocol_methods_utils.cpp \
 			  HTTPProtocol_get.cpp \
+			  HTTPProtocol_post.cpp \
 			  HTTPProtocol_cgi.cpp \
 			  HTTPProtocol_accept.cpp \
 			  HTTPProtocol_errors.cpp \
@@ -145,6 +146,7 @@ clean:
 fclean: clean
 	@${RM} ${LIBFT}
 	@${RM} ${NAME}
+	@${RM} .usr
 
 re: fclean all
 

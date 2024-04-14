@@ -26,4 +26,5 @@ REGEX in nginx (crazy crazy, could be implemented in our shell lmao) (location ~
 max_depth ?
 Equivalence lists pour Accept ? (genre html = text/html = text/htm = plain/text) et adapter en ft de q=
 Opti location pour support wildcards et qu'un tour de boucle plutot que plusieurs find
+Plusieurs listen dans un bloc serveur
 Gérer requêtes POST en CGI (comme Nginx)

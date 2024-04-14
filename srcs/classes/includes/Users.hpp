@@ -3,7 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "HTTPProtocol.hpp"
+
+# include "response_creator.hpp"
 
 class Users {
 public:
@@ -17,7 +18,7 @@ private:
 		std::string auth_key;
 	} t_user;
 
-	std::vector<t_user> users;
+	std::vector<t_user>	users;
 
 	t_user parse_json(std::string body_json);
 	t_user *find_matching_user(t_user user);

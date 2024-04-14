@@ -5,7 +5,19 @@
 #include <stdlib.h>
 #include <time.h>
 
-Users::Users(void) {};
+Users::Users(void) {
+	std::ifstream	user_file(".usr");
+	if (!user_file.good()) {
+		return ;
+	}
+
+	std::string	data;
+	for (short i = 0; i < 10 && !user_file.eof(); i++) {
+		std::getline(user_file, data);
+		std::cout << data << std::endl;
+		// TO FINISH
+	}
+}
 
 Users::~Users(void) {};
 
