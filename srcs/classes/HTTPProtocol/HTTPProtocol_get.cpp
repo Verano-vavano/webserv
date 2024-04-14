@@ -28,7 +28,7 @@ t_uri_cgi	const HTTPProtocol::get_complete_uri(t_response_creator const &r) {
 	std::string	file = uri_with_slash.substr(dir->default_uri.length());
 
 	t_uri_cgi ret;
-	ret.cgi = NULL;
+	ret.cgi = &(dir->cgi);
 
 	std::string	filename;
 	if (dir->index.size()) {
@@ -36,7 +36,6 @@ t_uri_cgi	const HTTPProtocol::get_complete_uri(t_response_creator const &r) {
 	}
 	else {
 		filename = file;
-		ret.cgi = &(dir->cgi);
 	}
 
 	if (dir->alias) {
