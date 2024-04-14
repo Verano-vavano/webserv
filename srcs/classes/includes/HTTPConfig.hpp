@@ -62,7 +62,7 @@ class HTTPConfig {
 			std::map<std::string, std::string>	cgi_interpreter; // Pairs extension / interpreter
 		}	t_cgi;
 
-        	typedef struct s_location {
+        typedef struct s_location {
 			std::string default_uri;
 			std::string replacement;
 			std::string index;

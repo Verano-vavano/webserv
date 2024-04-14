@@ -22,6 +22,15 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 }
 
 void	HTTPProtocol::handle_method(t_response_creator &r) {
+	r.better_uri = this->remove_useless_slashes(r.req.uri);
+	if (r.better_uri[r.better_uri.size() - 1] != '/') { r.better_uri += "/"; }
+	r.location = &(get_dir_uri(r.better_uri, r.conf));
+	std::map<std::string, bool>::const_iterator	finder = r.location->methods.find(r.req.method);
+	if (finder != r.location->methods.end() && !finder->second) {
+		r.err_code = 405;
+		return ;
+	}
+
 	if (r.req.method == "GET") {
 		this->handle_get(r);
 	} else if (r.req.method == "POST") {

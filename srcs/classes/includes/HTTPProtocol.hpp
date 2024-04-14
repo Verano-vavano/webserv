@@ -42,7 +42,9 @@ typedef struct {
 typedef struct {
 	t_request				req;
 	t_response				res;
+	std::string				better_uri;
 	HTTPConfig::t_config	*conf;
+	HTTPConfig::t_location const	*location;
 	int						err_code;
 	std::string				file_type;
 	std::string				file;
@@ -94,7 +96,7 @@ class HTTPProtocol {
 		void	set_headers(t_response_creator &r);
 
 		HTTPConfig::t_location	const &get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
-		t_uri_cgi	const	get_complete_uri(std::string const &uri, HTTPConfig::t_config *conf);
+		t_uri_cgi	const	get_complete_uri(t_response_creator const &r);
 		static void	directory_listing(t_response_creator &r, std::string const & dir, std::string const &uri);
 		void				get_body(std::string const &uri, t_response_creator &r, int change);
 		std::string	const	get_mime_type(HTTPConfig::t_config *config, std::string &file_type);

@@ -54,7 +54,7 @@ void	HTTPProtocol::handle_post(t_response_creator &r) {
 	upload_file.close();
 	r.err_code = 200;
 	return;
-}	
+}
 
 
 void	HTTPProtocol::handle_delete(t_response_creator &r) {

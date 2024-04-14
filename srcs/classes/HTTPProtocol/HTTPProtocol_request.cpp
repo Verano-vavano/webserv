@@ -117,7 +117,7 @@ int	HTTPProtocol::read_and_understand_request(int fd, t_response_creator &r) {
 	if (r.req.method == "GET") { this->empty_fd_in(fd); return (1); }
 
 	std::map<std::string, std::vector<std::string> >::const_iterator	finder = r.req.headers.find("content-length");
-	if (finder == r.req.headers.end()) { r.err_code = 400; this->empty_fd_in(fd); return (1); } // No Content-Length header (required for body length)
+	if (finder == r.req.headers.end()) { r.err_code = 411; this->empty_fd_in(fd); return (1); } // No Content-Length header (required for body length)
 
 	// BODY reading
 	ret = this->read_crlfcrlf(fd, r, r.conf->client_body_buffer_size, request, atol(finder->second[0].c_str()));

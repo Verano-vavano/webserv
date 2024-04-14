@@ -21,34 +21,33 @@ HTTPConfig::t_location	const &HTTPProtocol::get_dir_uri(std::string const &uri, 
 	return (conf->default_root);
 }
 
-t_uri_cgi	const HTTPProtocol::get_complete_uri(std::string const &uri, HTTPConfig::t_config *conf) {
-	std::string	better_uri = remove_useless_slashes(uri);
-	std::string	uri_with_slash = better_uri;
-	if (uri_with_slash[uri_with_slash.size() - 1] != '/') { uri_with_slash += "/"; }
-	HTTPConfig::t_location const	&dir = get_dir_uri(uri_with_slash, conf);
-	std::string	file = uri_with_slash.substr(dir.default_uri.length());
+t_uri_cgi	const HTTPProtocol::get_complete_uri(t_response_creator const &r) {
+	std::string	better_uri = this->remove_useless_slashes(r.req.uri);
+	std::string	uri_with_slash = r.better_uri;
+	HTTPConfig::t_location const	*dir = r.location;
+	std::string	file = uri_with_slash.substr(dir->default_uri.length());
 
 	t_uri_cgi ret;
 	ret.cgi = NULL;
 
 	std::string	filename;
-	if (dir.index.size()) {
-		filename = dir.index;
+	if (dir->index.size()) {
+		filename = dir->index;
 	}
 	else {
 		filename = file;
-		ret.cgi = &dir.cgi;
+		ret.cgi = &(dir->cgi);
 	}
 
-	if (dir.alias) {
-		ret.file = dir.replacement + "/" + filename;
+	if (dir->alias) {
+		ret.file = dir->replacement + "/" + filename;
 	} else if (file == "/" || file == "") {
-		ret.file = dir.replacement + "/" + better_uri + "/" + filename;
+		ret.file = dir->replacement + "/" + better_uri + "/" + filename;
 	} else {
-		ret.file = dir.replacement + "/" + better_uri;
+		ret.file = dir->replacement + "/" + better_uri;
 	}
 
-	ret.dir_listing = dir.dir_listing;
+	ret.dir_listing = dir->dir_listing;
 
 	return (ret);
 }
@@ -86,7 +85,7 @@ void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & 
 }
 
 void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
-	t_uri_cgi	full_uri = this->get_complete_uri(uri, r.conf);
+	t_uri_cgi	full_uri = this->get_complete_uri(r);
 	if (this->is_directory(full_uri.file)) {
 		if (full_uri.dir_listing)
 			this->directory_listing(r, full_uri.file, uri);
@@ -98,7 +97,7 @@ void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 	std::ifstream	file((r.conf->path + full_uri.file).c_str());
 	if (!file || !file.good()) {
 		r.err_code = 404;
-		return ;	
+		return ;
 	}
 
 	unsigned long	ext_index = full_uri.file.find_last_of(".");

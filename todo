@@ -1,14 +1,8 @@
 -Obligatoire
 SUJET :
-"poll() (ou équivalent) doit vérifier la lecture et l’écriture en même temps." ?
-timeout serveur
-Max body size
-Disable POST according to methods
 DELETE
-Pouvoir lire requete très grosse (Content-length, erreur si body et pas content-length)
 
 BUGS:
-Valgrind bugs
 
 NOUS:
 READ.ME
