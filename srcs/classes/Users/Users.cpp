@@ -12,10 +12,17 @@ Users::Users(void) {
 	}
 
 	std::string	data;
+	t_user		entry;
+	size_t		sep;
 	for (short i = 0; i < 10 && !user_file.eof(); i++) {
 		std::getline(user_file, data);
-		std::cout << data << std::endl;
-		// TO FINISH
+		if (data.size() < 2) { continue ; }
+		sep = data.find(':');
+		if (sep == std::string::npos) { continue ; }
+		entry.name = data.substr(0, sep);
+		entry.password = data.substr(sep + 1);
+		this->users.push_back(entry);
+		std::cout << entry.name << " " << entry.password << std::endl;
 	}
 }
 
@@ -86,6 +93,16 @@ bool is_delete_request(std::string body_json) {
 	std::cout << "IT IS " << mystr << std::endl;
 	return (mystr == "delete");
 }
+
+void	Users::create_new_user(t_response_creator &rc, t_user& user) {
+	std::ofstream	outfile;
+	outfile.open(".usr", std::ios_base::app);
+	if (outfile.good())
+		outfile << user.name << ":" << user.password << "\n";
+	this->users.push_back(user);
+	rc.res.body += format_json_line("status", "created", true);
+}
+
 void Users::handle_user(t_response_creator &rc) { //HERE
 	if (is_delete_request(rc.req.body)) { //remove this once the DELETE metode is implemented
 		delete_user_auth(rc.req.body);
@@ -99,8 +116,7 @@ void Users::handle_user(t_response_creator &rc) { //HERE
 
 	if (!matching_user) {
 		std::cout << "Created"<< std::endl;
-		this->users.push_back(recieved);
-		rc.res.body += format_json_line("status", "created", true);
+		this->create_new_user(rc, recieved);
 	}
 	else if (matching_user->auth_key.size()) {
 		std::cout << "Idk" << std::endl;
@@ -109,6 +125,7 @@ void Users::handle_user(t_response_creator &rc) { //HERE
 	else if (recieved.password == matching_user->password){
 		std::cout << "Good" << std::endl;
 		matching_user->auth_key = generate_cookie();
+		rc.res.headers += "Set-Cookie: session_id=" + matching_user->auth_key + std::string(CRLF);
 		rc.res.body += format_json_line("status", "ok", false);
 		rc.res.body += format_json_line("auth", matching_user->auth_key, true);
 	}

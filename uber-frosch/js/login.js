@@ -1,5 +1,6 @@
 const form = document.getElementById("form")
 const disconnect = document.getElementById("disconnect")
+const deleter = document.getElementById("deleter")
 
 function remove_popup() {
 	var popup = document.getElementsByClassName("popup");
@@ -73,7 +74,23 @@ function disconnect_user(event) {
 	auth = getCookie("auth")
 	document.cookie = `auth=`;
 	fetch(`/client`, {
-		method: "POST",
+		method: "DELETE",
+		body: JSON.stringify({
+			delete: `${auth}`,
+		}),
+		headers: {
+			"Content-type": "application/json; charset=UTF-8"
+		}
+	});
+	setup_form();
+}
+
+function delete_user(event) {
+	event.preventDefault();
+	auth = getCookie("auth")
+	document.cookie = `auth=`;
+	fetch(`/client`, {
+		method: "DELETE",
 		body: JSON.stringify({
 			delete: `${auth}`,
 		}),
@@ -86,12 +103,14 @@ function disconnect_user(event) {
 
 form.addEventListener("submit", handle_post)
 disconnect.addEventListener("submit", disconnect_user)
+deleter.addEventListener("submit", delete_user)
 
 function setup_form() {
 	var auth=getCookie("auth");
 	console.log(`auth is ${auth}`);
 	if (auth != "") {
 		disconnect.style.display = "block";
+		deleter.style.display = "block";
 		form.style.display = "none";
 	} else {
 		form.style.display = "block"
