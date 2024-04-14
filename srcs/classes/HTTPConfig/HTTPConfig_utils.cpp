@@ -122,3 +122,11 @@ std::string	HTTPConfig::to_upper(std::string const & old) {
 	}
 	return (ret);
 }
+
+HTTPConfig::t_location	*HTTPConfig::get_cur_location(t_parser &opt) {
+	if (opt.blocks.size() && opt.blocks.top().size() >= 8 && opt.blocks.top().substr(0, 8) == "location") {
+		return (&(opt.current_serv->locations.back()));
+	} else {
+		return (&(opt.current_serv->default_root));
+	}
+}

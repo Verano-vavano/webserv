@@ -66,6 +66,7 @@ class HTTPConfig {
 			std::string default_uri;
 			std::string replacement;
 			std::string index;
+			std::string post_func;
 			t_cgi	cgi;
 			std::set<std::string>	methods;
 			bool	dir_listing;
@@ -134,6 +135,8 @@ class HTTPConfig {
 
 		int understand_the_line(std::string buffer, std::string & temp, t_parser &opt);
 		int understand_the_cut(std::string & cut, t_parser &opt);
+
+		static t_location	*get_cur_location(t_parser &opt);
 
 		int set_define(std::string & cut, t_parser &opt);
 		int set_type(std::string & cut, t_parser &opt);
