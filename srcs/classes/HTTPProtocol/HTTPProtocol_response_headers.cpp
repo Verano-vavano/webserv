@@ -6,7 +6,7 @@ void	HTTPProtocol::set_headers(t_response_creator &r) {
 	std::ostringstream	s;
 
 	h += "Content-Type: " + r.file_type + crlf;
-	if (!r.conf->chunked_transfer_encoding) {
+	if (!r.conf->chunked_transfer_encoding || r.is_json) {
 		s << r.res.body.size();
 		h += "Content-Length: " + s.str() + crlf;
 	} else {

@@ -49,6 +49,7 @@ async function handle_post(event){
 			"Content-type": "application/json; charset=UTF-8"
 		}
 	});
+	console.log(res);
 	handle_res(await res.json());
 }
 
@@ -74,7 +75,7 @@ function disconnect_user(event) {
 	auth = getCookie("auth")
 	document.cookie = `auth=`;
 	fetch(`/client`, {
-		method: "DELETE",
+		method: "POST",
 		body: JSON.stringify({
 			delete: `${auth}`,
 		}),
@@ -115,6 +116,7 @@ function setup_form() {
 	} else {
 		form.style.display = "block"
 		disconnect.style.display = "none";
+		deleter.style.display = "none";
 	}
 }
 

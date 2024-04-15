@@ -27,6 +27,7 @@ typedef struct {
 	int						err_code;
 	std::string				file_type;
 	std::string				file;
+	bool					is_json; // JSON doesnt seem to work through CTE
 	long	n_req;
 }	t_response_creator;
 

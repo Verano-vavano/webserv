@@ -88,6 +88,7 @@ void Users::delete_user_auth(std::string body_json) {
 }
 
 bool is_delete_request(std::string body_json) {
+	if (body_json.size() < 3) { return (false); }
 	ulong size = body_json.find("\":") - 2;
 	std::string mystr =  body_json.substr(2, size);
 	std::cout << "IT IS " << mystr << std::endl;
@@ -125,7 +126,7 @@ void Users::handle_user(t_response_creator &rc) { //HERE
 	else if (recieved.password == matching_user->password){
 		std::cout << "Good" << std::endl;
 		matching_user->auth_key = generate_cookie();
-		rc.res.headers += "Set-Cookie: session_id=" + matching_user->auth_key + std::string(CRLF);
+		rc.res.headers += "Set-Cookie: session_id=" + matching_user->auth_key + "; Secure; SameSite=None" + std::string(CRLF);
 		rc.res.body += format_json_line("status", "ok", false);
 		rc.res.body += format_json_line("auth", matching_user->auth_key, true);
 	}
@@ -134,4 +135,5 @@ void Users::handle_user(t_response_creator &rc) { //HERE
 		rc.res.body += format_json_line("status", "wrong", true);
 	}
 	rc.res.body += "}";
+	rc.is_json = true;
 }

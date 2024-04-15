@@ -5,9 +5,7 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 	rc.res.status_line = "";
 	rc.res.headers = "";
 	rc.res.body = "";
-	std::cout << "The request is :" << std::endl;
-	this->print_request(rc.req);
-	std::cout << std::endl;
+	rc.is_json = false;
 
 	this->handle_method(rc); // Gets body from request method
 	rc.file_type = get_mime_type(rc.conf, rc.file_type);
@@ -21,8 +19,6 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 	this->handle_error_code(rc); // Gets body if error
 	this->set_headers(rc); // Sets headers wow
 	rc.res.status_line = "HTTP/1.1 " + this->get_error_tag(rc.err_code);
-	std::cout << "\nThe response is : " << std::endl;
-	std::cout << this->format_response(rc.res) << std::endl << std::endl;
 }
 
 void	HTTPProtocol::handle_method(t_response_creator &r) {
