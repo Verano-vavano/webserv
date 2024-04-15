@@ -20,7 +20,7 @@ private:
 
 	std::vector<t_user>	users;
 
-	t_user parse_json(std::string body_json);
+	static t_user parse_json(int &err_code, std::string body_json);
 	t_user *find_matching_user(t_user user);
 
 	void	create_new_user(t_response_creator &rc, t_user& user);

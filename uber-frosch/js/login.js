@@ -49,7 +49,6 @@ async function handle_post(event){
 			"Content-type": "application/json; charset=UTF-8"
 		}
 	});
-	console.log(res);
 	handle_res(await res.json());
 }
 

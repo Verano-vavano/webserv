@@ -28,16 +28,46 @@ Users::Users(void) {
 
 Users::~Users(void) {};
 
-Users::t_user Users::parse_json(std::string json) {
-	t_user recieved_user;
-	size_t user_begin = json.find("\":\"") + 3;
-	size_t user_end = json.find(',') - user_begin - 1;
-	size_t pass_begin = json.find(',') + 13;
-	size_t pass_end = json.size() - pass_begin - 2;
+Users::t_user Users::parse_json(int &err_code, std::string json) {
+	t_user received_user;
 
-	recieved_user.name = json.substr(user_begin, user_end);
-	recieved_user.password = json.substr(pass_begin, pass_end);
-	return (recieved_user);
+	size_t	user = json.find("\"user\"");
+	size_t	pswd = json.find("\"password\"");
+	if (user == std::string::npos || pswd == std::string::npos) {
+		err_code = 400;
+		return (received_user);
+	}
+
+	user += 6; // "user"
+	pswd += 10; // "password"
+
+	for (; user < json.length() && std::isspace(json[user]); user++);
+	if (user < json.length() && json[user] == ':')
+		user = json.find('"', user);
+	for (; pswd < json.length() && std::isspace(json[pswd]); pswd++);
+	if (pswd < json.length() && json[pswd] == ':')
+		pswd = json.find('"', pswd);
+
+	if (user >= json.length() || user == std::string::npos ||
+			pswd >= json.length() || pswd == std::string::npos) {
+		err_code = 400;
+		return (received_user);
+	}
+
+	user++;
+	pswd++;
+
+	size_t	user_end = json.find('"', user);
+	size_t	pswd_end = json.find('"', pswd);
+	if (user_end == std::string::npos || pswd_end == std::string::npos) {
+		err_code = 400;
+		return (received_user);
+	}
+
+	received_user.name = json.substr(user, user_end - user);
+	received_user.password = json.substr(pswd, pswd_end - pswd);
+	std::cout << "- " << received_user.name << " : " << received_user.password << std::endl;
+	return (received_user);
 }
 
 std::string trim_body(std::string body) {
@@ -110,7 +140,8 @@ void Users::handle_user(t_response_creator &rc) { //HERE
 		rc.res.body = "";
 		return;
 	}
-	t_user recieved = this->parse_json(trim_body(rc.req.body));
+	t_user recieved = this->parse_json(rc.err_code, trim_body(rc.req.body));
+	if (rc.err_code == 400) { return ; }
 	t_user *matching_user = find_matching_user(recieved);
 	rc.res.body = "";
 	rc.res.body += "{\n";
