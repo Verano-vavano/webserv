@@ -81,6 +81,7 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 		close(pipefd[0]);
 
 		r.res.body = ret;
+		r.req.body = ret;
 
 		unsigned long	fword = 0;
 		for (; fword < ret.size() && isspace(ret[fword]); fword++) {}

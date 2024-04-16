@@ -1,10 +1,11 @@
 -Obligatoire
 SUJET :
 Upload files (Bouton 'add a meme' ? qui permet de transmettre un fichier)
-Handle clients again
+Verifier que les exec marchent toujours
 DELETE
 
 BUGS:
+Connect to user, close server, open server, disconnect, 400 and crash
 
 NOUS:
 READ.ME
