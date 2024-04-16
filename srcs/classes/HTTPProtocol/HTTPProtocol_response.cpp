@@ -30,6 +30,16 @@ void	HTTPProtocol::handle_method(t_response_creator &r) {
 		r.err_code = 405;
 		return ;
 	}
+	r.file = get_complete_uri(r);
+	std::cout << r.file << std::endl;
+	unsigned long	ext_index = r.file.find_last_of(".");
+	if (ext_index != std::string::npos) {
+		r.file_type = r.file.substr(ext_index + 1);
+	} else {
+		r.file_type = "";
+	}
+	std::cout << r.file_type << std::endl;
+	this->cgi(r);
 
 	if (r.req.method == "GET") {
 		this->handle_get(r);

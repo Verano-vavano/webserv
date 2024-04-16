@@ -23,14 +23,24 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);
 		close(pipefd[1]);
-		char *command[3];
+		char *command[4];
 		if (interpreter) {
 			command[0] = const_cast<char *>(interpreter->c_str());
 			command[1] = const_cast<char *>(file.c_str());
-			command[2] = NULL;
+			if (r.req.body.size() > 0) {
+				command[2] = const_cast<char *>(r.req.body.c_str());
+				command[3] = NULL;
+			} else {
+				command[2] = NULL;
+			}
 		} else {
 			command[0] = const_cast<char *>(file.c_str());
-			command[1] = NULL;
+			if (r.req.body.size() > 0) {
+				command[1] = const_cast<char *>(r.req.body.c_str());
+				command[2] = NULL;
+			} else {
+				command[1] = NULL;
+			}
 		}
 		execve(command[0], command, NULL);
 		exit(EXECVE_FAILURE);
@@ -77,4 +87,19 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 		if (ret.substr(fword, 15) == "<!DOCTYPE html>") { r.file_type = "html"; }
 	}
 	return (0);
+}
+
+
+void HTTPProtocol::cgi(t_response_creator &r) const {
+	HTTPConfig::t_cgi const *cgi = &(r.location->cgi);
+	std::map<std::string, std::string>::const_iterator int_iter = cgi->cgi_interpreter.find("." + r.file_type);
+	std::cout << r.file << " Hello" << std::endl;
+	if (int_iter != cgi->cgi_interpreter.end()) {
+		std::cout << "cool" << std::endl;
+		std::string	interpreter = int_iter->second;
+		if (exec_cgi(r.file, &interpreter, r) == 0) { return ; }
+	}
+	for (std::set<std::string>::const_iterator it = cgi->cgi_exec.begin(); it != cgi->cgi_exec.end(); it++) {
+		if (is_wildcard_match(r.file, *it) && exec_cgi(r.file, NULL, r) == 0) { return ; }
+	}
 }

@@ -12,6 +12,7 @@ SRCS_HTTPConfig=HTTPConfig.cpp \
 
 SRCS_HTTPProt=HTTPProtocol_request.cpp \
 			  HTTPProtocol_response.cpp \
+			  HTTPProtocol_location.cpp \
 			  HTTPProtocol_methods.cpp \
 			  HTTPProtocol_methods_utils.cpp \
 			  HTTPProtocol_get.cpp \

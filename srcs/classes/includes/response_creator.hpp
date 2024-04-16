@@ -23,10 +23,11 @@ typedef struct {
 	t_response				res;
 	std::string				better_uri;
 	HTTPConfig::t_config	*conf;
-	HTTPConfig::t_location const	*location;
+	HTTPConfig::t_location	*location;
 	int						err_code;
 	std::string				file_type;
 	std::string				file;
+	bool					has_cgi;
 	bool					is_json; // JSON doesnt seem to work through CTE
 	long	n_req;
 }	t_response_creator;

@@ -26,12 +26,6 @@
 # define DIV_END "\r\n\r\n"
 # define CHUNK_END "0\r\n\r\n"
 
-typedef struct {
-	std::string file;
-	HTTPConfig::t_cgi const *cgi;
-	bool	dir_listing;
-} t_uri_cgi;
-
 
 // A small machine capable of understanding a user-client request
 // and also creating the adequate response according to a config file
@@ -51,7 +45,7 @@ class HTTPProtocol {
 		static std::string	remove_useless_slashes(std::string const &uri);
 
 	private:
-		Users	user_manager;
+		Users		user_manager;
 
 		// PARSER
 		static bool	check_div_end(std::string const & buf);
@@ -66,10 +60,6 @@ class HTTPProtocol {
 		void	handle_delete(t_response_creator &r);
 
 		void	get_body(std::string const &uri, t_response_creator &r, int change);
-		void	post_client(t_response_creator &r);
-		//void	post_upload(t_response_creator &r);
-		//void	del_client(t_response_creator &r);
-		//void	del_upload(t_response_creator &r);
 
 		void	check_type(t_response_creator &r);
 
@@ -77,12 +67,13 @@ class HTTPProtocol {
 
 		void	set_headers(t_response_creator &r);
 
-		HTTPConfig::t_location	const &get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
-		t_uri_cgi	const	get_complete_uri(t_response_creator const &r);
+		HTTPConfig::t_location	&get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
+		std::string	const	get_complete_uri(t_response_creator const &r);
 		static void	directory_listing(t_response_creator &r, std::string const & dir, std::string const &uri);
 		std::string	const	get_mime_type(HTTPConfig::t_config *config, std::string &file_type);
 		static std::string		get_error_tag(int err_code);
 
+		void		cgi(t_response_creator &r) const;
 		static bool exec_cgi(std::string file, std::string *interpreter, t_response_creator &r);
 		static std::string *get_default_interpreter(std::string const & file_type);
 
