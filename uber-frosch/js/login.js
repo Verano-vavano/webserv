@@ -24,7 +24,6 @@ function handle_res(res_json) {
 	} else if (res_json.status == "ok"){
 		display_popup("Tu es authentifie!");
 		console.log(`le cookie d'auth est ${res_json.auth}`)
-		document.cookie = `auth=${res_json.auth}`
 		setup_form();
 	} else if (res_json.status == "already"){
 		display_popup("Tu es deja authentifie");
@@ -69,31 +68,12 @@ function getCookie(cname) {
   return "";
 }
 
-function disconnect_user(event) {
+async function disconnect_user(event) {
 	event.preventDefault();
-	auth = getCookie("auth")
-	document.cookie = `auth=`;
-	fetch(`/client`, {
-		method: "POST",
-		body: JSON.stringify({
-			delete: `${auth}`,
-		}),
-		headers: {
-			"Content-type": "application/json; charset=UTF-8"
-		}
-	});
-	setup_form();
-}
-
-function delete_user(event) {
-	event.preventDefault();
-	auth = getCookie("auth")
-	document.cookie = `auth=`;
-	fetch(`/client`, {
+	auth = getCookie("session_id")
+	await fetch(`/client`, {
 		method: "DELETE",
-		body: JSON.stringify({
-			delete: `${auth}`,
-		}),
+		body: `${auth}`,
 		headers: {
 			"Content-type": "application/json; charset=UTF-8"
 		}
@@ -103,19 +83,16 @@ function delete_user(event) {
 
 form.addEventListener("submit", handle_post)
 disconnect.addEventListener("submit", disconnect_user)
-deleter.addEventListener("submit", delete_user)
 
 function setup_form() {
-	var auth=getCookie("auth");
+	var auth=getCookie("session_id");
 	console.log(`auth is ${auth}`);
 	if (auth != "") {
 		disconnect.style.display = "block";
-		deleter.style.display = "block";
 		form.style.display = "none";
 	} else {
 		form.style.display = "block"
 		disconnect.style.display = "none";
-		deleter.style.display = "none";
 	}
 }
 

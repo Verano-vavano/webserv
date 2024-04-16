@@ -19,8 +19,10 @@ Log sub
 Server_name
 Wildcard dans methods (peut-être géré, je sais plus)
 Allow /.. in directory listing ? (idk, seems dangerous)
+Gerer le cas de + de 10 comptes
 
 -Potentiel
+Expiration de cookies de session en local
 retrocompatibilite HTTP1.0
 REGEX in nginx (crazy crazy, could be implemented in our shell lmao) (location ~ \.(gif|jpg|png)$)
 max_depth ?

@@ -212,6 +212,7 @@ void HTTPServ::mainLoop(void) {
 		sockets_count = this->sockets.size();
 		i = 0;
 	}
+	this->users.save_sessions();
 }
 
 HTTPServ::~HTTPServ(void) { return ; }
