@@ -47,6 +47,7 @@ class HTTPProtocol {
 		void		create_response(t_response_creator &r);
 		std::string	format_response(t_response &res);
 
+		void				save_user_session(void) const;
 		static std::string	remove_useless_slashes(std::string const &uri);
 
 	private:

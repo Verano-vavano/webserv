@@ -41,7 +41,6 @@ class HTTPServ {
 		int						epoll_fd;
 		HTTPConfig				conf;
 		std::vector<t_socket>	sockets;
-		Users					users;
 
 		HTTPConfig::t_config*	get_config_client(int port);
 		t_response_creator&		get_client_config(std::vector<t_socket> &cl, int fd);
