@@ -21,8 +21,8 @@ HTTPConfig::t_location	&HTTPProtocol::get_dir_uri(std::string const &uri, HTTPCo
 	return (conf->default_root);
 }
 
-std::string	const HTTPProtocol::get_complete_uri(t_response_creator const &r) {
-	std::string	better_uri = this->remove_useless_slashes(r.req.uri);
+std::string	const HTTPProtocol::get_complete_uri(t_response_creator const &r, std::string const &uri) {
+	std::string	better_uri = this->remove_useless_slashes(uri);
 	std::string	uri_with_slash = r.better_uri;
 	HTTPConfig::t_location const	*dir = r.location;
 	std::string	file = uri_with_slash.substr(dir->default_uri.length());

@@ -59,7 +59,7 @@ class HTTPProtocol {
 		void	handle_post(t_response_creator &r);
 		void	handle_delete(t_response_creator &r);
 
-		void	get_body(std::string const &uri, t_response_creator &r, int change);
+		bool	get_body(std::string const &uri, t_response_creator &r, int change);
 
 		void	check_type(t_response_creator &r);
 
@@ -68,7 +68,7 @@ class HTTPProtocol {
 		void	set_headers(t_response_creator &r);
 
 		HTTPConfig::t_location	&get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
-		std::string	const	get_complete_uri(t_response_creator const &r);
+		std::string	const	get_complete_uri(t_response_creator const &r, std::string const &uri);
 		static void	directory_listing(t_response_creator &r, std::string const & dir, std::string const &uri);
 		std::string	const	get_mime_type(HTTPConfig::t_config *config, std::string &file_type);
 		static std::string		get_error_tag(int err_code);
@@ -86,6 +86,7 @@ class HTTPProtocol {
 		bool		body_too_large(t_request& req, size_t size_max);
 		std::string	get_full_path_dir(std::string& uri, HTTPConfig::t_config* conf);
 		std::string	get_full_path_file(std::string& uri, HTTPConfig::t_config* conf);
+		static void	get_file_type(t_response_creator &r);
 
 };
 

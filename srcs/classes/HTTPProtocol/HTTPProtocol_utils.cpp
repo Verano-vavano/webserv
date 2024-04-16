@@ -86,3 +86,12 @@ bool	t_request::content_is_type(std::string type) {
 void	HTTPProtocol::save_user_session(void) const {
 	this->user_manager.save_sessions();
 }
+
+void	HTTPProtocol::get_file_type(t_response_creator &r) {
+	unsigned long	ext_index = r.file.find_last_of(".");
+	if (ext_index != std::string::npos) {
+		r.file_type = r.file.substr(ext_index + 1);
+	} else {
+		r.file_type = "";
+	}
+}

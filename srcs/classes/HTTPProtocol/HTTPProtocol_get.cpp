@@ -32,20 +32,21 @@ void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & 
 	return ;
 }
 
-void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
-	std::string	full_uri = this->get_complete_uri(r);
+bool	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
+	std::string	full_uri = this->get_complete_uri(r, uri);
+	std::cout << *(r.location) << std::endl;
 	if (this->is_directory(full_uri)) {
 		if (r.location->dir_listing)
 			this->directory_listing(r, full_uri, uri);
 		else
 			r.err_code = 403;
-		return ;
+		return (false);
 	}
 
 	std::ifstream	file((r.conf->path + full_uri).c_str());
 	if (!file || !file.good()) {
 		r.err_code = 404;
-		return ;
+		return (false);
 	}
 
 	if (change != -1)
@@ -53,9 +54,9 @@ void	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 
 	if (r.conf->chunked_transfer_encoding) {
 		r.file = full_uri;
-		return ;
+		return (true);
 	}
 
 	this->read_entire_file(r.res.body, file);
-	return ;
+	return (true);
 }

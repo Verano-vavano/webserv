@@ -1,6 +1,7 @@
 const form = document.getElementById("form")
+const connect = document.getElementById("connect")
+const connect_secure = document.getElementById("connectsec")
 const disconnect = document.getElementById("disconnect")
-const deleter = document.getElementById("deleter")
 
 function remove_popup() {
 	var popup = document.getElementsByClassName("popup");
@@ -33,12 +34,32 @@ function handle_res(res_json) {
 	}
 }
 
-async function handle_post(event){
+async function connect_user(event){
+	console.log("salut");
 	event.preventDefault();
 	const user = document.getElementById("username").value;
 	const password = document.getElementById("password").value;
 	// // window.location.href = "http://localhost:8080/"
 	const res = await fetch(`/client`, {
+		method: "POST",
+		body: JSON.stringify({
+			user: `${user}`,
+			password: `${password}`,
+		}),
+		headers: {
+			"Content-type": "application/json; charset=UTF-8"
+		}
+	});
+	handle_res(await res.json());
+}
+
+async function connect_user_cgi(event){
+	console.log("wesh");
+	event.preventDefault();
+	const user = document.getElementById("username").value;
+	const password = document.getElementById("password").value;
+	// // window.location.href = "http://localhost:8080/"
+	const res = await fetch(`/client-secure`, {
 		method: "POST",
 		body: JSON.stringify({
 			user: `${user}`,
@@ -81,7 +102,8 @@ async function disconnect_user(event) {
 	setup_form();
 }
 
-form.addEventListener("submit", handle_post)
+connect.addEventListener("click", connect_user)
+connect_secure.addEventListener("click", connect_user_cgi)
 disconnect.addEventListener("submit", disconnect_user)
 
 function setup_form() {
