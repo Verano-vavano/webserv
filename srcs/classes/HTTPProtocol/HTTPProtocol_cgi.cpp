@@ -83,6 +83,8 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 		r.res.body = ret;
 		r.req.body = ret;
 
+		r.has_cgi = true;
+
 		unsigned long	fword = 0;
 		for (; fword < ret.size() && isspace(ret[fword]); fword++) {}
 		if (ret.substr(fword, 15) == "<!DOCTYPE html>") { r.file_type = "html"; }
@@ -94,9 +96,7 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 void HTTPProtocol::cgi(t_response_creator &r) const {
 	HTTPConfig::t_cgi const *cgi = &(r.location->cgi);
 	std::map<std::string, std::string>::const_iterator int_iter = cgi->cgi_interpreter.find("." + r.file_type);
-	std::cout << r.file << " Hello" << std::endl;
 	if (int_iter != cgi->cgi_interpreter.end()) {
-		std::cout << "cool" << std::endl;
 		std::string	interpreter = int_iter->second;
 		if (exec_cgi(r.file, &interpreter, r) == 0) { return ; }
 	}
