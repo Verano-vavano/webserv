@@ -148,3 +148,11 @@ std::vector<std::string>	HTTPProtocol::split_header_val(std::string val) {
 	}
 	return (ret);
 }
+
+void	HTTPProtocol::empty_request(t_request &req) {
+	req.method = "";
+	req.uri = "";
+	req.http_version = "";
+	req.headers.clear();
+	req.body = "";
+}

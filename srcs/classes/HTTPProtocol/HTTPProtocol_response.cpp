@@ -19,6 +19,7 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 	}
 	this->set_headers(rc); // Sets headers wow
 	rc.res.status_line = "HTTP/1.1 " + this->get_error_tag(rc.err_code);
+	this->empty_request(rc.req);
 }
 
 void	HTTPProtocol::handle_method(t_response_creator &r) {
