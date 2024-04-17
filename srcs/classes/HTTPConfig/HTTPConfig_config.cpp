@@ -51,6 +51,7 @@ void	HTTPConfig::set_default_config(void) {
 	conf.default_root.default_uri = "/";
 	conf.default_root.replacement = DEFAULT_LOCATION;
 	conf.default_root.dir_listing = false;
+	conf.default_root.post_func = "NONE";
 	conf.default_root.alias = false;
 	conf.default_root.methods.insert("GET");
 	conf.default_root.methods.insert("POST");
@@ -136,6 +137,7 @@ HTTPConfig::t_location & HTTPConfig::t_location::operator=(t_location const & rh
 	this->default_uri = rhs.default_uri;
 	this->replacement = rhs.replacement;
 	this->index = rhs.index;
+	this->post_func = rhs.post_func;
 	this->alias = rhs.alias;
 	this->dir_listing = rhs.dir_listing;
 

@@ -1,4 +1,6 @@
 const form = document.getElementById("form")
+const connect = document.getElementById("connect")
+const connect_secure = document.getElementById("connectsec")
 const disconnect = document.getElementById("disconnect")
 
 function remove_popup() {
@@ -23,7 +25,6 @@ function handle_res(res_json) {
 	} else if (res_json.status == "ok"){
 		display_popup("Tu es authentifie!");
 		console.log(`le cookie d'auth est ${res_json.auth}`)
-		document.cookie = `auth=${res_json.auth}`
 		setup_form();
 	} else if (res_json.status == "already"){
 		display_popup("Tu es deja authentifie");
@@ -33,12 +34,32 @@ function handle_res(res_json) {
 	}
 }
 
-async function handle_post(event){
+async function connect_user(event){
+	console.log("salut");
 	event.preventDefault();
 	const user = document.getElementById("username").value;
 	const password = document.getElementById("password").value;
 	// // window.location.href = "http://localhost:8080/"
-	const res = await fetch(`${window.location}`, {
+	const res = await fetch(`/client`, {
+		method: "POST",
+		body: JSON.stringify({
+			user: `${user}`,
+			password: `${password}`,
+		}),
+		headers: {
+			"Content-type": "application/json; charset=UTF-8"
+		}
+	});
+	handle_res(await res.json());
+}
+
+async function connect_user_cgi(event){
+	console.log("wesh");
+	event.preventDefault();
+	const user = document.getElementById("username").value;
+	const password = document.getElementById("password").value;
+	// // window.location.href = "http://localhost:8080/"
+	const res = await fetch(`/client-secure`, {
 		method: "POST",
 		body: JSON.stringify({
 			user: `${user}`,
@@ -68,15 +89,12 @@ function getCookie(cname) {
   return "";
 }
 
-function disconnect_user(event) {
+async function disconnect_user(event) {
 	event.preventDefault();
-	auth = getCookie("auth")
-	document.cookie = `auth=`;
-	fetch(`${window.location}`, {
-		method: "POST",
-		body: JSON.stringify({
-			delete: `${auth}`,
-		}),
+	auth = getCookie("session_id")
+	await fetch(`/client`, {
+		method: "DELETE",
+		body: `${auth}`,
 		headers: {
 			"Content-type": "application/json; charset=UTF-8"
 		}
@@ -84,11 +102,12 @@ function disconnect_user(event) {
 	setup_form();
 }
 
-form.addEventListener("submit", handle_post)
+connect.addEventListener("click", connect_user)
+connect_secure.addEventListener("click", connect_user_cgi)
 disconnect.addEventListener("submit", disconnect_user)
 
 function setup_form() {
-	var auth=getCookie("auth");
+	var auth=getCookie("session_id");
 	console.log(`auth is ${auth}`);
 	if (auth != "") {
 		disconnect.style.display = "block";

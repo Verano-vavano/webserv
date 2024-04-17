@@ -3,6 +3,8 @@
 
 # include "HTTPConfig.hpp"
 # include "HTTPDefines.hpp"
+# include "Users.hpp"
+# include "response_creator.hpp"
 
 # include <iostream>
 # include <sstream>
@@ -24,39 +26,6 @@
 # define DIV_END "\r\n\r\n"
 # define CHUNK_END "0\r\n\r\n"
 
-typedef struct {
-	std::string											method;
-	std::string											uri;
-	std::string											http_version;
-	std::map<std::string, std::vector<std::string> >	headers;
-	std::string											body;
-	bool												content_is_type(std::string type);
-}	t_request;
-
-typedef struct {
-	std::string	status_line;
-	std::string	headers;
-	std::string	body;
-}	t_response;
-
-typedef struct {
-	t_request				req;
-	t_response				res;
-	std::string				better_uri;
-	HTTPConfig::t_config	*conf;
-	HTTPConfig::t_location const	*location;
-	int						err_code;
-	std::string				file_type;
-	std::string				file;
-	long	n_req;
-}	t_response_creator;
-
-typedef struct {
-	std::string file;
-	HTTPConfig::t_cgi const *cgi;
-	bool	dir_listing;
-} t_uri_cgi;
-
 
 // A small machine capable of understanding a user-client request
 // and also creating the adequate response according to a config file
@@ -66,16 +35,18 @@ class HTTPProtocol {
 		HTTPProtocol(void) { return ; }
 		~HTTPProtocol(void) { return ; }
 
-		//int			understand_request(t_request &req, std::string &s);
 		int		read_and_understand_request(int fd, t_response_creator &r);
 		void		print_request(t_request &req);
 
 		void		create_response(t_response_creator &r);
 		std::string	format_response(t_response &res);
 
+		void				save_user_session(void) const;
 		static std::string	remove_useless_slashes(std::string const &uri);
 
 	private:
+		Users		user_manager;
+
 		// PARSER
 		static bool	check_div_end(std::string const & buf);
 		std::vector<std::string>	split_header_val(std::string val);
@@ -88,6 +59,7 @@ class HTTPProtocol {
 		void	handle_post(t_response_creator &r);
 		void	handle_delete(t_response_creator &r);
 
+		bool	get_body(std::string const &uri, t_response_creator &r, int change);
 
 		void	check_type(t_response_creator &r);
 
@@ -95,13 +67,13 @@ class HTTPProtocol {
 
 		void	set_headers(t_response_creator &r);
 
-		HTTPConfig::t_location	const &get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
-		t_uri_cgi	const	get_complete_uri(t_response_creator const &r);
+		HTTPConfig::t_location	&get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
+		std::string	const	get_complete_uri(t_response_creator const &r, std::string const &uri);
 		static void	directory_listing(t_response_creator &r, std::string const & dir, std::string const &uri);
-		void				get_body(std::string const &uri, t_response_creator &r, int change);
 		std::string	const	get_mime_type(HTTPConfig::t_config *config, std::string &file_type);
 		static std::string		get_error_tag(int err_code);
 
+		void		cgi(t_response_creator &r) const;
 		static bool exec_cgi(std::string file, std::string *interpreter, t_response_creator &r);
 		static std::string *get_default_interpreter(std::string const & file_type);
 
@@ -114,6 +86,7 @@ class HTTPProtocol {
 		bool		body_too_large(t_request& req, size_t size_max);
 		std::string	get_full_path_dir(std::string& uri, HTTPConfig::t_config* conf);
 		std::string	get_full_path_file(std::string& uri, HTTPConfig::t_config* conf, int file_rights);
+		static void	get_file_type(t_response_creator &r);
 
 };
 

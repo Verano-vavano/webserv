@@ -12,6 +12,7 @@ SRCS_HTTPConfig=HTTPConfig.cpp \
 
 SRCS_HTTPProt=HTTPProtocol_request.cpp \
 			  HTTPProtocol_response.cpp \
+			  HTTPProtocol_location.cpp \
 			  HTTPProtocol_methods.cpp \
 			  HTTPProtocol_methods_utils.cpp \
 			  HTTPProtocol_get.cpp \
@@ -22,7 +23,9 @@ SRCS_HTTPProt=HTTPProtocol_request.cpp \
 			  HTTPProtocol_utils.cpp \
 			  HTTPProtocol_printer.cpp
 
-SRCS_USERS=Users.cpp
+SRCS_USERS=Users.cpp \
+		   Users_post.cpp \
+		   Users_del.cpp
 
 SRCS_CLASSES=$(addprefix classes/, \
 			 	$(addprefix HTTPServ/, ${SRCS_HTTPServ})\
@@ -145,6 +148,7 @@ clean:
 fclean: clean
 	@${RM} ${LIBFT}
 	@${RM} ${NAME}
+	@${RM} .usr .session
 
 re: fclean all
 

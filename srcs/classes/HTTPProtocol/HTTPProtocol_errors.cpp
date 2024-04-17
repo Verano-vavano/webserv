@@ -1,7 +1,8 @@
 #include "HTTPProtocol.hpp"
 
 void	HTTPProtocol::handle_error_code(t_response_creator &r) {
-	//std::cout << "ERROR CODE = " << r.err_code << std::endl;
+	std::cout << "ERROR CODE = " << r.err_code << std::endl;
+	if (r.err_code == 200) { return ; }
 
 	std::vector<HTTPConfig::t_error>	&errors = r.conf->error_page;
 	std::vector<HTTPConfig::t_error>::const_iterator it;
@@ -16,9 +17,15 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 	}
 
 	if (found) {
-		get_body(it->uri, r, it->response);
-	} else if (r.err_code != 200) {
+		r.location = &(this->get_dir_uri(it->uri, r.conf));
+		r.file = it->uri;
+		this->get_file_type(r);
+	}
+	if (!found || !get_body(it->uri, r, it->response)) {
+		r.file_type = "";
 		r.res.body = "[DEFAULT ERROR] " + get_error_tag(r.err_code);
+		r.file = "";
+		std::cout << r.res.body << std::endl;
 	}
 	return ;
 

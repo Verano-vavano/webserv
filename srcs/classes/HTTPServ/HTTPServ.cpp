@@ -186,7 +186,9 @@ void HTTPServ::mainLoop(void) {
 					Http.create_response(matching_socket->rc);
 					event_change(matching_socket->fd, EPOLLOUT);
 				} else if (wait_events[i].events & EPOLLOUT){
-					if (!matching_socket->rc.conf->chunked_transfer_encoding) {
+					if (!matching_socket->rc.conf->chunked_transfer_encoding ||
+							matching_socket->rc.is_json) {
+						std::cout << "WESH" << std::endl;
 						std::string res = Http.format_response(matching_socket->rc.res);
 						this->send_data(matching_socket->fd, res.c_str(), res.size());
 					} else {
@@ -210,6 +212,7 @@ void HTTPServ::mainLoop(void) {
 		sockets_count = this->sockets.size();
 		i = 0;
 	}
+	Http.save_user_session();
 }
 
 HTTPServ::~HTTPServ(void) { return ; }

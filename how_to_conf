@@ -35,3 +35,8 @@ not_methods * /get; # disables all methods except get;
 All leading slashes but one are ignored (///get == /get)
 By default, only GET, POST and DELETE methods are allowed.
 std is a keyword representing the default methods.
+
+post_func describes how POST will be handled in a location.
+In an ideal world, it would be able to transfer it to another server / app to handle, but due to the inability to fork, there are two functions available natively.
+client_manager will handle client creation, login, logout et login fails.
+upload_manager will allow the upload of files on the server.

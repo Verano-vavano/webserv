@@ -74,11 +74,24 @@ std::string	const HTTPProtocol::get_mime_type(HTTPConfig::t_config *config, std:
  * it does not check a strict equality, as the field may contain other data too.
  */
 bool	t_request::content_is_type(std::string type) {
-	if (this->headers.count("content-type") == 0) { 
+	if (this->headers.count("content-type") == 0) {
 		return false;
 	}
 	if (this->headers["content-type"][0].find(type) == std::string::npos) {
 		return false;
 	}
 	return true;
+}
+
+void	HTTPProtocol::save_user_session(void) const {
+	this->user_manager.save_sessions();
+}
+
+void	HTTPProtocol::get_file_type(t_response_creator &r) {
+	unsigned long	ext_index = r.file.find_last_of(".");
+	if (ext_index != std::string::npos) {
+		r.file_type = r.file.substr(ext_index + 1);
+	} else {
+		r.file_type = "";
+	}
 }

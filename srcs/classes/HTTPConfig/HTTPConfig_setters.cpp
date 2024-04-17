@@ -105,12 +105,7 @@ void	HTTPConfig::set_methods_rescue_funk(std::string const &entry, t_location *l
 
 int	HTTPConfig::set_methods(std::vector<std::string> const & split, t_parser &opt) {
 	bool	allow = (split[0] == "methods");
-	t_location	*location;
-	if (opt.blocks.size() && opt.blocks.top().size() >= 8 && opt.blocks.top().substr(0, 8) == "location") {
-		location = &(opt.current_serv->locations.back());
-	} else {
-		location = &(opt.current_serv->default_root);
-	}
+	t_location	*location = this->get_cur_location(opt);
 
 	bool		notd;
 	std::string	entry;
@@ -144,8 +139,8 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	}
 
 	// LOCATION METHODS
-	else if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", "dir_listing", NULL)) {
-		HTTPConfig::t_location	*tmp = &(serv->locations.back());
+	else if (this->in(method, "root", "alias", "index", "cgi_exec", "cgi_interpreter", "dir_listing", "post_func", "del_func", "func", NULL)) {
+		HTTPConfig::t_location	*tmp = this->get_cur_location(opt);
 		if (opt.blocks.size() == 0 || opt.blocks.top().substr(0, 8) != "location") { tmp = &(serv->default_root); }
 		if (method == "root" || method == "alias") {
 			if (split.size() == 1) { return (HTTPConfig::warning("No location for a uri", opt.line, opt.options)); }
@@ -167,6 +162,16 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 			tmp->cgi.cgi_interpreter.insert(p);
 		} else if (method == "dir_listing") {
 			if (this->boolean_switch(tmp->dir_listing, opt, split)) { return (1); };
+		} else {
+			// FUNC METHODS
+			if (split.size() >= 2) {
+				std::string	func = this->to_upper(split[1]);
+				if (method == "func" || method == "post_func")
+					tmp->post_func = func;
+				if (method == "func" || method == "del_func")
+					tmp->del_func = func;
+			}
+			else { return (this->error("Need one argument", opt.line, opt.options)); }
 		}
 	}
 

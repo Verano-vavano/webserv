@@ -1,8 +1,11 @@
 -Obligatoire
 SUJET :
+Upload files (Bouton 'add a meme' ? qui permet de transmettre un fichier)
+Verifier que les exec marchent toujours
 DELETE
 
 BUGS:
+Connect to user, close server, open server, disconnect, 400 and crash
 
 NOUS:
 READ.ME
@@ -17,11 +20,14 @@ Log sub
 Server_name
 Wildcard dans methods (peut-être géré, je sais plus)
 Allow /.. in directory listing ? (idk, seems dangerous)
+Gerer le cas de + de 10 comptes
 
 -Potentiel
+Expiration de cookies de session en local
 retrocompatibilite HTTP1.0
 REGEX in nginx (crazy crazy, could be implemented in our shell lmao) (location ~ \.(gif|jpg|png)$)
 max_depth ?
 Equivalence lists pour Accept ? (genre html = text/html = text/htm = plain/text) et adapter en ft de q=
 Opti location pour support wildcards et qu'un tour de boucle plutot que plusieurs find
+Plusieurs listen dans un bloc serveur
 Gérer requêtes POST en CGI (comme Nginx)
