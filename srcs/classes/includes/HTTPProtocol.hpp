@@ -12,6 +12,7 @@
 # include <vector>
 # include <map>
 # include <unistd.h>
+# include <climits>
 # include <sys/wait.h>
 
 // DIRECTORY LISTING
@@ -53,6 +54,7 @@ class HTTPProtocol {
 		void	parse_headers(std::string & s, t_response_creator & r);
 		static void	empty_fd_in(int fd);
 		short		read_crlfcrlf(int fd, t_response_creator &r, long buf_size, std::string & req, unsigned long length);
+		static void	empty_request(t_request &req);
 
 		void	handle_method(t_response_creator &r);
 		void	handle_get(t_response_creator &r);

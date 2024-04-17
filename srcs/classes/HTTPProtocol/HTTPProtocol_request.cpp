@@ -48,9 +48,35 @@ void	HTTPProtocol::parse_headers(std::string & s, t_response_creator & r) {
 		r.req.headers.insert(new_el);
 		sub_index += 2;
 	}
-	s = s.substr(index);
+	s = s.substr(index + 3);
 }
 
+std::vector<std::string>	HTTPProtocol::split_header_val(std::string val) {
+	std::vector<std::string>	ret;
+	std::string				 sub;
+	unsigned int start, end, next;
+
+	start = val.find_first_not_of(' ');
+	while (start < val.size()) {
+		next = val.find(',', start);
+		end = val.find_first_not_of(' ', next);
+		ret.push_back(val.substr(start, end - start));
+		if (next >= val.size())
+			break ;
+		start = val.find_first_not_of(' ', next + 1);
+	}
+	return (ret);
+}
+
+// Empties the file descriptor so that it's fully read
+void	HTTPProtocol::empty_fd_in(int fd) {
+	int	bytes;
+
+	if (ioctl(fd, FIONREAD, &bytes) == -1 || bytes <= 0) { return ; }
+	recv(fd, NULL, bytes, 0);
+}
+
+/*
 // Checks for CRLFCRLF
 bool	HTTPProtocol::check_div_end(std::string const & buf) {
 	static short	state;
@@ -65,14 +91,6 @@ bool	HTTPProtocol::check_div_end(std::string const & buf) {
 		else { state = 0; }
 	}
 	return (false);
-}
-
-// Empties the file descriptor so that it's fully read
-void	HTTPProtocol::empty_fd_in(int fd) {
-	int	bytes;
-
-	if (ioctl(fd, FIONREAD, &bytes) == -1 || bytes <= 0) { return ; }
-	recv(fd, NULL, bytes, 0);
 }
 
 short	HTTPProtocol::read_crlfcrlf(int fd, t_response_creator &r, long buf_size, std::string & req, unsigned long length) {
@@ -119,29 +137,54 @@ int	HTTPProtocol::read_and_understand_request(int fd, t_response_creator &r) {
 	std::map<std::string, std::vector<std::string> >::const_iterator	finder = r.req.headers.find("content-length");
 	if (finder == r.req.headers.end()) { r.err_code = 411; this->empty_fd_in(fd); return (1); } // No Content-Length header (required for body length)
 
-	// BODY reading
-	ret = this->read_crlfcrlf(fd, r, r.conf->client_body_buffer_size, request, atol(finder->second[0].c_str()));
+	long	length = atol(finder->second[0].c_str()) -  request.size();
 
-	if (ret == -1)
+	// BODY reading
+	if (length != 0)
+		ret = this->read_crlfcrlf(fd, r, r.conf->client_body_buffer_size, request, length);
+
+	if (ret == -1 || length == 0)
 		r.req.body = request;
 	this->empty_fd_in(fd);
 
 	return (ret == -1 ? 1: ret);
+}*/
+
+
+// Method to read client EPOLLIN and parse it into r.req variable.
+// -1 = Fatal error (no use case for now)
+// 0 = Client disconnection
+// 1 = No Error (at least, no error that breaks it all)
+int	HTTPProtocol::read_and_understand_request(int fd, t_response_creator &r) {
+	long	to_read = r.req.headers_defined ? r.conf->client_body_buffer_size: r.conf->client_header_buffer_size;
+
+	char	buffer[to_read + 1];
+	int		ret = recv(fd, buffer, to_read, 0);
+
+	if (ret == -1) { this->empty_fd_in(fd); r.err_code = 500; return (1); }
+	else if (ret == 0) { return (0); }
+
+	buffer[ret] = '\0';
+	r.temp_req += buffer;
+
+	if (!r.req.headers_defined && r.temp_req.find("\r\n\r\n") != std::string::npos) {
+		r.req.headers_defined = true;
+		this->parse_headers(r.temp_req, r);
+	}
+	if (r.req.headers_defined && (r.temp_req.size() > LONG_MAX || static_cast<long>(r.temp_req.size()) > r.conf->client_max_body_size)) {
+		r.err_code = 413;
+		return (1);
+	}
+
+	return (1);
 }
 
-std::vector<std::string>	HTTPProtocol::split_header_val(std::string val) {
-	std::vector<std::string>	ret;
-	std::string				 sub;
-	unsigned int start, end, next;
 
-	start = val.find_first_not_of(' ');
-	while (start < val.size()) {
-		next = val.find(',', start);
-		end = val.find_first_not_of(' ', next);
-		ret.push_back(val.substr(start, end - start));
-		if (next >= val.size())
-			break ;
-		start = val.find_first_not_of(' ', next + 1);
-	}
-	return (ret);
+void	HTTPProtocol::empty_request(t_request &req) {
+	req.method = "";
+	req.uri = "";
+	req.http_version = "";
+	req.headers.clear();
+	req.body = "";
+	req.headers_defined = false;
 }

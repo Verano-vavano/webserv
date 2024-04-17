@@ -38,7 +38,6 @@ Users::t_user Users::parse_json_post(int &err_code, std::string json) {
 
 	received_user.name = json.substr(user, user_end - user);
 	received_user.password = json.substr(pswd, pswd_end - pswd);
-	std::cout << "- " << received_user.name << " : " << received_user.password << std::endl;
 	return (received_user);
 }
 

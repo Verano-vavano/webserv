@@ -8,6 +8,7 @@ typedef struct {
 	std::string											uri;
 	std::string											http_version;
 	std::map<std::string, std::vector<std::string> >	headers;
+	bool												headers_defined;
 	std::string											body;
 	bool												content_is_type(std::string type);
 }	t_request;
@@ -19,6 +20,7 @@ typedef struct {
 }	t_response;
 
 typedef struct {
+	std::string				temp_req;
 	t_request				req;
 	t_response				res;
 	std::string				better_uri;
