@@ -30,9 +30,6 @@ bool	HTTPProtocol::path_in_dir(std::string& uri, std::vector<std::string>& allow
 static bool	is_dir(std::string& path) {
 	struct stat	filestat;
 
-	if (access(path.c_str(), W_OK)) { //if file/dir does not have write access
-		return false;
-	}
 	if (stat(path.c_str(), &filestat) != 0) {
 		return false;
 	}
@@ -50,9 +47,6 @@ static bool	is_dir(std::string& path) {
 static bool	is_reg_file(std::string& path) {
 	struct stat	filestat;
 
-	if (access(path.c_str(), W_OK)) { //if file/dir does not have write access
-		return false;
-	}
 	if (stat(path.c_str(), &filestat) != 0) {
 		return false;
 	}
@@ -79,7 +73,7 @@ std::string	HTTPProtocol::get_full_path_dir(std::string& uri, HTTPConfig::t_conf
 		std::string full_path = locs[i].replacement + "/"
 			+ uri.substr(locs[i].default_uri.size()); //uri with location string removed
 		std::string base_path = full_path.substr(0, full_path.find_last_of('/')); //remove file name
-		if (is_dir(base_path) && !is_dir(full_path)) {
+		if (is_dir(base_path) && !is_dir(full_path) && !access(base_path.c_str(), W_OK)) {
 			return (full_path);
 		}
 	}
@@ -87,13 +81,17 @@ std::string	HTTPProtocol::get_full_path_dir(std::string& uri, HTTPConfig::t_conf
 	return ("");
 }
 
-/* function that take an URI and a config struct, and return the corresponding path to an existing file
- * for each location, it will try to substitute any matching uri by the correspoding path,
- * and check if the directory exist.
- * if several location match, only the first one is returned.
- * if no matches are found, an empty string is returned.
+
+/* function that find the path associated with an uri and a set of locations.
+ * it's arguments are :
+ 	* an uri, which need to be checked
+	* a config structure, which contain the apropriate locations to check
+	* a file_right (int), same as access ones (it will be given directly to access)
+ * it return the path to the corresponding file, as a std::string object.
+ * if no match are found, it return an empty string.
+ * if several files match, it return the first one found.
  */
-std::string	HTTPProtocol::get_full_path_file(std::string& uri, HTTPConfig::t_config* conf) {
+std::string	HTTPProtocol::get_full_path_file(std::string& uri, HTTPConfig::t_config* conf, int file_rights) {
 	std::vector<HTTPConfig::t_location> locs = conf->locations;
 	locs.push_back(conf->default_root); //also check default location
 	for (size_t i = 0; i < locs.size(); i++) {
@@ -102,7 +100,7 @@ std::string	HTTPProtocol::get_full_path_file(std::string& uri, HTTPConfig::t_con
 		}
 		std::string full_path = locs[i].replacement + "/"
 			+ uri.substr(locs[i].default_uri.size()); //remove location string
-		if (is_reg_file(full_path)) {
+		if (!access(full_path.c_str(), file_rights) && is_reg_file(full_path)) {
 			return (full_path);
 		}
 	}
