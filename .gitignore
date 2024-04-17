@@ -3,7 +3,7 @@ valg*
 *.swp
 *.swo
 .launched
-tests
+*test*
 webserv
 miniweb
 ubuntu_cgi_tester

@@ -183,12 +183,14 @@ void HTTPServ::mainLoop(void) {
 						this->delete_client(matching_socket, &wait_events[i]);
 						continue ;
 					}
-					Http.create_response(matching_socket->rc);
-					event_change(matching_socket->fd, EPOLLOUT);
+					event_change(matching_socket->fd, (EPOLLIN | EPOLLOUT));
 				} else if (wait_events[i].events & EPOLLOUT){
+					std::cout << "EPOLLOUT" << std::endl;
+					matching_socket->rc.req.body = matching_socket->rc.temp_req;
+					matching_socket->rc.temp_req = "";
+					Http.create_response(matching_socket->rc);
 					if (!matching_socket->rc.conf->chunked_transfer_encoding ||
 							matching_socket->rc.is_json) {
-						std::cout << "WESH" << std::endl;
 						std::string res = Http.format_response(matching_socket->rc.res);
 						this->send_data(matching_socket->fd, res.c_str(), res.size());
 					} else {
