@@ -1,7 +1,6 @@
 #include "HTTPProtocol.hpp"
 
 void	HTTPProtocol::create_response(t_response_creator &rc) {
-	rc.err_code = 200;
 	rc.res.status_line = "";
 	rc.res.headers = "";
 	rc.res.body = "";

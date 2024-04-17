@@ -12,6 +12,7 @@
 # include <vector>
 # include <map>
 # include <unistd.h>
+# include <climits>
 # include <sys/wait.h>
 
 // DIRECTORY LISTING
