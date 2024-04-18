@@ -21,10 +21,10 @@ HTTPConfig::t_location	&HTTPProtocol::get_dir_uri(std::string const &uri, HTTPCo
 	return (conf->default_root);
 }
 
-std::string	const HTTPProtocol::get_complete_uri(t_response_creator const &r, std::string const &uri) {
-	std::string	better_uri = this->remove_useless_slashes(uri);
+void	HTTPProtocol::get_complete_uri(t_response_creator &r, std::string const &uri) {
+	std::string	better_uri = remove_useless_slashes(uri);
 	std::string	uri_with_slash = r.better_uri;
-	HTTPConfig::t_location const	*dir = r.location;
+	HTTPConfig::t_location *dir = r.location;
 	std::string	file = uri_with_slash.substr(dir->default_uri.length());
 
 	std::string	filename;
@@ -36,12 +36,14 @@ std::string	const HTTPProtocol::get_complete_uri(t_response_creator const &r, st
 	}
 
 	if (dir->alias) {
-		file = dir->replacement + "/" + filename;
-	} else if (file == "/" || file == "") {
-		file = dir->replacement + "/" + better_uri + "/" + filename;
+		r.file_wo_index = dir->replacement;
 	} else {
-		file = dir->replacement + "/" + better_uri;
+		r.file_wo_index = dir->replacement + "/" + better_uri;
 	}
 
-	return (file);
+	if (file == "/" || file == "") {
+		r.file = r.file_wo_index + "/" + filename;
+	} else {
+		r.file = r.file_wo_index;
+	}
 }

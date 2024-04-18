@@ -23,10 +23,11 @@ typedef struct {
 	std::string				temp_req;
 	t_request				req;
 	t_response				res;
-	std::string				better_uri;
 	HTTPConfig::t_config	*conf;
 	HTTPConfig::t_location	*location;
 	int						err_code;
+	std::string				better_uri;
+	std::string				file_wo_index;
 	std::string				file_type;
 	std::string				file;
 	bool					has_cgi;

@@ -32,7 +32,7 @@ void	HTTPProtocol::handle_method(t_response_creator &r) {
 		r.err_code = 405;
 		return ;
 	}
-	r.file = get_complete_uri(r, r.req.uri);
+	get_complete_uri(r, r.req.uri);
 	std::cout << r.file << std::endl;
 	get_file_type(r);
 	std::cout << r.file_type << std::endl;

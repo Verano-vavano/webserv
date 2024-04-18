@@ -70,7 +70,7 @@ class HTTPProtocol {
 		void	set_headers(t_response_creator &r);
 
 		HTTPConfig::t_location	&get_dir_uri(std::string const &uri, HTTPConfig::t_config *conf);
-		std::string	const	get_complete_uri(t_response_creator const &r, std::string const &uri);
+		static void	get_complete_uri(t_response_creator &r, std::string const &uri);
 		static void	directory_listing(t_response_creator &r, std::string const & dir, std::string const &uri);
 		std::string	const	get_mime_type(HTTPConfig::t_config *config, std::string &file_type);
 		static std::string		get_error_tag(int err_code);
