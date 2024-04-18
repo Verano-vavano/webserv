@@ -5,6 +5,7 @@
 # include "HTTPProtocol.hpp"
 #include "Users.hpp"
 #include <unistd.h>
+# include <arpa/inet.h>
 #include <netinet/in.h> // sockaddr_in
 # include <iostream>
 # include <fcntl.h>

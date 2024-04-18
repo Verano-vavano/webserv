@@ -27,8 +27,8 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 		r.file = "";
 		std::cout << r.res.body << std::endl;
 	}
-	return ;
 
+	return ;
 }
 
 std::string HTTPProtocol::get_error_tag(int err_code) {

@@ -9,9 +9,7 @@ NOUS:
 READ.ME
 Body to
 Body infile
-Ignore invalid headers
 Keepalive (time)
-Log not found
 Log sub
 Server_name
 Allow /.. in directory listing ? (idk, seems dangerous)

@@ -2,6 +2,7 @@
 # define REPONSE_CREATOR_HPP
 
 # include "HTTPConfig.hpp"
+# include <arpa/inet.h>
 
 typedef struct {
 	std::string											method;
@@ -20,6 +21,7 @@ typedef struct {
 }	t_response;
 
 typedef struct {
+	char					ip[INET_ADDRSTRLEN];
 	std::string				temp_req;
 	t_request				req;
 	t_response				res;

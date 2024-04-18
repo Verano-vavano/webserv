@@ -113,6 +113,7 @@ HTTPServ::t_socket HTTPServ::initClientSocket(HTTPServ::t_socket server) {
 	newClientSocket.fd = accept(server.fd, (sockaddr*)&client_addr, &sock_addr_len);
 	newClientSocket.port = server.port;
 	newClientSocket.is_client = true;
+	inet_ntop(AF_INET, &client_addr.sin_addr, newClientSocket.rc.ip, INET_ADDRSTRLEN);
 	newClientSocket.rc.conf = get_config_client(newClientSocket.port);
 	newClientSocket.rc.n_req = newClientSocket.rc.conf->keepalive_requests;
 

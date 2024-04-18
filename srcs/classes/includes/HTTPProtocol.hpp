@@ -13,6 +13,7 @@
 # include <map>
 # include <unistd.h>
 # include <climits>
+# include <ctime>
 # include <sys/wait.h>
 
 // DIRECTORY LISTING
@@ -27,14 +28,16 @@
 # define DIV_END "\r\n\r\n"
 # define CHUNK_END "0\r\n\r\n"
 
+# define LOG_FILE "miniweb.log"
+
 
 // A small machine capable of understanding a user-client request
 // and also creating the adequate response according to a config file
 class HTTPProtocol {
 
 	public:
-		HTTPProtocol(void) { return ; }
-		~HTTPProtocol(void) { return ; }
+		HTTPProtocol(void);
+		~HTTPProtocol(void);
 
 		int		read_and_understand_request(int fd, t_response_creator &r);
 		void		print_request(t_request &req);
@@ -89,6 +92,8 @@ class HTTPProtocol {
 		std::string	get_full_path_dir(std::string& uri, HTTPConfig::t_config* conf);
 		std::string	get_full_path_file(std::string& uri, HTTPConfig::t_config* conf, int file_rights);
 		static void	get_file_type(t_response_creator &r);
+
+		void	log_it(t_response_creator &r);
 
 };
 
