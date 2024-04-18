@@ -18,7 +18,7 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 
 	if (found) {
 		r.location = &(this->get_dir_uri(it->uri, r.conf));
-		r.file = it->uri;
+		this->get_complete_uri(r, it->uri);
 		this->get_file_type(r);
 	}
 	if (!found || !get_body(it->uri, r, it->response)) {
