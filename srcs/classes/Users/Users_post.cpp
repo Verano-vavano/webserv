@@ -42,9 +42,9 @@ Users::t_user Users::parse_json_post(int &err_code, std::string json) {
 }
 
 std::string trim_body(std::string body) {
-	ulong i = 0;
+	unsigned long i = 0;
 	for (; body[i] && (isspace(body[i]) || body[i] == '\n'); i++);
-	ulong j = i;
+	unsigned long j = i;
 	for (; body[j] && body[j] != '\n';j++);
 	return (body.substr(i, j));
 }
