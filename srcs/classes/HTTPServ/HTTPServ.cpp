@@ -190,7 +190,7 @@ void HTTPServ::mainLoop(void) {
 					matching_socket->rc.temp_req = "";
 					Http.create_response(matching_socket->rc);
 					if (!matching_socket->rc.conf->chunked_transfer_encoding ||
-							matching_socket->rc.is_json || matching_socket->rc.has_cgi) {
+							matching_socket->rc.is_json) {
 						std::string res = Http.format_response(matching_socket->rc.res);
 						this->send_data(matching_socket->fd, res.c_str(), res.size());
 					} else {

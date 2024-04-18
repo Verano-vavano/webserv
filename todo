@@ -4,6 +4,7 @@ Upload files (Bouton 'add a meme' ? qui permet de transmettre un fichier)
 Delete files
 
 BUGS:
+error_page ne marche plus
 
 NOUS:
 READ.ME
@@ -14,7 +15,6 @@ Keepalive (time)
 Log not found
 Log sub
 Server_name
-Wildcard dans methods (peut-être géré, je sais plus)
 Allow /.. in directory listing ? (idk, seems dangerous)
 Gerer le cas de + de 10 comptes
 
