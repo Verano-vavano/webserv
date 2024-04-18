@@ -1,18 +1,14 @@
 -Obligatoire
 SUJET :
 Upload files (Bouton 'add a meme' ? qui permet de transmettre un fichier)
-Verifier que les exec marchent toujours
-DELETE
+Delete files
 
 BUGS:
-Connect to user, close server, open server, disconnect, 400 and crash
 
 NOUS:
 READ.ME
 Body to
-Body Buf size
 Body infile
-Header buf size
 Ignore invalid headers
 Keepalive (time)
 Log not found
