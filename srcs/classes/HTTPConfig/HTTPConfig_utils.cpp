@@ -137,3 +137,12 @@ HTTPConfig::t_location	*HTTPConfig::get_cur_location(t_parser &opt) {
 		return (&(opt.current_serv->default_root));
 	}
 }
+
+HTTPConfig::t_config	*HTTPConfig::get_config(int port) {
+	for (unsigned long l = 0; l < this->servers.size(); l++) {
+		if (port == this->servers[l].port) {
+			return (&(this->servers[l]));
+		}
+	}
+	return (NULL);
+}

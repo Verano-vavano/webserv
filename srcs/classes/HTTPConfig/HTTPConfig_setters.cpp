@@ -36,15 +36,21 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// SERVER
 	else if (method == "server") {
-		t_config	tmp;
-		tmp.port = 80;
-		tmp = this->default_config;
+		int port = DEFAULT_PORT;
 		if (split.size() >= 2) {
-			tmp.port = std::atoi(split[1].c_str());
-			if (tmp.port == 0 && warning("Invalid server port at declaration", opt.line, opt.options)) { return (1); }
+			port = std::atoi(split[1].c_str());
+			if (port == 0 && warning("Invalid server port at declaration", opt.line, opt.options)) { return (1); }
 		}
 		if (split.size() > 2 && warning("Too many ports at server declaration", opt.line, opt.options)) { return (1); }
-		this->servers.push_back(tmp);
+		t_config	*tmp = this->get_config(port);
+		if (tmp) {
+			opt.current_serv = tmp;
+			return (0);
+		}
+		t_config	tmp2;
+		tmp2 = this->default_config;
+		tmp2.port = port;
+		this->servers.push_back(tmp2);
 		opt.current_serv = &(this->servers.back());
 	}
 

@@ -138,6 +138,7 @@ class HTTPConfig {
 		int understand_the_cut(std::string & cut, t_parser &opt);
 
 		static t_location	*get_cur_location(t_parser &opt);
+		t_config			*get_config(int port);
 
 		int set_define(std::string & cut, t_parser &opt);
 		int set_type(std::string & cut, t_parser &opt);

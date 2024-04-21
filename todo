@@ -15,6 +15,9 @@ Server_name
 Allow /.. in directory listing ? (idk, seems dangerous)
 Gerer le cas de + de 10 comptes
 
+CONFIG:
+un serveur pour ecouter sur plusieurs ports
+
 -Potentiel
 Expiration de cookies de session en local
 retrocompatibilite HTTP1.0
