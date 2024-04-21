@@ -36,8 +36,8 @@
 class HTTPProtocol {
 
 	public:
-		HTTPProtocol(void);
-		~HTTPProtocol(void);
+		HTTPProtocol(void) { return ; }
+		~HTTPProtocol(void) { return ; }
 
 		int		read_and_understand_request(int fd, t_response_creator &r);
 		void		print_request(t_request &req);

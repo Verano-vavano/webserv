@@ -10,8 +10,7 @@ SRCS_HTTPConfig=HTTPConfig.cpp \
 				HTTPConfig_utils.cpp \
 				HTTPConfig_printer.cpp
 
-SRCS_HTTPProt=HTTPProtocol.cpp \
-			  HTTPProtocol_request.cpp \
+SRCS_HTTPProt=HTTPProtocol_request.cpp \
 			  HTTPProtocol_response.cpp \
 			  HTTPProtocol_location.cpp \
 			  HTTPProtocol_methods.cpp \
