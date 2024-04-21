@@ -12,17 +12,22 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// LOCATION
 	if (method == "location") {
-		t_location	tmp;
-		tmp.replacement = "";
-		tmp = opt.current_serv->default_root;
 		if (split.size() == 1) {
 			HTTPConfig::error("No URI for location (if root, specify '/')", opt.line, opt.options);
 			return (2 - (opt.options & O_ERROR_STOP));
 		}
 		else if (split.size() > 2 && HTTPConfig::warning("Multiple URI for location (not supported)", opt.line, opt.options)) { return (1); }
-		tmp.default_uri = HTTPProtocol::remove_useless_slashes(split[1]);
-		if (tmp.default_uri.size() && tmp.default_uri[tmp.default_uri.size() - 1] != '/') { tmp.default_uri += "/"; }
-		opt.current_serv->locations.push_back(tmp);
+		std::string	default_uri = HTTPProtocol::remove_useless_slashes(split[1]);
+		if (default_uri.size() && default_uri[default_uri.size() - 1] != '/') { default_uri += "/"; }
+		t_location	*tmp = this->get_location(*opt.current_serv, default_uri);
+		if (tmp != NULL) {
+			opt.current_location = tmp;
+			return (0);
+		}
+		t_location	tmp2 = opt.current_serv->default_root;
+		opt.current_serv->locations.push_back(tmp2);
+		opt.current_location = &(opt.current_serv->locations.back());
+		return (0);
 	}
 
 	// HTTP
@@ -294,7 +299,10 @@ int	HTTPConfig::set_error_page(std::vector<std::string> &split, t_parser &opt) c
 			equal_set = true;
 			if (uri_set) { break ; }
 		} else if (!uri_set && split[index][0] != '=') {
-			err.uri = split[index];
+			if (split[index][0] != '/')
+				err.uri = "/" + split[index];
+			else
+				err.uri = split[index];
 			uri_set = true;
 			if (equal_set) { break ; }
 		}

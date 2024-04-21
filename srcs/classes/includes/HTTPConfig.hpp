@@ -128,6 +128,7 @@ class HTTPConfig {
 			std::stack<std::string> blocks;
 			bool					in_http;
 			t_config				*current_serv;
+			t_location				*current_location;
 			int					 options;
 			unsigned long		   line;
 		}   t_parser;
@@ -139,6 +140,7 @@ class HTTPConfig {
 
 		static t_location	*get_cur_location(t_parser &opt);
 		t_config			*get_config(int port);
+		t_location			*get_location(t_config &serv, std::string const default_uri);
 
 		int set_define(std::string & cut, t_parser &opt);
 		int set_type(std::string & cut, t_parser &opt);

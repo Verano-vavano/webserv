@@ -17,6 +17,7 @@ Gerer le cas de + de 10 comptes
 
 CONFIG:
 un serveur pour ecouter sur plusieurs ports
+location dans location
 
 -Potentiel
 Expiration de cookies de session en local
