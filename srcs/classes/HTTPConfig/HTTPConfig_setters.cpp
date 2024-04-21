@@ -222,7 +222,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// ARGUMENTAL METHODS
 	else {
-		if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
+		if (split.size() == 1) { return (this->error("Not enough arguments for an argumental method (aka default)", opt.line, opt.options)); }
 		else if (!this->in(method, "error_page", "add_header", NULL) && split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
 
 		long	ret = std::max((long) 2, std::atol(split[1].c_str()));

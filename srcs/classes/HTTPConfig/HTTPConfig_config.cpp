@@ -28,7 +28,7 @@ void HTTPConfig::configurate(std::string const path, std::string const config_fi
 		first_line = this->trim_buffer(first_line);
 	}
 
-	bool	space_mode = (first_line == "DEFINE SPACE_MODE;");
+	bool	space_mode = (first_line.size() >= 18 && first_line.substr(0, 18) == "DEFINE SPACE_MODE;");
 
 	// We open the file again to move the cursor at the start
 	std::ifstream	new_config(config_file.c_str());
