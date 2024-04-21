@@ -264,27 +264,35 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	return (0);
 }
 
-int	HTTPConfig::set_error_page(std::vector<std::string> &split, t_parser &opt) {
+int	HTTPConfig::set_error_page(std::vector<std::string> &split, t_parser &opt) const {
 	unsigned int	index = 1;
 	HTTPConfig::t_config	*serv = opt.current_serv;
 	HTTPConfig::t_error		err;
 
 	std::set<int>	codes;
-	int	error_code;
-	for (; index < split.size() - 1 && split[index][0] != '='; index++) {
+	int				error_code;
+	for (; index < split.size() - 1 && isallnum(split[index]); index++) {
 		error_code = std::atoi(split[index].c_str());
 		if ((error_code < 100 || error_code >= 600) && this->warning("Invalid error code", opt.line, opt.options)) { return (1); }
 		codes.insert(error_code);
 	}
 
 	err.codes = codes;
-	if (split[index][0] == '=' && index != split.size()) {
-		err.response = std::atoi(split[index].c_str() + 1);
-		index++;
+	err.response = -1;
+
+	bool	uri_set = false;
+	bool	equal_set = false;
+	for (; index < split.size(); index++) {
+		if (!equal_set && split[index][0] == '=') {
+			err.response = std::atoi(split[index].c_str() + 1);
+			equal_set = true;
+			if (uri_set) { break ; }
+		} else if (!uri_set && split[index][0] != '=') {
+			err.uri = split[index];
+			uri_set = true;
+			if (equal_set) { break ; }
+		}
 	}
-	else
-		err.response = -1;
-	err.uri = split[index];
 	serv->error_page.push_back(err);
 	return (0);
 }

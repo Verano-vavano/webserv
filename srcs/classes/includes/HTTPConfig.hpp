@@ -146,7 +146,7 @@ class HTTPConfig {
 		int set_methods(std::vector<std::string> const & split, t_parser &opt);
 		int set_other(std::string & cut, t_parser &opt);
 
-		int	set_error_page(std::vector<std::string> &split, t_parser &opt);
+		int	set_error_page(std::vector<std::string> &split, t_parser &opt) const;
 
 		static std::pair<char, int>	 search_delim(std::string const buffer, t_parser &opt);
 		static std::string			  trim_buffer(char *buffer);
@@ -157,6 +157,7 @@ class HTTPConfig {
 		static long						translate_time(std::string arg);
 	static bool	boolean_switch(bool &var, t_parser const &opt, std::vector<std::string> const & split);
 	static std::string	to_upper(std::string const & old);
+	static bool			isallnum(std::string const & str);
 
 		static bool	warning(std::string const message, unsigned long line, int mask);
 		static bool	error(std::string const message, unsigned long line, int mask);
