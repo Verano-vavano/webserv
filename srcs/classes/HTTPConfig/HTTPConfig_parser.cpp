@@ -107,8 +107,6 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 				}
 				continue ;
 			}
-			else
-				opt.blocks.push(cut);
 		}
 
 		// DELIM is ; or \n (SPACE_MODE)

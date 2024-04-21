@@ -12,6 +12,9 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// LOCATION
 	if (method == "location") {
+		if (opt.blocks.size() != 0 && opt.blocks.top() != "server" && opt.blocks.top() != "http") {
+			return (2 - HTTPConfig::error("Invalid location for 'location' block", opt.line, opt.options));
+		}
 		if (split.size() == 1) {
 			HTTPConfig::error("No URI for location (if root, specify '/')", opt.line, opt.options);
 			return (2 - (opt.options & O_ERROR_STOP));
@@ -20,11 +23,13 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 		std::string	default_uri = HTTPProtocol::remove_useless_slashes(split[1]);
 		if (default_uri.size() && default_uri[default_uri.size() - 1] != '/') { default_uri += "/"; }
 		t_location	*tmp = this->get_location(*opt.current_serv, default_uri);
+		opt.blocks.push("location");
 		if (tmp != NULL) {
 			opt.current_location = tmp;
 			return (0);
 		}
 		t_location	tmp2 = opt.current_serv->default_root;
+		tmp2.default_uri = default_uri;
 		opt.current_serv->locations.push_back(tmp2);
 		opt.current_location = &(opt.current_serv->locations.back());
 		return (0);
@@ -36,6 +41,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 			std::cerr << "[FATAL ERROR] http block not in global scope at line " << opt.line << std::endl;
 			return (1);
 		}
+		opt.blocks.push("http");
 		opt.in_http = true;
 	}
 
@@ -48,6 +54,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 		}
 		if (split.size() > 2 && warning("Too many ports at server declaration", opt.line, opt.options)) { return (1); }
 		t_config	*tmp = this->get_config(port);
+		opt.blocks.push("server");
 		if (tmp) {
 			opt.current_serv = tmp;
 			return (0);
@@ -61,7 +68,8 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	else if (method != "types") {
 		return (2 - error("Unknown block type", opt.line, opt.options));
-	}
+	} else
+		opt.blocks.push("types");
 	return (0);
 }
 
