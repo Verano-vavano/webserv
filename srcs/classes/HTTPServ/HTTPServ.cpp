@@ -28,10 +28,11 @@ int socketOpen(HTTPConfig::t_config config) {
 	if (bind(newSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
 		std::cout << "could not bind socket " << config.port << " ... :(" << std::endl;
 		close(newSocket);
-		return (-1);
+		exit(EXIT_FAILURE);
 	}
 	// int = number of request will be queued before refusing requests.
 	if (listen(newSocket, 250) == -1) {
+		close(newSocket);
 		perror("listen");
 		exit(EXIT_FAILURE);
 	}
@@ -48,7 +49,7 @@ void HTTPServ::epollinTheSocket(int socket_fd) {
 void HTTPServ::socketsInit(void) {
 	this->epoll_fd = epoll_create(1);
 	if (this->epoll_fd == -1) {
-		perror("epoll_create");
+		//this->log.log_fatal("epoll_create");
 		exit(EXIT_FAILURE);
 	}
 
@@ -190,14 +191,15 @@ void HTTPServ::mainLoop(void) {
 					matching_socket->rc.req.body = matching_socket->rc.temp_req;
 					matching_socket->rc.temp_req = "";
 					Http.create_response(matching_socket->rc);
+					short	ret;
 					if (!matching_socket->rc.conf->chunked_transfer_encoding ||
 							matching_socket->rc.is_json) {
 						std::string res = Http.format_response(matching_socket->rc.res);
-						this->send_data(matching_socket->fd, res.c_str(), res.size());
+						ret = this->send_data(matching_socket->fd, res.c_str(), res.size());
 					} else {
-						this->send_chunked_response(matching_socket->fd, matching_socket->rc);
+						ret = this->send_chunked_response(matching_socket->fd, matching_socket->rc);
 					}
-					if (matching_socket->rc.n_req <= 0) {
+					if (matching_socket->rc.n_req <= 0 || ret == -1) {
 						std::cerr << "Disconnecting client" << std::endl;
 						this->delete_client(matching_socket, &wait_events[i]);
 					} else {

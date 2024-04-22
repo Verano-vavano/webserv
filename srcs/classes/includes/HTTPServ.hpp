@@ -41,6 +41,7 @@ class HTTPServ {
 
 		int						epoll_fd;
 		HTTPConfig				conf;
+		//Logger					log;
 		std::vector<t_socket>	sockets;
 
 		HTTPConfig::t_config*	get_config_client(int port);
@@ -51,10 +52,10 @@ class HTTPServ {
 		void					delete_client(t_socket *matching_socket, epoll_event *ev);
 		void					epollinTheSocket(int socket_fd);
 
-		static void	send_data(int fd, const char *data, size_t size);
-		static void	send_chunked_response(int fd, t_response_creator const & rc);
-		static void	send_chunked_file_content(int fd, t_response_creator const & rc);
-		static void	send_chunked_body_content(int fd, t_response_creator const & rc);
+		static short	send_data(int fd, const char *data, size_t size);
+		static short	send_chunked_response(int fd, t_response_creator const & rc);
+		static bool		send_chunked_file_content(int fd, t_response_creator const & rc);
+		static bool		send_chunked_body_content(int fd, t_response_creator const & rc);
 
 		static void				sigint_handler(int signal);
 
