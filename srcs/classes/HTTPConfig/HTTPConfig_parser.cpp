@@ -114,14 +114,17 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 		buffer = buffer.substr(delim.second + 1 - (delim.first == '\n'));
 		if (ret == 1)
 			return (ret);
+		else if (ret == 2)
+			return (0);
 	}
 	return (ret);
 }
 
 
+// Ret = 2 means to skip the line (SPACE_MODE)
 int	HTTPConfig::understand_the_cut(std::string & cut, HTTPConfig::t_parser &opt) {
 	if (cut[0] == '#')
-		return (0);
+		return (0 + (2 * (opt.options & O_SPACE_MODE)));
 	if (cut.substr(0, 6) == "DEFINE") {
 		return (this->set_define(cut, opt));
 	}
