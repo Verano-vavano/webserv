@@ -22,7 +22,6 @@ void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & 
 	}
 	while ((entry = readdir(directory))) {
 		file = entry->d_name;
-		// Maybe add a slash if there is not
 		body += "<a href=" + complete_uri + file + "><li>" + file + "</a></li>";
 	}
 
@@ -33,8 +32,7 @@ void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & 
 }
 
 bool	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
-	std::cout << *(r.location) << std::endl;
-	if (this->is_directory(r.file_wo_index)) {
+	if (r.location->index == "" && this->is_directory(r.file_wo_index)) {
 		if (r.location->dir_listing) {
 			this->directory_listing(r, r.file_wo_index, uri);
 			r.file = "";

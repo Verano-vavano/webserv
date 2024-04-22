@@ -123,10 +123,35 @@ std::string	HTTPConfig::to_upper(std::string const & old) {
 	return (ret);
 }
 
+bool	HTTPConfig::isallnum(std::string const & str) {
+	for (std::string::const_iterator it = str.begin(); it != str.end(); it++) {
+		if (!std::isdigit(*it)) { return (false);}
+	}
+	return (true);
+}
+
 HTTPConfig::t_location	*HTTPConfig::get_cur_location(t_parser &opt) {
 	if (opt.blocks.size() && opt.blocks.top().size() >= 8 && opt.blocks.top().substr(0, 8) == "location") {
-		return (&(opt.current_serv->locations.back()));
+		return (opt.current_location);
 	} else {
 		return (&(opt.current_serv->default_root));
 	}
+}
+
+HTTPConfig::t_config	*HTTPConfig::get_config(int port) {
+	for (unsigned long l = 0; l < this->servers.size(); l++) {
+		if (port == this->servers[l].port) {
+			return (&(this->servers[l]));
+		}
+	}
+	return (NULL);
+}
+
+HTTPConfig::t_location	*HTTPConfig::get_location(t_config &serv, std::string const default_uri) {
+	for (unsigned long l = 0; l < serv.locations.size(); l++) {
+		if (default_uri == serv.locations[l].default_uri) {
+			return (&(serv.locations[l]));
+		}
+	}
+	return (NULL);
 }

@@ -85,7 +85,7 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 			if (opt.blocks.size() == 0 && HTTPConfig::error("Extra '}'", opt.line, opt.options)) { return (1); }
 			//else if (cut != "" && HTTPConfig::error("Missing separator", opt.line, opt.options)) { return (1); }
 			else if (opt.blocks.size() != 0) {
-				if (opt.blocks.size() >= 6 && opt.blocks.top().substr(0, 6) == "server") {
+				if (opt.blocks.top().size() >= 6 && opt.blocks.top().substr(0, 6) == "server") {
 					opt.current_serv = &(this->default_config);
 				}
 				opt.blocks.pop();
@@ -107,8 +107,6 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 				}
 				continue ;
 			}
-			else
-				opt.blocks.push(cut);
 		}
 
 		// DELIM is ; or \n (SPACE_MODE)

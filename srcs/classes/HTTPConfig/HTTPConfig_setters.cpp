@@ -12,17 +12,27 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// LOCATION
 	if (method == "location") {
-		t_location	tmp;
-		tmp.replacement = "";
-		tmp = opt.current_serv->default_root;
+		if (opt.blocks.size() != 0 && opt.blocks.top() != "server" && opt.blocks.top() != "http") {
+			return (2 - HTTPConfig::error("Invalid location for 'location' block", opt.line, opt.options));
+		}
 		if (split.size() == 1) {
 			HTTPConfig::error("No URI for location (if root, specify '/')", opt.line, opt.options);
 			return (2 - (opt.options & O_ERROR_STOP));
 		}
 		else if (split.size() > 2 && HTTPConfig::warning("Multiple URI for location (not supported)", opt.line, opt.options)) { return (1); }
-		tmp.default_uri = HTTPProtocol::remove_useless_slashes(split[1]);
-		if (tmp.default_uri.size() && tmp.default_uri[tmp.default_uri.size() - 1] != '/') { tmp.default_uri += "/"; }
-		opt.current_serv->locations.push_back(tmp);
+		std::string	default_uri = HTTPProtocol::remove_useless_slashes(split[1]);
+		if (default_uri.size() && default_uri[default_uri.size() - 1] != '/') { default_uri += "/"; }
+		t_location	*tmp = this->get_location(*opt.current_serv, default_uri);
+		opt.blocks.push("location");
+		if (tmp != NULL) {
+			opt.current_location = tmp;
+			return (0);
+		}
+		t_location	tmp2 = opt.current_serv->default_root;
+		tmp2.default_uri = default_uri;
+		opt.current_serv->locations.push_back(tmp2);
+		opt.current_location = &(opt.current_serv->locations.back());
+		return (0);
 	}
 
 	// HTTP
@@ -31,26 +41,35 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 			std::cerr << "[FATAL ERROR] http block not in global scope at line " << opt.line << std::endl;
 			return (1);
 		}
+		opt.blocks.push("http");
 		opt.in_http = true;
 	}
 
 	// SERVER
 	else if (method == "server") {
-		t_config	tmp;
-		tmp.port = 80;
-		tmp = this->default_config;
+		int port = DEFAULT_PORT;
 		if (split.size() >= 2) {
-			tmp.port = std::atoi(split[1].c_str());
-			if (tmp.port == 0 && warning("Invalid server port at declaration", opt.line, opt.options)) { return (1); }
+			port = std::atoi(split[1].c_str());
+			if (port == 0 && warning("Invalid server port at declaration", opt.line, opt.options)) { return (1); }
 		}
 		if (split.size() > 2 && warning("Too many ports at server declaration", opt.line, opt.options)) { return (1); }
-		this->servers.push_back(tmp);
+		t_config	*tmp = this->get_config(port);
+		opt.blocks.push("server");
+		if (tmp) {
+			opt.current_serv = tmp;
+			return (0);
+		}
+		t_config	tmp2;
+		tmp2 = this->default_config;
+		tmp2.port = port;
+		this->servers.push_back(tmp2);
 		opt.current_serv = &(this->servers.back());
 	}
 
 	else if (method != "types") {
 		return (2 - error("Unknown block type", opt.line, opt.options));
-	}
+	} else
+		opt.blocks.push("types");
 	return (0);
 }
 
@@ -203,7 +222,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// ARGUMENTAL METHODS
 	else {
-		if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
+		if (split.size() == 1) { return (this->error("Not enough arguments for an argumental method (aka default)", opt.line, opt.options)); }
 		else if (!this->in(method, "error_page", "add_header", NULL) && split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
 
 		long	ret = std::max((long) 2, std::atol(split[1].c_str()));
@@ -264,27 +283,38 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	return (0);
 }
 
-int	HTTPConfig::set_error_page(std::vector<std::string> &split, t_parser &opt) {
+int	HTTPConfig::set_error_page(std::vector<std::string> &split, t_parser &opt) const {
 	unsigned int	index = 1;
 	HTTPConfig::t_config	*serv = opt.current_serv;
 	HTTPConfig::t_error		err;
 
 	std::set<int>	codes;
-	int	error_code;
-	for (; index < split.size() - 1 && split[index][0] != '='; index++) {
+	int				error_code;
+	for (; index < split.size() - 1 && isallnum(split[index]); index++) {
 		error_code = std::atoi(split[index].c_str());
 		if ((error_code < 100 || error_code >= 600) && this->warning("Invalid error code", opt.line, opt.options)) { return (1); }
 		codes.insert(error_code);
 	}
 
 	err.codes = codes;
-	if (split[index][0] == '=' && index != split.size()) {
-		err.response = std::atoi(split[index].c_str() + 1);
-		index++;
+	err.response = -1;
+
+	bool	uri_set = false;
+	bool	equal_set = false;
+	for (; index < split.size(); index++) {
+		if (!equal_set && split[index][0] == '=') {
+			err.response = std::atoi(split[index].c_str() + 1);
+			equal_set = true;
+			if (uri_set) { break ; }
+		} else if (!uri_set && split[index][0] != '=') {
+			if (split[index][0] != '/')
+				err.uri = "/" + split[index];
+			else
+				err.uri = split[index];
+			uri_set = true;
+			if (equal_set) { break ; }
+		}
 	}
-	else
-		err.response = -1;
-	err.uri = split[index];
 	serv->error_page.push_back(err);
 	return (0);
 }

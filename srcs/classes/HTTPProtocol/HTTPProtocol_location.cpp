@@ -41,7 +41,7 @@ void	HTTPProtocol::get_complete_uri(t_response_creator &r, std::string const &ur
 		r.file_wo_index = dir->replacement + "/" + better_uri;
 	}
 
-	if (file == "/" || file == "") {
+	if ((file == "/" || file == "") && filename != "") {
 		r.file = r.file_wo_index + "/" + filename;
 	} else {
 		r.file = r.file_wo_index;
