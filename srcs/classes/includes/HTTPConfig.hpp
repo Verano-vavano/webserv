@@ -60,6 +60,8 @@ class HTTPConfig {
 		void 	configurate(std::string const path, std::string const config_file);
 		void	print_config(void) const;
 
+		static bool	cmp_err_code(std::string const & s1, std::string const & s2);
+
 		typedef std::map<std::string, std::string> t_map_str_str;
 		typedef t_map_str_str t_type;
 		typedef t_map_str_str t_header;
@@ -168,7 +170,7 @@ class HTTPConfig {
 		static bool	is_valid_log(std::string const & str);
 		int	unset_logs(std::vector<std::string> const & split, t_parser &opt);
 		void	unlog(t_location *loc, std::string const & to_rm, short tag) const;
-		static void	unlog_one(t_location *loc, std::string const & to_rm, short tag);
+		void	unlog_one(t_location *loc, std::string const & to_rm, short tag) const;
 
 		int	set_error_page(std::vector<std::string> &split, t_parser &opt) const;
 
