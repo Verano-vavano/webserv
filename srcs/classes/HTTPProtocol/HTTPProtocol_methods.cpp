@@ -26,16 +26,21 @@ void	HTTPProtocol::handle_post(t_response_creator &r) {
 	//check if the request is an upload or an exec
 	if (r.req.content_is_type("application/x-www-form-urlencoded")) {
 		if (access(r.file.c_str(), X_OK)) {
-			r.err_code = 404;
+			r.err_code = access(r.file.c_str(), F_OK)?404:403; //404 if no file, 403 if exist but wrong rights
 			return;
 		}
 		//exec CGI
 		cgi(r); //not sure if it work yet
 		return;
 	}
+	//check if a forbiden file already exist
+	if (!access(r.file.c_str(), F_OK) && access(r.file.c_str(), W_OK)) { //if file exist without write access
+		r.err_code = 403;
+		return;
+	}
 	//create the file (if fail, 500)
 	std::ofstream	upload_file(r.file.c_str());
-	if (upload_file.is_open()) {
+	if (!upload_file.is_open()) {
 		r.err_code = 500;
 		return;
 	}
@@ -56,21 +61,15 @@ void	HTTPProtocol::handle_delete(t_response_creator &r) {
 		this->user_manager.handle_del(r);
 		return ;
 	}
-	//check if uri is good
-	if (r.req.uri.empty() || r.req.uri[0] != '/') {
-		r.err_code = 400;
-		return ;
-	}
-	//get file fullpath
-	std::string	full_path = get_full_path_file(r.req.uri, r.conf, W_OK);
-	if (full_path.empty()) {
-		r.err_code = 404;
+	//check if file is removable :
+	if (access(r.file.c_str(), W_OK)) {
+		r.err_code = access(r.file.c_str(), F_OK)?404:403; //404 if no file, 403 if exist but wrong rights
 		return;
 	}
 	//delete the file
-	if (std::remove(full_path.c_str())) {
-		std::cout << "\033[31m ERROR: can't remove " << r.req.uri << "(aka " << full_path << ")\033[0m" << std::endl;
-		r.err_code = 500;
+	if (std::remove(r.file.c_str())) { //remove, and check if it worked
+		std::cout << "\033[31m ERROR: can't remove " << r.file << "\033[0m" << std::endl;
+		r.err_code = is_directory(r.file)?403:500; //return 403 if it's a directory, 500 else
 		return;
 	}
 	r.err_code = 200;
