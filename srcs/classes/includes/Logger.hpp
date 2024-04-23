@@ -7,6 +7,7 @@
 # include <iostream>
 # include <fstream>
 # include <ctime>
+# include <stdlib.h>
 # include "HTTPServ.hpp"
 
 class Logger {
@@ -19,8 +20,10 @@ class Logger {
 		void		log_fatal(const char *err);
 		inline void	log_stderr(const char *err, const char *type) const;
 
+		static bool	cmp_err_text(std::string const & err_code, std::string const & text);
+
 	private:
-		static short	is_to_log(HTTPConfig::t_location *l, t_response_creator &rc);
+		static bool	log_match(HTTPConfig::t_log const &l, int err_code_int);
 		static void	print_formated_date(std::ofstream &out);
 };
 
