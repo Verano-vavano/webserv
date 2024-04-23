@@ -13,28 +13,36 @@ HTTPServ::HTTPServ(char **conf): sockets(0) {
 	this->conf.print_config();
 }
 
-int socketOpen(HTTPConfig::t_config config) {
+int HTTPServ::socketOpen(HTTPConfig::t_config config) {
 	// AF_INET = ipv4
 	//  SOCK_STREAM Provides sequenced, reliable, two-way, connection-based byte streams.
 	//  0 is the protocol, auto to tcp
 	int newSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (newSocket == -1) {
+		this->log.log_fatal("socket");
+		return (-1);
+	}
 	sockaddr_in serverAddr;
 	serverAddr.sin_family = AF_INET;
 	// htons = machine into to network byte order int
 	serverAddr.sin_port = htons(config.port);
 	serverAddr.sin_addr.s_addr = INADDR_ANY;
 	int	a = 1;
-	setsockopt(newSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &a, sizeof(a));
-	if (bind(newSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
-		std::cout << "could not bind socket " << config.port << " ... :(" << std::endl;
+	if (setsockopt(newSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &a, sizeof(a)) == -1) {
+		this->log.log_fatal("setsockopt");
 		close(newSocket);
-		exit(EXIT_FAILURE);
+		return (-1);
+	}
+	if (bind(newSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
+		close(newSocket);
+		this->log.log_fatal("bind");
+		return (-1);
 	}
 	// int = number of request will be queued before refusing requests.
 	if (listen(newSocket, 250) == -1) {
 		close(newSocket);
-		perror("listen");
-		exit(EXIT_FAILURE);
+		this->log.log_fatal("listen");
+		return (-1);
 	}
 	return (newSocket);
 }
@@ -49,7 +57,7 @@ void HTTPServ::epollinTheSocket(int socket_fd) {
 void HTTPServ::socketsInit(void) {
 	this->epoll_fd = epoll_create(1);
 	if (this->epoll_fd == -1) {
-		//this->log.log_fatal("epoll_create");
+		this->log.log_fatal("epoll_create");
 		exit(EXIT_FAILURE);
 	}
 
@@ -157,13 +165,19 @@ void HTTPServ::mainLoop(void) {
 	ulong sockets_count = 0;
 	ulong i = 0;
 
+	int	epoll_ret;
+
 	while (g_stop_fd != FD_CLOSED) {
 		epoll_event wait_events[sockets_count + 1];
 
 		for (; i < sockets_count + 1; i++)
 			wait_events[i].data.fd = -1;
 
-		epoll_wait(this->epoll_fd, wait_events, sockets_count + 1, -1);
+		epoll_ret = epoll_wait(this->epoll_fd, wait_events, sockets_count + 1, -1);
+		if (g_stop_fd != FD_CLOSED && epoll_ret == -1) {
+			this->log.log_fatal("epoll_wait");
+			break ;
+		}
 
 		for (i = 0; i < sockets_count + 1 && wait_events[i].data.fd != -1; i++){
 			t_socket *matching_socket = find_socket(wait_events[i].data.fd);

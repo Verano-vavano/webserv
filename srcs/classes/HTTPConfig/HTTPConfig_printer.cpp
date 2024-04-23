@@ -66,6 +66,15 @@ std::ostream&	operator<<(std::ostream& out, HTTPConfig::t_location const & obj) 
 	for (std::set<std::string>::const_iterator it = obj.methods.begin(); it != obj.methods.end(); it++) {
 		out << " " << *it;
 	}
+	out << "\n";
+	out << "\tLOGS :" << std::endl;
+	for (std::vector<HTTPConfig::t_log>::const_iterator it = obj.logs.begin(); it != obj.logs.end(); it++) {
+		out << "\t\t" << it->tag;
+		for (std::vector<std::string>::const_iterator it2 = it->err_codes.begin(); it2 != it->err_codes.end(); it2++) {
+			out << " " << *it2;
+		}
+		out << ";\n";
+	}
 	return (out);
 }
 

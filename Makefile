@@ -8,6 +8,7 @@ SRCS_HTTPConfig=HTTPConfig.cpp \
 				HTTPConfig_parser.cpp \
 				HTTPConfig_setters.cpp \
 				HTTPConfig_utils.cpp \
+				HTTPConfig_log.cpp \
 				HTTPConfig_printer.cpp
 
 SRCS_HTTPProt=HTTPProtocol_request.cpp \
@@ -28,11 +29,15 @@ SRCS_USERS=Users.cpp \
 		   Users_post.cpp \
 		   Users_del.cpp
 
+SRCS_LOGGER=Logger.cpp \
+			Log_utils.cpp
+
 SRCS_CLASSES=$(addprefix classes/, \
 			 	$(addprefix HTTPServ/, ${SRCS_HTTPServ})\
 			 	$(addprefix HTTPConfig/, ${SRCS_HTTPConfig})\
 			 	$(addprefix HTTPProtocol/, ${SRCS_HTTPProt})\
 				$(addprefix Users/, ${SRCS_USERS})\
+				$(addprefix Logger/, ${SRCS_LOGGER})\
 			 )
 
 SRCS=main.cpp\

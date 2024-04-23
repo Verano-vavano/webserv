@@ -40,3 +40,14 @@ post_func describes how POST will be handled in a location.
 In an ideal world, it would be able to transfer it to another server / app to handle, but due to the inability to fork, there are two functions available natively.
 client_manager will handle client creation, login, logout et login fails.
 upload_manager will allow the upload of files on the server.
+
+Logs:
+Default logging system must be specified in the global scope of the http block, or in any way that it changes the 'default configuration'.
+Independant logging systems can be specified in each server block.
+Add the tag 'independant' to create a specific file for the scope.
+Add the tag 'focused' to add it to the focus file.
+'focused' has priority over 'independant'.
+logs inside location have priority over server logs.
+'log nothing' will remove every log attribute to the current location.
+The preferred method to relog a location is by using 'unlog server' for example
+So in a way, 'log nothing' and 'unlog all' are actually the same

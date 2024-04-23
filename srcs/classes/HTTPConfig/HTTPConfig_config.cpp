@@ -56,6 +56,10 @@ void	HTTPConfig::set_default_config(void) {
 	conf.default_root.methods.insert("GET");
 	conf.default_root.methods.insert("POST");
 	conf.default_root.methods.insert("DELETE");
+	t_log	default_log;
+	default_log.tag = DEFAULT_LOG;
+	default_log.err_codes.push_back("errors");
+	conf.default_root.logs.push_back(default_log);
 	conf.absolute_redirect = DEFAULT_REDIR;
 	conf.chunked_transfer_encoding = DEFAULT_CHUNKED;
 	conf.client_body_timeout = DEFAULT_BODY_TO;
@@ -151,7 +155,19 @@ HTTPConfig::t_location & HTTPConfig::t_location::operator=(t_location const & rh
 		this->cgi.cgi_exec.insert(tmp);
 	}
 
+	t_log	log;
+	for (std::vector<t_log>::const_iterator it = rhs.logs.begin(); it != rhs.logs.end(); it++) {
+		log = *it;
+		this->logs.push_back(log);
+	}
+
 	HTTPConfig::copy_map_strstr(this->cgi.cgi_interpreter, rhs.cgi.cgi_interpreter);
+	return (*this);
+}
+
+HTTPConfig::t_log & HTTPConfig::t_log::operator=(t_log const & rhs) {
+	this->err_codes = rhs.err_codes;
+	this->tag = rhs.tag;
 	return (*this);
 }
 

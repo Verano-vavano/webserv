@@ -3,6 +3,7 @@
 
 # include "HTTPConfig.hpp"
 # include "HTTPProtocol.hpp"
+# include "Logger.hpp"
 #include "Users.hpp"
 #include <unistd.h>
 # include <arpa/inet.h>
@@ -33,17 +34,19 @@ class HTTPServ {
 	private:
 
 		typedef struct s_socket {
-			int fd;
-			int port;
-			bool is_client;
+			int 				fd;
+			int 				port;
+			bool 				is_client;
+			Logger				log;
 			t_response_creator	rc;
 		} t_socket;
 
 		int						epoll_fd;
 		HTTPConfig				conf;
-		//Logger					log;
 		std::vector<t_socket>	sockets;
+		Logger					log;
 
+		int						socketOpen(HTTPConfig::t_config config);
 		HTTPConfig::t_config*	get_config_client(int port);
 		t_response_creator&		get_client_config(std::vector<t_socket> &cl, int fd);
 		t_socket				*find_socket(int fd);

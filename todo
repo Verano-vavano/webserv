@@ -6,9 +6,7 @@ Delete files
 BUGS:
 
 NOUS:
-Log (on off) -> all errors
-Log_important (on off) -> fatal errors (5xx and fatal c++ err like failed send or failed accept)
-Log_errors -> client and server errors
+add_header
 READ.ME
 Body to
 Body infile

@@ -64,6 +64,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 		tmp2.port = port;
 		this->servers.push_back(tmp2);
 		opt.current_serv = &(this->servers.back());
+		opt.current_location = &(opt.current_serv->default_root);
 	}
 
 	else if (method != "types") {
@@ -155,6 +156,10 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 	// METHODS
 	if (method == "methods" || method == "not_methods") {
 		return (this->set_methods(split, opt));
+	} else if (method == "log") { // LOG
+		return (this->set_logs(split, opt));
+	} else if (method == "unlog") { // UNLOG
+		return (this->unset_logs(split, opt));
 	}
 
 	// LOCATION METHODS

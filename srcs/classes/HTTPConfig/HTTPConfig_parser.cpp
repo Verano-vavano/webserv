@@ -17,6 +17,7 @@ bool	HTTPConfig::parse_infile(std::ifstream &f, bool space_mode) {
 	opt.line = 1;
 	opt.in_http = false;
 	opt.current_serv = &(this->default_config);
+	opt.current_location = &(opt.current_serv->default_root);
 	bytes = BUFFER_SIZE - 1;
 	int	ret = 0;
 	do {
@@ -87,6 +88,9 @@ int HTTPConfig::understand_the_line(std::string buffer, std::string & temp, HTTP
 			else if (opt.blocks.size() != 0) {
 				if (opt.blocks.top().size() >= 6 && opt.blocks.top().substr(0, 6) == "server") {
 					opt.current_serv = &(this->default_config);
+					opt.current_location = &(opt.current_serv->default_root);
+				} else if (opt.blocks.top() == "location") {
+					opt.current_location = &(opt.current_serv->default_root);
 				}
 				opt.blocks.pop();
 				if (opt.blocks.empty())

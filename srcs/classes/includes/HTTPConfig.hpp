@@ -42,6 +42,13 @@
 # define DEFAULT_LOG_SUB false
 # define DEFAULT_INTERPRETER true
 
+enum	e_log_tag {
+	UNDEFINED_LOG,
+	DEFAULT_LOG,
+	FOCUSED_LOG,
+	INDEPENDANT_LOG,
+};
+
 class HTTPConfig {
 
 	public:
@@ -62,6 +69,12 @@ class HTTPConfig {
 			std::map<std::string, std::string>	cgi_interpreter; // Pairs extension / interpreter
 		}	t_cgi;
 
+		typedef struct s_log {
+			std::vector<std::string>	err_codes;
+			short						tag;
+			struct s_log & operator=(struct s_log const & rhs);
+		}	t_log;
+
         typedef struct s_location {
 			std::string default_uri;
 			std::string replacement;
@@ -69,6 +82,7 @@ class HTTPConfig {
 			std::string post_func;
 			std::string	del_func;
 			t_cgi	cgi;
+			std::vector<t_log>		logs;
 			std::set<std::string>	methods;
 			bool	dir_listing;
 			bool        alias;
@@ -102,7 +116,7 @@ class HTTPConfig {
 			long					keepalive_time;
 			bool					log_not_found;
 			bool					log_subrequest;
-		bool			default_interpreter;
+			bool			default_interpreter;
 			t_type				  types;
 			t_header				headers;
 			std::vector<t_location> locations;
@@ -148,6 +162,13 @@ class HTTPConfig {
 		static void	set_methods_rescue_funk(std::string const &entry, t_location *location, bool allow);
 		int set_methods(std::vector<std::string> const & split, t_parser &opt);
 		int set_other(std::string & cut, t_parser &opt);
+
+		int	set_logs(std::vector<std::string> const & split, t_parser &opt);
+		static bool	is_and_set_tag(std::string const & str, t_log &log);
+		static bool	is_valid_log(std::string const & str);
+		int	unset_logs(std::vector<std::string> const & split, t_parser &opt);
+		void	unlog(t_location *loc, std::string const & to_rm, short tag) const;
+		static void	unlog_one(t_location *loc, std::string const & to_rm, short tag);
 
 		int	set_error_page(std::vector<std::string> &split, t_parser &opt) const;
 
