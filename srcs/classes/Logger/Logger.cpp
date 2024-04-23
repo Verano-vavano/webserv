@@ -1,5 +1,13 @@
 #include "Logger.hpp"
 
+void	Logger::log_it(HTTPServ::t_socket *socket) {
+	HTTPConfig::t_location	*l = socket->rc.conf;
+	if (l == NULL) { l = &(conf->default_root); }
+	if (!is_to_log(l, socket->rc)) {
+		return ;
+	}
+}
+
 void	Logger::log_fatal(const char *err) {
 	this->log_stderr(err, "FATAL");
 

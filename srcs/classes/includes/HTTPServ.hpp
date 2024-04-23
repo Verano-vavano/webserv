@@ -3,8 +3,7 @@
 
 # include "HTTPConfig.hpp"
 # include "HTTPProtocol.hpp"
-# include "Logger.hpp"
-#include "Users.hpp"
+# include "Users.hpp"
 #include <unistd.h>
 # include <arpa/inet.h>
 #include <netinet/in.h> // sockaddr_in
@@ -31,20 +30,19 @@ class HTTPServ {
 		void mainLoop(void);
 		void socketsClose(void);
 
-	private:
-
 		typedef struct s_socket {
 			int 				fd;
 			int 				port;
 			bool 				is_client;
-			Logger				log;
 			t_response_creator	rc;
 		} t_socket;
+
+
+	private:
 
 		int						epoll_fd;
 		HTTPConfig				conf;
 		std::vector<t_socket>	sockets;
-		Logger					log;
 
 		int						socketOpen(HTTPConfig::t_config config);
 		HTTPConfig::t_config*	get_config_client(int port);
@@ -63,6 +61,8 @@ class HTTPServ {
 		static void				sigint_handler(int signal);
 
 };
+
+# include "Logger.hpp"
 
 #endif /* HTTPSERV_HPP */
 

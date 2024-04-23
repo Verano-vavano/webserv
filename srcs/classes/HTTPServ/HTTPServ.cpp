@@ -19,7 +19,7 @@ int HTTPServ::socketOpen(HTTPConfig::t_config config) {
 	//  0 is the protocol, auto to tcp
 	int newSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (newSocket == -1) {
-		this->log.log_fatal("socket");
+		//log.log_fatal("socket");
 		return (-1);
 	}
 	sockaddr_in serverAddr;
@@ -29,19 +29,19 @@ int HTTPServ::socketOpen(HTTPConfig::t_config config) {
 	serverAddr.sin_addr.s_addr = INADDR_ANY;
 	int	a = 1;
 	if (setsockopt(newSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &a, sizeof(a)) == -1) {
-		this->log.log_fatal("setsockopt");
+		//log.log_fatal("setsockopt");
 		close(newSocket);
 		return (-1);
 	}
 	if (bind(newSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) == -1) {
 		close(newSocket);
-		this->log.log_fatal("bind");
+		//log.log_fatal("bind");
 		return (-1);
 	}
 	// int = number of request will be queued before refusing requests.
 	if (listen(newSocket, 250) == -1) {
 		close(newSocket);
-		this->log.log_fatal("listen");
+		//log.log_fatal("listen");
 		return (-1);
 	}
 	return (newSocket);
@@ -57,7 +57,7 @@ void HTTPServ::epollinTheSocket(int socket_fd) {
 void HTTPServ::socketsInit(void) {
 	this->epoll_fd = epoll_create(1);
 	if (this->epoll_fd == -1) {
-		this->log.log_fatal("epoll_create");
+		//log.log_fatal("epoll_create");
 		exit(EXIT_FAILURE);
 	}
 
@@ -156,7 +156,8 @@ void	HTTPServ::sigint_handler(int signal) {
 }
 
 void HTTPServ::mainLoop(void) {
-	HTTPProtocol Http;
+	HTTPProtocol	Http;
+	Logger		log;
 	t_response_creator	tmp;
 
 	signal(SIGINT, this->sigint_handler);
@@ -175,7 +176,7 @@ void HTTPServ::mainLoop(void) {
 
 		epoll_ret = epoll_wait(this->epoll_fd, wait_events, sockets_count + 1, -1);
 		if (g_stop_fd != FD_CLOSED && epoll_ret == -1) {
-			this->log.log_fatal("epoll_wait");
+			//log.log_fatal("epoll_wait");
 			break ;
 		}
 
@@ -205,6 +206,7 @@ void HTTPServ::mainLoop(void) {
 					matching_socket->rc.req.body = matching_socket->rc.temp_req;
 					matching_socket->rc.temp_req = "";
 					Http.create_response(matching_socket->rc);
+					log.log_it(matching_socket);
 					short	ret;
 					if (!matching_socket->rc.conf->chunked_transfer_encoding ||
 							matching_socket->rc.is_json) {
