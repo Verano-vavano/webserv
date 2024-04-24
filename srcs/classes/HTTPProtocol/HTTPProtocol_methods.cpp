@@ -24,16 +24,6 @@ void	HTTPProtocol::handle_post(t_response_creator &r) {
 		r.err_code = 413;
 		return;
 	}
-	//check if the request is an upload or an exec
-	if (r.req.content_is_type("application/x-www-form-urlencoded")) {
-		if (access(r.file.c_str(), X_OK)) {
-			r.err_code = access(r.file.c_str(), F_OK)?404:403; //404 if no file, 403 if exist but wrong rights
-			return;
-		}
-		//exec CGI
-		cgi(r); //not sure if it work yet
-		return;
-	}
 	//check if a forbiden file already exist
 	if (!access(r.file.c_str(), F_OK) && access(r.file.c_str(), W_OK)) { //if file exist without write access
 		r.err_code = 403;

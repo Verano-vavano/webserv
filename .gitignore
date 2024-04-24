@@ -10,3 +10,7 @@ ubuntu_cgi_tester
 .usr
 .session
 *.log
+
+
+uber-frosh/client
+uber-frosh/client-secure
