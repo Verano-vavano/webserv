@@ -207,6 +207,7 @@ void HTTPServ::mainLoop(void) {
 					matching_socket->rc.temp_req = "";
 					Http.create_response(matching_socket->rc);
 					log.log_it(matching_socket);
+					Http.empty_request(matching_socket->rc.req);
 					short	ret;
 					if (!matching_socket->rc.conf->chunked_transfer_encoding ||
 							matching_socket->rc.is_json) {

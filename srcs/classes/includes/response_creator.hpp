@@ -4,7 +4,7 @@
 # include "HTTPConfig.hpp"
 # include <arpa/inet.h>
 
-typedef struct {
+typedef struct s_request {
 	std::string											method;
 	std::string											uri;
 	std::string											http_version;
@@ -14,13 +14,13 @@ typedef struct {
 	bool												content_is_type(std::string type);
 }	t_request;
 
-typedef struct {
+typedef struct s_response {
 	std::string	status_line;
 	std::string	headers;
 	std::string	body;
 }	t_response;
 
-typedef struct {
+typedef struct s_response_creator {
 	char					ip[INET_ADDRSTRLEN];
 	std::string				temp_req;
 	t_request				req;

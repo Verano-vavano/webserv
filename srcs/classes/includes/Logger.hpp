@@ -16,7 +16,9 @@ class Logger {
 		Logger(void) {}
 		~Logger(void) {}
 
-		void		log_it(HTTPServ::t_socket *socket);
+		void		log_it(HTTPServ::t_socket *socket) const;
+		void		log_in_file(HTTPConfig::t_log const &l, HTTPServ::t_socket const *socket) const;
+		void		print_std_log(std::ofstream &out, const char *ip, std::string const &req, short err_code, unsigned long res_length, std::string const &client) const;
 		void		log_fatal(const char *err);
 		inline void	log_stderr(const char *err, const char *type) const;
 
@@ -24,6 +26,7 @@ class Logger {
 
 	private:
 		static bool	log_match(HTTPConfig::t_log const &l, int err_code_int);
+		static void	open_log_file(HTTPConfig::t_log const &l, std::ofstream &out);
 		static void	print_formated_date(std::ofstream &out);
 };
 

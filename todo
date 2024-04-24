@@ -6,16 +6,15 @@ Delete files
 BUGS:
 
 NOUS:
-LOG -> iterer simplement, et appeler log pour chaque cas trouve afin de log dans les dif fichiers
 add_header
 READ.ME
 Body to
 Body infile
 Keepalive (time)
-Log sub
 Server_name
 Allow /.. in directory listing ? (idk, seems dangerous)
 Gerer le cas de + de 10 comptes
+Remove log_not_found et log_subrequest
 
 CONFIG:
 

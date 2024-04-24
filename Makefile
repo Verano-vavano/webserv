@@ -154,6 +154,7 @@ fclean: clean
 	@${RM} ${LIBFT}
 	@${RM} ${NAME}
 	@${RM} .usr .session
+	@${RM} *.log
 
 re: fclean all
 
