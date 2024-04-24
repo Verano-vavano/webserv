@@ -59,6 +59,8 @@ std::string HTTPProtocol::get_error_tag(int err_code) {
 			break;
 		case 501: err_mes = "Not Implemented";
 			break;
+		case 504: err_mes = "Gateway Timeout";
+			break;
 		case 505: err_mes = "HTTP Version Not Suported";
 			break;
 

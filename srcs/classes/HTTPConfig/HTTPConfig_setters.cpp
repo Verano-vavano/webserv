@@ -201,7 +201,7 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// BOOLEAN METHODS
 	else if (this->in(method, "absolute_redirect", "chunked_transfer_encoding",
-			"ignore_invalid_headers", "log_not_found", "log_subrequest", "default_interpreter", NULL)) {
+			"ignore_invalid_headers", "default_interpreter", NULL)) {
 		switch (method[0]) { // ugly switch on the first letter, saves some CPU time
 			case 'a':
 				if (this->boolean_switch(serv->absolute_redirect, opt, split)) { return (1); };
@@ -214,13 +214,6 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 				break ;
 			case 'i':
 				if (this->boolean_switch(serv->ignore_invalid_headers, opt, split)) { return (1); };
-				break ;
-			default: // l
-				if (method == "log_not_found") {
-					if (this->boolean_switch(serv->log_not_found, opt, split)) { return (1); }
-				} else {
-					if (this->boolean_switch(serv->log_subrequest, opt, split)) { return (1); }
-				}
 				break ;
 		}
 	}

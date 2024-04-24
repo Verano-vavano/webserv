@@ -11,10 +11,10 @@ std::string	*HTTPProtocol::get_default_interpreter(std::string const & file_type
 bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_response_creator &r) {
 	int	pipefd[2];
 
-	if (pipe(pipefd) == -1) { return (1); }
+	if (pipe(pipefd) == -1) { r.err_code = 500; return (0); }
 
 	pid_t	pid = fork();
-	if (pid == -1) { return (1); }
+	if (pid == -1) { close(pipefd[0]); close(pipefd[1]); r.err_code = 500; return (0); }
 	else if (pid == 0) {
 		if (!interpreter && r.conf->default_interpreter) {
 			interpreter = get_default_interpreter(r.file_type);
@@ -64,13 +64,14 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 		if (timeout) {
 			// timeout
 			std::cout << "TIMEOUT" << std::endl;
-			r.err_code = 500;
+			r.err_code = 504;
 			kill(pid, SIGKILL);
 			return (0);
 		}
 		if (WIFEXITED(status) && WEXITSTATUS(status) == EXECVE_FAILURE) {
 			// execve fail
-			return (1);
+			r.err_code = 500;
+			return (0);
 		}
 
 		// Read output
