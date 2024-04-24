@@ -2,6 +2,7 @@
 SUJET :
 Upload files (Bouton 'add a meme' ? qui permet de transmettre un fichier)
 Delete files
+CGI sans droit exec ?
 
 BUGS:
 

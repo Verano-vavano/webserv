@@ -12,13 +12,13 @@ void	Logger::log_it(HTTPServ::t_socket *socket) const {
 	std::set<std::string>	ind_log;
 	for (std::vector<HTTPConfig::t_log>::const_iterator it = l->begin(); it != l->end(); it++) {
 		if ((it->tag == FOCUSED_LOG && foc_log) ||
-				(it->tag == INDEPENDANT_LOG) ||
+				(it->tag == INDEPENDANT_LOG && ind_log.find(it->file_name) != ind_log.end()) ||
 				(it->tag != FOCUSED_LOG && it->tag != INDEPENDANT_LOG && def_log)) {
 			continue ;
 		}
 		else if (this->log_match(*it, socket->rc.err_code)) {
 			if (it->tag == FOCUSED_LOG) { foc_log = true; }
-			else if (it->tag == INDEPENDANT_LOG) {}
+			else if (it->tag == INDEPENDANT_LOG) { ind_log.insert(it->file_name); }
 			else { def_log = true; }
 			this->log_in_file(*it, socket);
 		}
@@ -97,6 +97,7 @@ void	Logger::open_log_file(HTTPConfig::t_log const &l, std::ofstream &out) {
 			out.open("./miniweb.focused.log", std::ios_base::app);
 			break ;
 		case INDEPENDANT_LOG:
+			out.open(l.file_name.c_str(), std::ios_base::app);
 			break ;
 		default:
 			out.open("./miniweb.log", std::ios_base::app);
@@ -104,6 +105,7 @@ void	Logger::open_log_file(HTTPConfig::t_log const &l, std::ofstream &out) {
 }
 
 bool	Logger::cmp_err_text(std::string const & err_code, std::string const & text) {
+	std::cout << err_code << " | " << text << std::endl;
 	if (text == "all") { return (true); }
 	else if (text == "errors" && (err_code[0] == '4' || err_code[0] == '5')) { return (true); }
 	else if (text == "server" && (err_code[0] == '5')) { return (true); }

@@ -168,6 +168,7 @@ HTTPConfig::t_location & HTTPConfig::t_location::operator=(t_location const & rh
 HTTPConfig::t_log & HTTPConfig::t_log::operator=(t_log const & rhs) {
 	this->err_codes = rhs.err_codes;
 	this->tag = rhs.tag;
+	this->file_name = rhs.file_name;
 	return (*this);
 }
 

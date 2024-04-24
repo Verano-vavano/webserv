@@ -74,6 +74,7 @@ class HTTPConfig {
 		typedef struct s_log {
 			std::vector<std::string>	err_codes;
 			short						tag;
+			std::string					file_name;
 			struct s_log & operator=(struct s_log const & rhs);
 		}	t_log;
 

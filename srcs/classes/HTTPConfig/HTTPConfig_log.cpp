@@ -82,17 +82,24 @@ int	HTTPConfig::set_logs(std::vector<std::string> const & split, t_parser &opt) 
 	std::string	copier;
 
 	new_log.tag = UNDEFINED_LOG;
+	new_log.file_name = "";
 	for (std::vector<std::string>::const_iterator it = split.begin() + 1; it != split.end(); it++) {
+		std::cout << *it << std::endl;
 		if (is_and_set_tag(*it, new_log)) { continue ; }
 		else if (*it == "nothing") {
 			this->unlog(opt.current_location, "all", new_log.tag);
 			return (0);
+		} else if ((*it)[0] == '=') {
+			new_log.file_name = it->substr(1);
 		} else if (is_valid_log(*it)) {
 			copier = *it;
 			new_log.err_codes.push_back(copier);
 		} else {
 			return (this->error("Invalid log", opt.line, opt.options));
 		}
+	}
+	if (new_log.tag == INDEPENDANT_LOG && new_log.file_name.size() == 0) {
+		return (this->warning("No filename for independant log", opt.line, opt.options));
 	}
 	if (new_log.err_codes.size() == 0) {
 		new_log.err_codes.push_back("all");

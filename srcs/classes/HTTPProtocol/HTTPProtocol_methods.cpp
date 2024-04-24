@@ -18,6 +18,7 @@ void	HTTPProtocol::handle_post(t_response_creator &r) {
 			r.file_type = "application/json; charset=UTF-8";
 		return ;
 	}
+	if (r.has_cgi) { return ; }
 	//optional : check file size, 407 if too large
 	if (body_too_large(r.req, r.conf->client_max_body_size)) {
 		r.err_code = 413;
