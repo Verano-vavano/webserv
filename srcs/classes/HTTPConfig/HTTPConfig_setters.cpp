@@ -47,13 +47,12 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 
 	// SERVER
 	else if (method == "server") {
-		int port = DEFAULT_PORT;
+		std::pair<std::string, int>	server_name;
 		if (split.size() >= 2) {
-			port = std::atoi(split[1].c_str());
-			if (port == 0 && warning("Invalid server port at declaration", opt.line, opt.options)) { return (1); }
+			if (split_server_name(split[1], server_name)) { return (1); }
 		}
-		if (split.size() > 2 && warning("Too many ports at server declaration", opt.line, opt.options)) { return (1); }
-		t_config	*tmp = this->get_config(port);
+		if (split.size() > 2 && warning("Too many server_name.seconds at server declaration", opt.line, opt.options)) { return (1); }
+		t_config	*tmp = this->get_config(server_name.second);
 		opt.blocks.push("server");
 		if (tmp) {
 			opt.current_serv = tmp;
@@ -61,7 +60,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 		}
 		t_config	tmp2;
 		tmp2 = this->default_config;
-		tmp2.port = port;
+		tmp2.port = server_name.second;
 		this->servers.push_back(tmp2);
 		opt.current_serv = &(this->servers.back());
 		opt.current_location = &(opt.current_serv->default_root);

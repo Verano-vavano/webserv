@@ -59,6 +59,7 @@ class HTTPConfig {
 		void	print_config(void) const;
 
 		static bool	cmp_err_code(std::string const & s1, std::string const & s2);
+		static int	split_server_name(std::string const & str, std::pair<std::string, int> &serv);
 
 		typedef std::map<std::string, std::string> t_map_str_str;
 		typedef t_map_str_str t_type;
