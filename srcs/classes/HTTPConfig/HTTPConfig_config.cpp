@@ -20,7 +20,7 @@ void HTTPConfig::configurate(std::string const path, std::string const config_fi
 	{
 		std::ifstream	config(config_file.c_str());
 		if (!config || !config.good()) {
-			std::cerr << "Not a valid config file (does not exist or is not readble)" << std::endl;
+			std::cerr << "Not a valid config file (does not exist or is not readable)" << std::endl;
 			exit (EXIT_FAILURE);
 		}
 
@@ -33,7 +33,7 @@ void HTTPConfig::configurate(std::string const path, std::string const config_fi
 	// We open the file again to move the cursor at the start
 	std::ifstream	new_config(config_file.c_str());
 	if (!new_config || !new_config.good()) {
-		std::cerr << "Not a valid config file (does not exist or is not readble)" << std::endl;
+		std::cerr << "Not a valid config file (does not exist or is not readable)" << std::endl;
 		exit(EXIT_FAILURE) ;
 	}
 

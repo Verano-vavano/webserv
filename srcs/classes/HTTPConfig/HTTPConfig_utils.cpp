@@ -138,6 +138,22 @@ HTTPConfig::t_location	*HTTPConfig::get_cur_location(t_parser &opt) {
 	}
 }
 
+int	HTTPConfig::split_server_name(std::string const & str, std::pair<std::string, int> &serv) {
+	size_t	index = str.find(':');
+	bool	both = (index != std::string::npos);
+
+	serv.first = DEFAULT_NAME;
+	serv.second = DEFAULT_PORT;
+
+	if (!both) {
+		if (isdigit(str[0])) {
+			serv.second = atoi(str.c_str());
+		}
+	}
+	(void) index;
+	return (0);
+}
+
 HTTPConfig::t_config	*HTTPConfig::get_config(int port) {
 	for (unsigned long l = 0; l < this->servers.size(); l++) {
 		if (port == this->servers[l].port) {
