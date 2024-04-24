@@ -95,3 +95,23 @@ void	HTTPProtocol::get_file_type(t_response_creator &r) {
 		r.file_type = "";
 	}
 }
+
+/* function that check if the body of a request is bigger than the max allowed upload size
+ * it first check the content-length header (if it exist)
+ * it then check the size() methode of the body, to avoid being fooled by a lie
+ * it will return true if either value is bigger than the max size, false else.
+ */
+bool	HTTPProtocol::body_too_large(t_request& req, size_t size_max) {
+	size_t	body_size = 0;
+	if (req.headers.count("content-length") > 0) {
+		body_size = atol(req.headers["content-length"][0].c_str());
+	}
+	if (req.body.size() > body_size) {
+		body_size = req.body.size();
+	}
+	if (body_size > size_max) {
+		return true;
+	} else {
+		return false;
+	}
+}

@@ -11,15 +11,11 @@ void	HTTPProtocol::handle_get(t_response_creator &r) {
 }
 
 void	HTTPProtocol::handle_post(t_response_creator &r) {
-	std::clog << "entering " << __FUNCTION__ << "(" << __FILE__ << ":" << __LINE__ <<")\033[0m\n";//debug
-	//handle login case
+	//handle login case -------------------------------------------------------- does not work, r.location->post_func is NONE
 	if (r.location->post_func == "CLIENT_MANAGER") {
 		this->user_manager.handle_post(r);
-		return ;
-	}
-	//check if uri is good
-	if (r.req.uri.empty() || r.req.uri[0] != '/') {
-		r.err_code = 400;
+		if (r.err_code == 200)
+			r.file_type = "application/json; charset=UTF-8";
 		return ;
 	}
 	//optional : check file size, 407 if too large
@@ -29,28 +25,21 @@ void	HTTPProtocol::handle_post(t_response_creator &r) {
 	}
 	//check if the request is an upload or an exec
 	if (r.req.content_is_type("application/x-www-form-urlencoded")) {
-		std::clog << "content type say it's a form" << "\033[0m\n";//debug
-		std::string exec_path = get_full_path_file(r.req.uri, r.conf, X_OK);
-		std::clog << "exec_path : " << exec_path << "\033[0m\n";//debug
-		if (!exec_path.empty()) {
-			//execute CGI
-			std::clog << "CGI with post detected. not handled yet" << "\033[0m\n";//debug
-			r.err_code = 500;
+		if (access(r.file.c_str(), X_OK)) {
+			r.err_code = access(r.file.c_str(), F_OK)?404:403; //404 if no file, 403 if exist but wrong rights
 			return;
 		}
-		std::clog << "exec path was empty, uploading stuff" << "\033[0m\n";//debug
+		//exec CGI
+		cgi(r); //not sure if it work yet
+		return;
 	}
-	std::clog << "out of the if, uploading." << "\033[0m\n";//debug
-	//get the full path of the file
-	std::string	full_path = get_full_path_dir(r.req.uri, r.conf);
-	std::clog << "full path : " << full_path << "\033[0m\n";//debug
-	if (full_path.empty()) {
+	//check if a forbiden file already exist
+	if (!access(r.file.c_str(), F_OK) && access(r.file.c_str(), W_OK)) { //if file exist without write access
 		r.err_code = 403;
-		std::clog << "no full path" << "\033[0m\n";//debug
 		return;
 	}
 	//create the file (if fail, 500)
-	std::ofstream	upload_file(full_path.c_str());
+	std::ofstream	upload_file(r.file.c_str());
 	if (!upload_file.is_open()) {
 		r.err_code = 500;
 		return;
@@ -72,21 +61,15 @@ void	HTTPProtocol::handle_delete(t_response_creator &r) {
 		this->user_manager.handle_del(r);
 		return ;
 	}
-	//check if uri is good
-	if (r.req.uri.empty() || r.req.uri[0] != '/') {
-		r.err_code = 400;
-		return ;
-	}
-	//get file fullpath
-	std::string	full_path = get_full_path_file(r.req.uri, r.conf, W_OK);
-	if (full_path.empty()) {
-		r.err_code = 404;
+	//check if file is removable :
+	if (access(r.file.c_str(), W_OK)) {
+		r.err_code = access(r.file.c_str(), F_OK)?404:403; //404 if no file, 403 if exist but wrong rights
 		return;
 	}
 	//delete the file
-	if (std::remove(full_path.c_str())) {
-		std::cout << "\033[31m ERROR: can't remove " << r.req.uri << "(aka " << full_path << ")\033[0m" << std::endl;
-		r.err_code = 500;
+	if (std::remove(r.file.c_str())) { //remove, and check if it worked
+		std::cout << "\033[31m ERROR: can't remove " << r.file << "\033[0m" << std::endl;
+		r.err_code = is_directory(r.file)?403:500; //return 403 if it's a directory, 500 else
 		return;
 	}
 	r.err_code = 200;
