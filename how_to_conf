@@ -1,7 +1,5 @@
 DEFINE SPACE_MODE must be declared on the first line of the file and written in a strict manner (no extra space between DEFINE and SPACE_MODE)
 
-An existing server or location might be fully overwritten if same port / same uri
-
 Errors by default are ignored (except if DEFINE ERROR_STOP toggled). Fatal errors can occure in case of fatal mistakes in the config file
 
 Comments must be on new command and last until a separator is found
@@ -19,11 +17,13 @@ To make so not specifying an argument toggles on and off, please specify the def
 
 
 CGIs:
-- cgi-exec will mark the following files as executables. Thus if the extension is not in the cgi-interpreter list, it will try to be executed as is.
 - cgi-interpreter will associate a file extension with an interpreter
-Every executably marked file will be executed.
+- cgi-exec will mark the following files as executables. Thus if the extension is not in the cgi-interpreter list, it will try to be executed as is.
+Every executably marked file will be executed. Be careful about wildcards !
+Interpreters have priority over exec. Hence if a file is marked as both interpretable and executable, it will be interpreted first. If the interpreter fails, the cgi will fail and will not attemp to be executed. Be careful about what you mark as interpretable and what you mark as executable.
 
 dir_listing is a boolean method linked to a location that will enable or disable the directory listing for said location. On a non location scope, it will be applied to / (although not recommanded)
+dir_listing is similar to nginx's auto_index.
 
 methods is a list applied to a location that will enable methods. Wildcards are allowed, but risky. If the method starts with /, it will be forbidden. If not_methods used, it will disable by default. Thus:
 methods std; # enables all standard methods;
@@ -42,11 +42,8 @@ client_manager will handle client creation, login, logout et login fails.
 upload_manager will allow the upload of files on the server.
 
 Logs:
-Default logging system must be specified in the global scope of the http block, or in any way that it changes the 'default configuration'.
-Independant logging systems can be specified in each server block.
-Add the tag 'independant' to create a specific file for the scope.
+Add the tag 'independant' to create a specific file for the scope. You must specify an outfile with =outfile (outfile being the name of course) or else it will be ignored
 Add the tag 'focused' to add it to the focus file.
-'focused' has priority over 'independant'.
 logs inside location have priority over server logs.
 'log nothing' will remove every log attribute to the current location.
 The preferred method to relog a location is by using 'unlog server' for example

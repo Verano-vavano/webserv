@@ -25,4 +25,8 @@ void	HTTPProtocol::set_headers(t_response_creator &r) {
 		}
 		h += crlf;
 	}
+	for (HTTPConfig::t_header::const_iterator it = r.conf->headers.begin(); it != r.conf->headers.end(); it++) {
+		h += it->first + ": " + it->second + crlf;
+	}
+	std::cout << h << std::endl;
 }

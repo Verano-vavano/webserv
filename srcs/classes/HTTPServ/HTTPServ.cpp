@@ -194,7 +194,7 @@ void HTTPServ::mainLoop(void) {
 					int	ret = Http.read_and_understand_request(matching_socket->fd, matching_socket->rc);
 				   	if (ret == -1) {
 						std::cout << "Could not read from client connection" << std::endl;
-						exit(EXIT_FAILURE);
+						continue ;
 					} else if (ret == 0) {
 						std::cout << "Bye bye" << std::endl;
 						this->delete_client(matching_socket, &wait_events[i]);

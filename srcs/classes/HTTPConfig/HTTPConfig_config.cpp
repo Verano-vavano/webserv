@@ -71,8 +71,6 @@ void	HTTPConfig::set_default_config(void) {
 	conf.ignore_invalid_headers = DEFAULT_IGNORE_INVALID;
 	conf.keepalive_requests = DEFAULT_KEEPALIVE_REQ;
 	conf.keepalive_time = DEFAULT_KEEPALIVE_TIME;
-	conf.log_not_found = DEFAULT_LOG_NOT_FOUND;
-	conf.log_subrequest = DEFAULT_LOG_SUB;
 	conf.default_interpreter = DEFAULT_INTERPRETER;
 	conf.path = this->path;
 
@@ -98,8 +96,6 @@ HTTPConfig::t_config	& HTTPConfig::t_config::operator=(t_config const & rhs) {
 	this->ignore_invalid_headers = rhs.ignore_invalid_headers;
 	this->keepalive_requests = rhs.keepalive_requests;
 	this->keepalive_time = rhs.keepalive_time;
-	this->log_not_found = rhs.log_not_found;
-	this->log_subrequest = rhs.log_subrequest;
 	this->default_interpreter = rhs.default_interpreter;
 	this->path = rhs.path;
 

@@ -2,20 +2,16 @@
 SUJET :
 Upload files (Bouton 'add a meme' ? qui permet de transmettre un fichier)
 Delete files
-CGI sans droit exec ?
 
 BUGS:
 
 NOUS:
-add_header
 READ.ME
 Body to
 Body infile
 Keepalive (time)
 Server_name
-Allow /.. in directory listing ? (idk, seems dangerous)
 Gerer le cas de + de 10 comptes
-Remove log_not_found et log_subrequest
 
 CONFIG:
 
@@ -27,4 +23,3 @@ max_depth ?
 Equivalence lists pour Accept ? (genre html = text/html = text/htm = plain/text) et adapter en ft de q=
 Opti location pour support wildcards et qu'un tour de boucle plutot que plusieurs find
 Plusieurs listen dans un bloc serveur
-Gérer requêtes POST en CGI (comme Nginx)

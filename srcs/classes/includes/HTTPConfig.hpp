@@ -38,8 +38,6 @@
 # define DEFAULT_IGNORE_INVALID true
 # define DEFAULT_KEEPALIVE_REQ 1000
 # define DEFAULT_KEEPALIVE_TIME 60
-# define DEFAULT_LOG_NOT_FOUND true
-# define DEFAULT_LOG_SUB false
 # define DEFAULT_INTERPRETER true
 
 enum	e_log_tag {
