@@ -48,7 +48,7 @@ NO_OF_FILES:=$(words $(SRCS))
 RM=rm -f
 
 # TODO make this into c++ at the end.
-GCC=g++
+GCC=c++
 CFLAGS=-Wall -Wextra -Werror -std=c++98 -g
 
 INCLUDES=-I ./includes/ -I ./srcs/classes/includes
