@@ -148,15 +148,20 @@ int	HTTPConfig::split_server_name(std::string const & str, std::pair<std::string
 	if (!both) {
 		if (isdigit(str[0])) {
 			serv.second = atoi(str.c_str());
+		} else {
+			serv.first = str;
 		}
+	} else {
+		size_t	sub_index = str.find(':', index + 1);
+		serv.first = str.substr(0, index);
+		serv.second = atoi(str.substr(index + 1, sub_index).c_str());
 	}
-	(void) index;
 	return (0);
 }
 
-HTTPConfig::t_config	*HTTPConfig::get_config(int port) {
+HTTPConfig::t_config	*HTTPConfig::get_config(std::pair<std::string, int> const &serv) {
 	for (unsigned long l = 0; l < this->servers.size(); l++) {
-		if (port == this->servers[l].port) {
+		if (serv.second == this->servers[l].port && serv.first == this->servers[l].server_name) {
 			return (&(this->servers[l]));
 		}
 	}

@@ -14,6 +14,11 @@ Keepalive (time)
 Gerer le cas de + de 10 comptes
 
 CONFIG:
+server 8080 localhost {}
+server p=8080 s=localhost {}
+server : {}
+server :8080 {}
+server bonjour: {}
 
 -Potentiel
 Expiration de cookies de session en local

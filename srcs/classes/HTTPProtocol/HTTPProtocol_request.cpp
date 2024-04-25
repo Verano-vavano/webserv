@@ -76,87 +76,40 @@ void	HTTPProtocol::empty_fd_in(int fd) {
 	recv(fd, NULL, bytes, 0);
 }
 
-/*
-// Checks for CRLFCRLF
-bool	HTTPProtocol::check_div_end(std::string const & buf) {
-	static short	state;
+void	HTTPProtocol::get_right_conf(t_response_creator &r, std::vector<HTTPConfig::t_config *> &pc) {
+	std::map<std::string, std::vector<std::string> >::const_iterator	finder = r.req.headers.find("host");
+	if (finder == r.req.headers.end()) { return ; }
+	std::cout << "Hello from " << finder->second[0] << std::endl;
 
-	for (std::string::const_iterator it = buf.begin(); it != buf.end(); it++) {
-		if (*it != '\r' && *it != '\n') { if (state) { state = 0; } }
-		else if (state % 2 == 0 && *it == '\r') { state++; }
-		else if (state % 2 == 1 && *it == '\n') {
-			state++;
-			if (state == 4) { state = 0; return (true); }
-		}
-		else { state = 0; }
+	std::string const host_header = (finder->second)[0];
+	size_t	idx = host_header.find(':');
+	if (idx == std::string::npos) {
+		r.err_code = 400;
+		return ;
 	}
-	return (false);
+
+	std::string const hostname = host_header.substr(0, idx);
+	std::cout << "Thy hostname is " << hostname << std::endl;
+	for (std::vector<HTTPConfig::t_config *>::iterator it = pc.begin(); it != pc.end(); it++) {
+		if ((*it)->server_name == hostname) {
+			r.conf = *it;
+			std::cout << "FOUND YA" << std::endl;
+			break ;
+		}
+	}
 }
-
-short	HTTPProtocol::read_crlfcrlf(int fd, t_response_creator &r, long buf_size, std::string & req, unsigned long length) {
-	char		buffer[buf_size];
-	std::string	buf_to_str;
-	long		ret;
-	long		to_read = buf_size - 1;
-	bool		sized = (length != 0);
-
-	if (static_cast<long> (length) > r.conf->client_max_body_size) { r.err_code = 413; return (1); }
-	// We loop indefinitely until we reach the first CRLFCRLF, marking the end of the headers
-	do {
-		if (length) { to_read = std::min(length, static_cast<unsigned long> (buf_size - 1)); }
-		ret = recv(fd, buffer, to_read, 0);
-		if (ret == -1) { r.err_code = 500; this->empty_fd_in(fd); return (1); } // RECV FAILED. Internal Server Error
-		else if (ret == 0 && length == 0) { return (0); } // Nothing has been read. The client disconnected
-		else if (ret == 0) { r.err_code = 400; this->empty_fd_in(fd); return (1); } // NO CRLFCRLF. Bad request
-		buffer[ret] = '\0';
-		buf_to_str = std::string(buffer);
-		req += buf_to_str;
-		length -= ret;
-	} while (ret == buf_size - 1 && !this->check_div_end(buf_to_str) && (!sized || length));
-
-	return (-1);
-}
-
-// Method to read client EPOLLIN and parse it into r.req variable.
-// -1 = Fatal error (no use case for now)
-// 0 = Client disconnection
-// 1 = No Error
-int	HTTPProtocol::read_and_understand_request(int fd, t_response_creator &r) {
-	std::string	request;
-	short	ret;
-
-	// HEADERS reading
-	ret = this->read_crlfcrlf(fd, r, r.conf->client_header_buffer_size, request, 0);
-	if (ret != -1) { return (ret); }
-
-	this->parse_headers(request, r);
-	request = request.substr(3);
-	// If GET, no body required. Optimised to skip
-	if (r.req.method == "GET") { this->empty_fd_in(fd); return (1); }
-
-	std::map<std::string, std::vector<std::string> >::const_iterator	finder = r.req.headers.find("content-length");
-	if (finder == r.req.headers.end()) { r.err_code = 411; this->empty_fd_in(fd); return (1); } // No Content-Length header (required for body length)
-
-	long	length = atol(finder->second[0].c_str()) -  request.size();
-
-	// BODY reading
-	if (length != 0)
-		ret = this->read_crlfcrlf(fd, r, r.conf->client_body_buffer_size, request, length);
-
-	if (ret == -1 || length == 0)
-		r.req.body = request;
-	this->empty_fd_in(fd);
-
-	return (ret == -1 ? 1: ret);
-}*/
 
 
 // Method to read client EPOLLIN and parse it into r.req variable.
 // -1 = Fatal error (no use case for now)
 // 0 = Client disconnection
 // 1 = No Error (at least, no error that breaks it all)
-int	HTTPProtocol::read_and_understand_request(int fd, t_response_creator &r) {
-	long	to_read = r.req.headers_defined ? r.conf->client_body_buffer_size: r.conf->client_header_buffer_size;
+int	HTTPProtocol::read_and_understand_request(int fd, t_response_creator &r, std::vector<HTTPConfig::t_config *> pc) {
+	long	to_read;
+	if (r.conf)
+		to_read = r.req.headers_defined ? r.conf->client_body_buffer_size: r.conf->client_header_buffer_size;
+	else
+		to_read = r.req.headers_defined ? pc[0]->client_body_buffer_size: pc[0]->client_header_buffer_size;
 
 	char	buffer[to_read + 1];
 	int		ret = recv(fd, buffer, to_read, 0);
@@ -170,6 +123,8 @@ int	HTTPProtocol::read_and_understand_request(int fd, t_response_creator &r) {
 	if (!r.req.headers_defined && r.temp_req.find("\r\n\r\n") != std::string::npos) {
 		r.req.headers_defined = true;
 		this->parse_headers(r.temp_req, r);
+		if (!r.conf) { this->get_right_conf(r, pc); }
+		if (!r.conf) { r.conf = pc[0]; }
 	}
 	if (r.req.headers_defined && (r.temp_req.size() > LONG_MAX || static_cast<long>(r.temp_req.size()) > r.conf->client_max_body_size)) {
 		r.err_code = 413;
