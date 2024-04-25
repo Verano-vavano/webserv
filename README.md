@@ -47,12 +47,13 @@ The following are all the commands that can be used in a server block :
 - `default_interpreter`: defines if the default interpreter should be used if none specified
 - `add_header key value`: adds custom headers to the response.
 <a/>
-###Methods
+
+### Methods
 `methods` will allow some methods inside a directory.<br>
 `std` is a keyword representing `GET`, `POST` and `DELETE`.<br>
 Adding a `/` in front of the method will disable it. The methods aren't case sensitive.<br>
 `not_methods` does the opposite of `methods`. It will always disable the methods mentionned, except if a `/` is specified.
-###Logs
+### Logs
 `log` can be used to log requests. It is written as such : <br>
 `log [all/server/client/errors/nothing/[err_codes]] [default/focused/independant =filename]`<br>
 `err_codes` must be 3 characters long and represent an error code. Unspecified characters must be written with a lowercase `x` as such: `4xx` for every errors starting with a 4.<br>
@@ -62,33 +63,40 @@ Adding a `/` in front of the method will disable it. The methods aren't case sen
 `default` will log in `./miniweb.log`. `focused` will log in `./miniweb.focused.log` and `independant` will log in the filename specified.<br>
 The `unlog` command can be used to unlog stuff. If no filetype is specified, it will remove all. If no err_code is specified, it will remove `errors`.<br>
 `log` by default uses `all` and `default`.
-###Comments
+### Comments
 You can simply add comments by adding a `#` at the beginning of the command line. Everything will be ignored until the first delimiter.
-##Server mainloop
+## Server mainloop
 The server will first listen to all ports specified in the server blocks.<br>
 The server will add clients as they come, and wait for them to send requests. When a request comes, the server will only read every so often to be sure that the client is still sending.<br>
 When the request has been fully read, the server creates the response and sends the data.<br>
-###Request getter
+### Request getter
 The server reads every loop if he has to. It will first read until he encounters a CRLFCRLF or until there is no data left. It implies either a bad request (hence error 400) or the end of the headers. It will use the headers content to get the Host and get the right configuration (if multiple hostnames for one port). If the payload is too large, the server will clear the socket and will return a 413.
-###Response creator
+### Response creator
 To create the response, the server will first parse the URI to get the defined location (/ at minima) and get the correct file to read. It will execute CGIs if it is CGI-abled.<br>
 It will then handle the method. For now, there are only 3: GET, POST and DELETE.<br>
 If the method is not among the allowed methods defined by `methods` and `not_methods`, it will return a 405.
-####GET
+#### CGI
+CGIs are executed if and only if :
+- A `cgi-interpreter` has been defined for this specific type.
+- A `cgi-exec` wildcard matches with the URI.
+<a/>
+
+If a timeout occurs, a 504 error is returned.
+#### GET
 GET will simply read the file or display the directory listing. If CTE is enabled, it will only check if the file is readable.
-####POST
+#### POST
 POST behaviour depends on how it is defined by post_func in the config file.
 - `client_manager`: will parse a strictly written json file, store the data in .usr and .session.
 - `upload_manager`: default behaviour. Will upload the file in the request directory.
-####DELETE
+#### DELETE
 DELETE behaviour works the same as POST. Both can be defined the same way by simply using `func` method. Else you can use `del_func`.
 - `client_manager`: will unlog a client.
 - `upload_manager`: will delete the file.
-####Type checker
+#### Type checker
 The server will now check if the file complies with the Accept header from the request, and its associated q-value. Else it will return 406.
-####Headers
+#### Headers
 It now adds the headers. For now, it only means `Content-type`, `Content-length` or `Transfer-encoding: Chunked`, `Connection`, `Accept` if 405 and custom headers.
-####Sending the response
+#### Sending the response
 It sends the response either by straight up sending it, or by first sending the headers, then the body in equally sized packages.
-##Close the server
+## Close the server
 The server has a SIGINT handler that allows the program to quit itself properly. The only way to gracefully quit the program now is by sending it a SIGINT (^C or via kill).
