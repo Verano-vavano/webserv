@@ -48,10 +48,12 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 	// SERVER
 	else if (method == "server") {
 		std::pair<std::string, int>	server_name;
+		server_name.first = DEFAULT_NAME;
+		server_name.second = DEFAULT_PORT;
+
 		if (split.size() >= 2) {
-			if (split_server_name(split[1], server_name)) { return (1); }
+			if (split_server_name(split, server_name)) { return (1); }
 		}
-		if (split.size() > 2 && warning("Too many info at server declaration", opt.line, opt.options)) { return (1); }
 		t_config	*tmp = this->get_config(server_name);
 		opt.blocks.push("server");
 		if (tmp) {
