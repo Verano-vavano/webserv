@@ -83,8 +83,8 @@ bool	t_request::content_is_type(std::string type) {
 	return true;
 }
 
-void	HTTPProtocol::save_user_session(void) const {
-	this->user_manager.save_sessions();
+void	HTTPProtocol::save_user_session(std::string const &path) const {
+	this->user_manager.save_sessions(path);
 }
 
 void	HTTPProtocol::get_file_type(t_response_creator &r) {

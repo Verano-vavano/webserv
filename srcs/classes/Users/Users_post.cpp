@@ -79,16 +79,16 @@ std::string generate_cookie(void) {
 
 void	Users::create_new_user(t_response_creator &rc, t_user& user) {
 	std::ofstream	outfile;
-	outfile.open(".usr", std::ios_base::app);
+	outfile.open((rc.conf->path + ".usr").c_str(), std::ios_base::app);
 	if (outfile.good())
 		outfile << user.name << ":" << user.password << "\n";
 	this->users.push_back(user);
 	rc.res.body += format_json_line("status", "created", true);
 }
 
-void	Users::add_session(t_session &session) {
+void	Users::add_session(t_session &session, std::string const &path) {
 	std::ofstream	outfile;
-	outfile.open(".session", std::ios_base::app);
+	outfile.open((path + ".session").c_str(), std::ios_base::app);
 	if (outfile.good())
 		outfile << session.auth << ":" << session.name << "\n";
 }
@@ -113,7 +113,7 @@ void Users::handle_post(t_response_creator &rc) {
 		new_session.auth = generate_cookie();
 		new_session.name = matching_user->name;
 		rc.res.headers += "Set-Cookie: session_id=" + new_session.auth + "; Secure; SameSite=Strict" + std::string(CRLF);
-		this->add_session(new_session);
+		this->add_session(new_session, rc.conf->path);
 		this->sessions.push_back(new_session);
 		rc.res.body += format_json_line("status", "ok", false);
 		rc.res.body += format_json_line("auth", new_session.auth, true);

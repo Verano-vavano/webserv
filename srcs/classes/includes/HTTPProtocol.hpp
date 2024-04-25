@@ -45,13 +45,13 @@ class HTTPProtocol {
 		void		create_response(t_response_creator &r);
 		std::string	format_response(t_response &res);
 
-		void				save_user_session(void) const;
+		void				save_user_session(std::string const &path) const;
 		static std::string	remove_useless_slashes(std::string const &uri);
 		static void	empty_request(t_request &req);
 
-	private:
 		Users		user_manager;
 
+	private:
 		// PARSER
 		static bool	check_div_end(std::string const & buf);
 		std::vector<std::string>	split_header_val(std::string val);

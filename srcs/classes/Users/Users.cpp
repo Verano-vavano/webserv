@@ -1,7 +1,9 @@
 #include "Users.hpp"
 
-Users::Users(void) {
-	std::ifstream	user_file(".usr");
+Users::Users(void) {}
+
+void	Users::load_data(std::string const &path) {
+	std::ifstream	user_file((path + ".usr").c_str());
 	if (!user_file.good()) {
 		return ;
 	}
@@ -21,7 +23,7 @@ Users::Users(void) {
 
 	user_file.close();
 
-	std::ifstream	session_file(".session");
+	std::ifstream	session_file((path + ".session").c_str());
 	if (!session_file.good()) {
 		return ;
 	}
@@ -45,8 +47,8 @@ Users::Users(void) {
 	}
 }
 
-void	Users::save_sessions(void) const {
-	std::ofstream	session_file(".session");
+void	Users::save_sessions(std::string const & path) const {
+	std::ofstream	session_file((path + ".session").c_str());
 	for (std::vector<t_session>::const_iterator it = this->sessions.begin();
 			it != this->sessions.end(); it++) {
 		session_file << it->auth << ":" << it->name << "\n";
