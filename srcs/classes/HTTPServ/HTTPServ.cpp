@@ -165,6 +165,7 @@ void	HTTPServ::sigint_handler(int signal) {
 
 void HTTPServ::mainLoop(void) {
 	HTTPProtocol	Http;
+	Http.user_manager.load_data(this->conf.default_config.path);
 	Logger		log;
 	t_response_creator	tmp;
 
@@ -247,7 +248,7 @@ void HTTPServ::mainLoop(void) {
 		sockets_count = this->sockets.size();
 		i = 0;
 	}
-	Http.save_user_session();
+	Http.save_user_session(this->conf.default_config.path);
 }
 
 HTTPServ::~HTTPServ(void) { return ; }

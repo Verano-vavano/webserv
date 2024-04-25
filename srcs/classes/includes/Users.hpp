@@ -18,7 +18,8 @@ public:
 
 	void	handle_post(t_response_creator &rc);
 	void	handle_del(t_response_creator &rc);
-	void	save_sessions(void) const;
+	void	load_data(std::string const & path);
+	void	save_sessions(std::string const & path) const;
 private:
 	typedef struct s_user {
 		std::string name;
@@ -36,7 +37,7 @@ private:
 	static t_user parse_json_post(int &err_code, std::string body_json);
 	t_user *find_matching_user(t_user user);
 	void	create_new_user(t_response_creator &rc, t_user& user);
-	static void	add_session(t_session &user);
+	static void	add_session(t_session &user, std::string const &path);
 	void	delete_user_auth(std::string body_json);
 };
 
