@@ -138,23 +138,27 @@ HTTPConfig::t_location	*HTTPConfig::get_cur_location(t_parser &opt) {
 	}
 }
 
-int	HTTPConfig::split_server_name(std::string const & str, std::pair<std::string, int> &serv) {
-	size_t	index = str.find(':');
-	bool	both = (index != std::string::npos);
+int	HTTPConfig::split_server_name(std::vector<std::string> const & split, std::pair<std::string, int> &serv) const {
+	for (std::vector<std::string>::const_iterator str = split.begin() + 1; str != split.end(); str++) {
+		size_t	index = str->find(':');
+		bool	both = (index != std::string::npos);
 
-	serv.first = DEFAULT_NAME;
-	serv.second = DEFAULT_PORT;
-
-	if (!both) {
-		if (isdigit(str[0])) {
-			serv.second = atoi(str.c_str());
+		if (!both) {
+			if (this->isallnum((*str))) {
+				serv.second = atoi(str->c_str());
+			} else {
+				serv.first = *str;
+			}
 		} else {
-			serv.first = str;
+			size_t	sub_index = str->find(':', index + 1);
+			std::string	tmp;
+			tmp = str->substr(0, index);
+			if (tmp.size())
+				serv.first = tmp;
+			tmp = str->substr(index + 1, sub_index);
+			if (tmp.size())
+				serv.second = atoi(tmp.c_str());
 		}
-	} else {
-		size_t	sub_index = str.find(':', index + 1);
-		serv.first = str.substr(0, index);
-		serv.second = atoi(str.substr(index + 1, sub_index).c_str());
 	}
 	return (0);
 }
