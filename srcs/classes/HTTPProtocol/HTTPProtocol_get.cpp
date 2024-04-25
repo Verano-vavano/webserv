@@ -43,6 +43,11 @@ bool	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 		}
 	}
 
+	if (access((r.conf->path + r.file).c_str(), R_OK) == -1) {
+		r.err_code = 403;
+		return (false);
+	}
+
 	std::ifstream	file((r.conf->path + r.file).c_str());
 	if (!file || !file.good()) {
 		r.err_code = 404;
