@@ -18,7 +18,6 @@ void	Users::load_data(std::string const &path) {
 		entry.name = data.substr(0, sep);
 		entry.password = data.substr(sep + 1);
 		this->users.push_back(entry);
-		std::cout << entry.name << " " << entry.password << std::endl;
 	}
 
 	user_file.close();
@@ -36,7 +35,6 @@ void	Users::load_data(std::string const &path) {
 		if (sep == std::string::npos) { continue ; }
 		session.auth = data.substr(0, sep);
 		session.name = data.substr(sep + 1);
-		std::cout << session.auth << "->" << session.name << std::endl;
 		for (std::vector<t_user>::iterator it = this->users.begin();
 				it != this->users.end(); it++) {
 			if (it->name == session.name) {

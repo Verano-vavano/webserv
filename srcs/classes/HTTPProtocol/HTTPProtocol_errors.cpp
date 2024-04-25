@@ -1,7 +1,6 @@
 #include "HTTPProtocol.hpp"
 
 void	HTTPProtocol::handle_error_code(t_response_creator &r) {
-	std::cout << "ERROR CODE = " << r.err_code << std::endl;
 	if (r.err_code == 200) { return ; }
 
 	std::vector<HTTPConfig::t_error>	&errors = r.conf->error_page;
@@ -25,7 +24,6 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 		r.file_type = "";
 		r.res.body = "[DEFAULT ERROR] " + get_error_tag(r.err_code);
 		r.file = "";
-		std::cout << r.res.body << std::endl;
 	}
 
 	return ;

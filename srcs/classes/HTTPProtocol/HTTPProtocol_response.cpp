@@ -7,7 +7,6 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 	rc.is_json = false;
 	rc.has_cgi = false;
 
-	std::cout << "THE REQUEST URI IS " << rc.req.uri << std::endl;
 	this->handle_method(rc); // Gets body from request method
 	if (rc.req.http_version != "HTTP/1.1") {
 		rc.err_code = 505;
@@ -21,7 +20,6 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 	}
 	this->set_headers(rc); // Sets headers wow
 	rc.res.status_line = "HTTP/1.1 " + this->get_error_tag(rc.err_code);
-	std::cout << "THE SENT FILE IS " << rc.file << std::endl;
 }
 
 void	HTTPProtocol::handle_method(t_response_creator &r) {
@@ -34,9 +32,7 @@ void	HTTPProtocol::handle_method(t_response_creator &r) {
 		return ;
 	}
 	get_complete_uri(r, r.req.uri);
-	std::cout << r.file << std::endl;
 	get_file_type(r);
-	std::cout << r.file_type << std::endl;
 	this->cgi(r);
 
 	if (r.req.method == "GET") {

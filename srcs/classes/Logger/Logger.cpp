@@ -58,7 +58,7 @@ void	Logger::print_std_log(std::ofstream &out, const char *ip, std::string const
 }
 
 void	Logger::log_fatal(const char *err) {
-	this->log_stderr(err, "FATAL");
+	Logger::log_stderr(err, "FATAL");
 
 	std::ofstream	log_file(LOG_FILE_NAME, std::ios_base::app);
 	if (!log_file || !log_file.good()) {
@@ -66,13 +66,13 @@ void	Logger::log_fatal(const char *err) {
 	}
 
 	log_file << "FATAL ERR - - ";
-	this->print_formated_date(log_file);
+	Logger::print_formated_date(log_file);
 	log_file << " \"" << err << "\" ";
 	log_file << "500 0 - -" << std::endl;
 	return ;
 }
 
-inline void	Logger::log_stderr(const char *err, const char *type) const {
+inline void	Logger::log_stderr(const char *err, const char *type) {
 	std::cerr << "[" << type << "] ERROR : " << err << std::endl;
 }
 
@@ -84,7 +84,6 @@ bool	Logger::log_match(HTTPConfig::t_log const &l, int err_code_int) {
 	str_obj >> err_code;
 	for (std::vector<std::string>::const_iterator it = l.err_codes.begin(); it != l.err_codes.end(); it++) {
 		if (HTTPConfig::cmp_err_code(err_code, *it) || Logger::cmp_err_text(err_code, *it)) {
-			std::cout << "FOUND " << err_code << " with " << *it << std::endl;
 			return (true);
 		}
 	}
@@ -105,7 +104,6 @@ void	Logger::open_log_file(HTTPConfig::t_log const &l, std::ofstream &out) {
 }
 
 bool	Logger::cmp_err_text(std::string const & err_code, std::string const & text) {
-	std::cout << err_code << " | " << text << std::endl;
 	if (text == "all") { return (true); }
 	else if (text == "errors" && (err_code[0] == '4' || err_code[0] == '5')) { return (true); }
 	else if (text == "server" && (err_code[0] == '5')) { return (true); }

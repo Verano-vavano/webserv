@@ -30,7 +30,6 @@ bool	HTTPProtocol::is_wildcard_match(std::string const & input, std::string cons
 		if (match[i_match] == '*') { continue ; }
 		for (i_end_pattern = i_match; i_end_pattern != match.size() && match[i_end_pattern] != '*'; i_end_pattern++) { }
 		next_pattern = match.substr(i_match, i_end_pattern - i_match);
-		std::cout << next_pattern << std::endl;
 		// FIND PATTERN BEGIN
 		if (i_match == 0 && input.substr(0, next_pattern.size()) != next_pattern) { return (false); }
 		else if (i_end_pattern == match.size()) {

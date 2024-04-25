@@ -4,7 +4,6 @@ Upload files (Bouton 'add a meme' ? qui permet de transmettre un fichier)
 Delete files
 
 BUGS:
-ne lancer qu'une fois serveur par port
 
 NOUS:
 log fatal

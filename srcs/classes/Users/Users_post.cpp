@@ -101,14 +101,12 @@ void Users::handle_post(t_response_creator &rc) {
 	rc.res.body += "{\n";
 
 	if (!matching_user) {
-		std::cout << "Created"<< std::endl;
 		this->create_new_user(rc, recieved);
 	}
 	/*else if (matching_user->auth_key.size()) {
 		rc.res.body += format_json_line("status", "already", true);
 	}*/
 	else if (recieved.password == matching_user->password){
-		std::cout << "Good" << std::endl;
 		t_session	new_session;
 		new_session.auth = generate_cookie();
 		new_session.name = matching_user->name;
@@ -119,7 +117,6 @@ void Users::handle_post(t_response_creator &rc) {
 		rc.res.body += format_json_line("auth", new_session.auth, true);
 	}
 	else {
-		std::cout << "Bad" << std::endl;
 		rc.res.body += format_json_line("status", "wrong", true);
 	}
 	rc.res.body += "}";

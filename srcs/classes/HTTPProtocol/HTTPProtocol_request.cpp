@@ -79,7 +79,6 @@ void	HTTPProtocol::empty_fd_in(int fd) {
 void	HTTPProtocol::get_right_conf(t_response_creator &r, std::vector<HTTPConfig::t_config *> &pc) {
 	std::map<std::string, std::vector<std::string> >::const_iterator	finder = r.req.headers.find("host");
 	if (finder == r.req.headers.end()) { return ; }
-	std::cout << "Hello from " << finder->second[0] << std::endl;
 
 	std::string const host_header = (finder->second)[0];
 	size_t	idx = host_header.find(':');
@@ -89,11 +88,9 @@ void	HTTPProtocol::get_right_conf(t_response_creator &r, std::vector<HTTPConfig:
 	}
 
 	std::string const hostname = host_header.substr(0, idx);
-	std::cout << "Thy hostname is " << hostname << std::endl;
 	for (std::vector<HTTPConfig::t_config *>::iterator it = pc.begin(); it != pc.end(); it++) {
 		if ((*it)->server_name == hostname) {
 			r.conf = *it;
-			std::cout << "FOUND YA" << std::endl;
 			break ;
 		}
 	}

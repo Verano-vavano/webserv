@@ -59,7 +59,6 @@ void	HTTPProtocol::handle_delete(t_response_creator &r) {
 	}
 	//delete the file
 	if (std::remove(r.file.c_str())) { //remove, and check if it worked
-		std::cout << "\033[31m ERROR: can't remove " << r.file << "\033[0m" << std::endl;
 		r.err_code = is_directory(r.file)?403:500; //return 403 if it's a directory, 500 else
 		return;
 	}

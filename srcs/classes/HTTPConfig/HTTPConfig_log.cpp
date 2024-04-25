@@ -84,7 +84,6 @@ int	HTTPConfig::set_logs(std::vector<std::string> const & split, t_parser &opt) 
 	new_log.tag = UNDEFINED_LOG;
 	new_log.file_name = "";
 	for (std::vector<std::string>::const_iterator it = split.begin() + 1; it != split.end(); it++) {
-		std::cout << *it << std::endl;
 		if (is_and_set_tag(*it, new_log)) { continue ; }
 		else if (*it == "nothing") {
 			this->unlog(opt.current_location, "all", new_log.tag);
