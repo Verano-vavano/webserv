@@ -51,8 +51,8 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 		if (split.size() >= 2) {
 			if (split_server_name(split[1], server_name)) { return (1); }
 		}
-		if (split.size() > 2 && warning("Too many server_name.seconds at server declaration", opt.line, opt.options)) { return (1); }
-		t_config	*tmp = this->get_config(server_name.second);
+		if (split.size() > 2 && warning("Too many info at server declaration", opt.line, opt.options)) { return (1); }
+		t_config	*tmp = this->get_config(server_name);
 		opt.blocks.push("server");
 		if (tmp) {
 			opt.current_serv = tmp;
@@ -60,6 +60,7 @@ int	HTTPConfig::set_block(std::string & cut, HTTPConfig::t_parser &opt) {
 		}
 		t_config	tmp2;
 		tmp2 = this->default_config;
+		tmp2.server_name = server_name.first;
 		tmp2.port = server_name.second;
 		this->servers.push_back(tmp2);
 		opt.current_serv = &(this->servers.back());

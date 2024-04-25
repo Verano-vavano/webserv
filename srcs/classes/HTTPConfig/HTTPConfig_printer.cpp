@@ -2,7 +2,9 @@
 
 // Debug purposes
 void	HTTPConfig::print_config(void) const {
+	std::cout << "DEFAULT" << std::endl;
 	this->print_server(default_config);
+	std::cout << "----------------------------------------------" << std::endl;
 	for (std::vector<t_config>::const_iterator it = this->servers.begin();
 			it != this->servers.end();
 			it++) {
@@ -28,8 +30,6 @@ void	HTTPConfig::print_server(t_config const &s) {
 		<< "ignore_invalid_headers = " << s.ignore_invalid_headers << "\n"
 		<< "keepalive_requests = " << s.keepalive_requests << "\n"
 		<< "keepalive_time = " << s.keepalive_time << "\n"
-		<< "log_not_found = " << s.log_not_found << "\n"
-		<< "log_subrequest = " << s.log_subrequest << "\n"
 		<< "default_interpreter = " << s.default_interpreter << std::endl;
 	std::cout << "Error pages :" << std::endl;
 	for (std::vector<HTTPConfig::t_error>::const_iterator it = s.error_page.begin();

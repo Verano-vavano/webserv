@@ -39,7 +39,7 @@ class HTTPProtocol {
 		HTTPProtocol(void) { return ; }
 		~HTTPProtocol(void) { return ; }
 
-		int		read_and_understand_request(int fd, t_response_creator &r);
+		int		read_and_understand_request(int fd, t_response_creator &r, std::vector<HTTPConfig::t_config *> pc);
 		void		print_request(t_request &req);
 
 		void		create_response(t_response_creator &r);
@@ -56,6 +56,7 @@ class HTTPProtocol {
 		static bool	check_div_end(std::string const & buf);
 		std::vector<std::string>	split_header_val(std::string val);
 		void	parse_headers(std::string & s, t_response_creator & r);
+		static void	get_right_conf(t_response_creator &r, std::vector<HTTPConfig::t_config *> &pc);
 		static void	empty_fd_in(int fd);
 		short		read_crlfcrlf(int fd, t_response_creator &r, long buf_size, std::string & req, unsigned long length);
 

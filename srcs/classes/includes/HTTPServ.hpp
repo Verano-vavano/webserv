@@ -31,10 +31,11 @@ class HTTPServ {
 		void socketsClose(void);
 
 		typedef struct s_socket {
-			int 				fd;
-			int 				port;
-			bool 				is_client;
-			t_response_creator	rc;
+			int 								fd;
+			int 								port;
+			bool 								is_client;
+			t_response_creator					rc;
+			std::vector<HTTPConfig::t_config *>	possible_config;
 		} t_socket;
 
 
@@ -45,7 +46,7 @@ class HTTPServ {
 		std::vector<t_socket>	sockets;
 
 		int						socketOpen(HTTPConfig::t_config config);
-		HTTPConfig::t_config*	get_config_client(int port);
+		void					get_config_client(HTTPServ::t_socket &sock, int port);
 		t_response_creator&		get_client_config(std::vector<t_socket> &cl, int fd);
 		t_socket				*find_socket(int fd);
 		t_socket				initClientSocket(HTTPServ::t_socket server);

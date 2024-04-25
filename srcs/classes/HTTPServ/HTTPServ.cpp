@@ -89,13 +89,18 @@ void HTTPServ::socketsClose(void) {
 	}
 }
 
-HTTPConfig::t_config*	HTTPServ::get_config_client(int port) {
-	if (this->conf.servers.size() == 0)
-		return (&this->conf.default_config);
-	for (std::vector<HTTPConfig::t_config>::iterator it = this->conf.servers.begin(); it != this->conf.servers.end(); it++) {
-		if (it->port == port) { return (&*it); }
+void	HTTPServ::get_config_client(HTTPServ::t_socket &sock, int port) {
+	if (this->conf.servers.size() == 0) {
+		sock.possible_config.push_back(&this->conf.default_config);
+		return ;
 	}
-	return (&this->conf.default_config);
+	for (std::vector<HTTPConfig::t_config>::iterator it = this->conf.servers.begin(); it != this->conf.servers.end(); it++) {
+		if (it->port == port) {
+			sock.possible_config.push_back(&(*it));
+		}
+	}
+	if (sock.possible_config.size() == 0)
+		sock.possible_config.push_back(&this->conf.default_config);
 }
 
 t_response_creator&	HTTPServ::get_client_config(std::vector<t_socket> &cl, int fd) {
@@ -123,8 +128,11 @@ HTTPServ::t_socket HTTPServ::initClientSocket(HTTPServ::t_socket server) {
 	newClientSocket.port = server.port;
 	newClientSocket.is_client = true;
 	inet_ntop(AF_INET, &client_addr.sin_addr, newClientSocket.rc.ip, INET_ADDRSTRLEN);
-	newClientSocket.rc.conf = get_config_client(newClientSocket.port);
-	newClientSocket.rc.n_req = newClientSocket.rc.conf->keepalive_requests;
+	newClientSocket.rc.conf = NULL;
+	get_config_client(newClientSocket, newClientSocket.port);
+	newClientSocket.rc.n_req = -1;
+	newClientSocket.rc.req.headers_defined = false;
+	newClientSocket.rc.err_code = 200;
 
 	this->sockets.push_back(newClientSocket);
 	return (newClientSocket);
@@ -189,9 +197,9 @@ void HTTPServ::mainLoop(void) {
 			if (matching_socket->is_client) {
 				if (wait_events[i].events & EPOLLIN) {
 					std::cout << "EPOLLIN" << std::endl;
-					matching_socket->rc.n_req--;
-					matching_socket->rc.err_code = 200;
-					int	ret = Http.read_and_understand_request(matching_socket->fd, matching_socket->rc);
+					int	ret = Http.read_and_understand_request(matching_socket->fd, matching_socket->rc, matching_socket->possible_config);
+					if (matching_socket->rc.n_req == -1 && matching_socket->rc.conf)
+						matching_socket->rc.n_req = matching_socket->rc.conf->keepalive_requests;
 				   	if (ret == -1) {
 						std::cout << "Could not read from client connection" << std::endl;
 						continue ;
@@ -205,6 +213,8 @@ void HTTPServ::mainLoop(void) {
 					std::cout << "EPOLLOUT" << std::endl;
 					matching_socket->rc.req.body = matching_socket->rc.temp_req;
 					matching_socket->rc.temp_req = "";
+					matching_socket->rc.n_req--;
+					std::cout << matching_socket->rc.conf << std::endl;
 					Http.create_response(matching_socket->rc);
 					log.log_it(matching_socket);
 					Http.empty_request(matching_socket->rc.req);
@@ -222,6 +232,9 @@ void HTTPServ::mainLoop(void) {
 					} else {
 						event_change(matching_socket->fd, EPOLLIN);
 					}
+					matching_socket->rc.err_code = 200;
+					matching_socket->rc.req.headers_defined = false;
+					matching_socket->rc.conf = NULL;
 				} else {
 					std::cout << "Could not handle event " << wait_events[i].events << std::endl;
 					continue ;

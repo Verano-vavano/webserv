@@ -155,7 +155,7 @@ class HTTPConfig {
 		int understand_the_cut(std::string & cut, t_parser &opt);
 
 		static t_location	*get_cur_location(t_parser &opt);
-		t_config			*get_config(int port);
+		t_config			*get_config(std::pair<std::string, int> const &serv);
 		t_location			*get_location(t_config &serv, std::string const default_uri);
 
 		int set_define(std::string & cut, t_parser &opt);
