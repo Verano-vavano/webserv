@@ -26,7 +26,7 @@ bool	HTTPServ::send_chunked_body_content(int fd, t_response_creator const & rc) 
 
 /* Reading the file chunk by chunk and sending it each time */
 bool	HTTPServ::send_chunked_file_content(int fd, t_response_creator const & rc) {
-	std::ifstream		file(rc.file.c_str(), std::ios::binary);
+	std::ifstream		file((rc.conf->path + rc.file).c_str(), std::ios::binary);
 	std::string		to_send;
 	std::stringstream	out;
 
