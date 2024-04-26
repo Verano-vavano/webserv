@@ -8,13 +8,14 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 	rc.has_cgi = false;
 
 	this->handle_method(rc); // Gets body from request method
-	if (rc.req.http_version != "HTTP/1.1") {
-		rc.err_code = 505;
-	} else if (rc.err_code == 200) {
-		rc.file_type = get_mime_type(rc.conf, rc.file_type);
-		this->check_type(rc); // Checks if file type matches Accept header
+	if (rc.err_code == 200) {
+		if (rc.req.http_version != "HTTP/1.1") {
+			rc.err_code = 505;
+		} else {
+			rc.file_type = get_mime_type(rc.conf, rc.file_type);
+			this->check_type(rc); // Checks if file type matches Accept header
+		}
 	}
-	if (rc.req.method == "") { rc.err_code = 400; }
 	this->handle_error_code(rc); // Gets body if error
 	if (rc.err_code == 200 && rc.req.method == "POST") {
 		rc.file_type = "application/json; charset=UTF-8";
@@ -24,6 +25,7 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 }
 
 void	HTTPProtocol::handle_method(t_response_creator &r) {
+	if (r.req.uri == "" || r.req.method == "") { r.err_code = 400; return ; }
 	r.better_uri = this->remove_useless_slashes(r.req.uri);
 	if (r.better_uri[r.better_uri.size() - 1] != '/') { r.better_uri += "/"; }
 	r.location = &(get_dir_uri(r.better_uri, r.conf));
