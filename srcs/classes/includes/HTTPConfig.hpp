@@ -28,7 +28,7 @@
 # define DEFAULT_NAME "localhost"
 # define DEFAULT_LOCATION "./"
 # define DEFAULT_REDIR true
-# define DEFAULT_CHUNKED true
+# define DEFAULT_CHUNKED false
 # define DEFAULT_BODY_TO 60
 # define DEFAULT_BODY_BUF_SIZE 8000
 # define DEFAULT_BODY_IN false
@@ -131,6 +131,9 @@ class HTTPConfig {
 		std::vector<t_config>   servers;
 		std::string			 path;
 
+		static std::string	to_upper(std::string const & old);
+		static bool			isallnum(std::string const & str);
+
 	private:
 		// CONFIG OPTIONS
 		void	set_default_config(void);
@@ -182,8 +185,6 @@ class HTTPConfig {
 		static bool						in(std::string const s, ...);
 		static long						translate_time(std::string arg);
 	static bool	boolean_switch(bool &var, t_parser const &opt, std::vector<std::string> const & split);
-	static std::string	to_upper(std::string const & old);
-	static bool			isallnum(std::string const & str);
 
 		static bool	warning(std::string const message, unsigned long line, int mask);
 		static bool	error(std::string const message, unsigned long line, int mask);

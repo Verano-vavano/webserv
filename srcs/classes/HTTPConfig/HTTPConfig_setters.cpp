@@ -176,9 +176,12 @@ int	HTTPConfig::set_other(std::string & cut, HTTPConfig::t_parser &opt) {
 		} else if (method == "index" || method == "cgi_exec") {
 			if (split.size() == 1) { return (this->error("Not enough arguments", opt.line, opt.options)); }
 			else if (split.size() > 2 && this->warning("Too many arguments", opt.line, opt.options)) { return (1); }
-			if (method == "index")
-				tmp->index = split[1];
-			else if (method == "cgi_exec")
+			if (method == "index") {
+				if (split[1] == "none")
+					tmp->index = "";
+				else
+					tmp->index = split[1];
+			} else if (method == "cgi_exec")
 				tmp->cgi.cgi_exec.insert(split[1]);
 		} else if (method == "cgi_interpreter") {
 			if (split.size() != 3) { return (this->error("Invalid number of arguments", opt.line, opt.options)); }

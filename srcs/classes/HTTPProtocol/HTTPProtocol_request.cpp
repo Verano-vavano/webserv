@@ -13,7 +13,7 @@ void	HTTPProtocol::parse_headers(std::string & s, t_response_creator & r) {
 	line = s.substr(0, index);
 
 	sub_index = line.find(' '); // after method
-	r.req.method = line.substr(0, sub_index);
+	r.req.method = HTTPConfig::to_upper(line.substr(0, sub_index));
 	sub_index++;
 	sub_sub_index = line.find(' ', sub_index); // after either HTTP or uri
 	if (sub_sub_index < index) {
@@ -111,7 +111,7 @@ int	HTTPProtocol::read_and_understand_request(int fd, t_response_creator &r, std
 	char	buffer[to_read + 1];
 	int		ret = recv(fd, buffer, to_read, 0);
 
-	if (ret == -1) { this->empty_fd_in(fd); r.err_code = 500; return (1); }
+	if (ret == -1) { this->empty_fd_in(fd); r.err_code = 500; return (0); }
 	else if (ret == 0) { return (0); }
 
 	buffer[ret] = '\0';

@@ -11,6 +11,10 @@ std::string	*HTTPProtocol::get_default_interpreter(std::string const & file_type
 bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_response_creator &r) {
 	int	pipefd[2];
 
+	if (access(file.c_str(), F_OK) == -1) { r.err_code = 404; return (0); }
+	if (!interpreter && access(file.c_str(), X_OK) == -1) { r.err_code = 403; return (0); }
+	else if (interpreter && access(file.c_str(), R_OK) == -1) { r.err_code = 403; return (0); }
+
 	if (pipe(pipefd) == -1) { r.err_code = 500; return (0); }
 
 	pid_t	pid = fork();
@@ -63,12 +67,11 @@ bool	HTTPProtocol::exec_cgi(std::string file, std::string *interpreter, t_respon
 		}
 		if (timeout) {
 			// timeout
-			std::cout << "TIMEOUT" << std::endl;
 			r.err_code = 504;
 			kill(pid, SIGKILL);
 			return (0);
 		}
-		if (WIFEXITED(status) && WEXITSTATUS(status) == EXECVE_FAILURE) {
+		if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
 			// execve fail
 			r.err_code = 500;
 			return (0);

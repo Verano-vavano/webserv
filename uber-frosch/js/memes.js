@@ -7,7 +7,7 @@ function add_image() {
 	var formData = new FormData();
 	formData.append('image', file);
 
-	fetch('/upload', {
+	fetch('/upload/newtmp', {
 		method: 'POST',
 		body: formData
 	})

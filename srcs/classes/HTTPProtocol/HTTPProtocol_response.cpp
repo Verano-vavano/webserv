@@ -10,11 +10,12 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 	this->handle_method(rc); // Gets body from request method
 	if (rc.req.http_version != "HTTP/1.1") {
 		rc.err_code = 505;
-	} else if (rc.err_code == 200)
+	} else if (rc.err_code == 200) {
+		rc.file_type = get_mime_type(rc.conf, rc.file_type);
 		this->check_type(rc); // Checks if file type matches Accept header
+	}
 	if (rc.req.method == "") { rc.err_code = 400; }
 	this->handle_error_code(rc); // Gets body if error
-	rc.file_type = get_mime_type(rc.conf, rc.file_type);
 	if (rc.err_code == 200 && rc.req.method == "POST") {
 		rc.file_type = "application/json; charset=UTF-8";
 	}

@@ -22,6 +22,7 @@ void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & 
 	}
 	while ((entry = readdir(directory))) {
 		file = entry->d_name;
+		if (file[0] == '.' && file != "." && file != "..") { continue ; }
 		body += "<a href=" + complete_uri + file + "><li>" + file + "</a></li>";
 	}
 
@@ -32,7 +33,7 @@ void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & 
 }
 
 bool	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
-	if (r.location->index == "" && this->is_directory(r.file_wo_index)) {
+	if ((r.location->index == "" || access(r.file.c_str(), F_OK) == -1 || access(r.file.c_str(), R_OK) == -1) && this->is_directory(r.file_wo_index)) {
 		if (r.location->dir_listing) {
 			this->directory_listing(r, r.file_wo_index, uri);
 			r.file = "";
@@ -41,6 +42,11 @@ bool	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 			r.err_code = 403;
 			return (false);
 		}
+	}
+
+	if (access((r.conf->path + r.file).c_str(), F_OK) == -1) {
+		r.err_code = 404;
+		return (false);
 	}
 
 	if (access((r.conf->path + r.file).c_str(), R_OK) == -1) {

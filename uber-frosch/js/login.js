@@ -35,7 +35,6 @@ function handle_res(res_json) {
 }
 
 async function connect_user(event){
-	console.log("salut");
 	event.preventDefault();
 	const user = document.getElementById("username").value;
 	const password = document.getElementById("password").value;
@@ -54,7 +53,6 @@ async function connect_user(event){
 }
 
 async function connect_user_cgi(event){
-	console.log("wesh");
 	event.preventDefault();
 	const user = document.getElementById("username").value;
 	const password = document.getElementById("password").value;

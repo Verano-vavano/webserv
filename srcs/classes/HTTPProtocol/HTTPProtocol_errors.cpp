@@ -21,10 +21,12 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 		this->get_file_type(r);
 	}
 	if (!found || !get_body(it->uri, r, it->response)) {
-		r.file_type = "";
+		r.file_type = "text/html";
 		r.res.body = "[DEFAULT ERROR] " + get_error_tag(r.err_code);
 		r.file = "";
+		return ;
 	}
+	r.file_type = get_mime_type(r.conf, r.file_type);
 
 	return ;
 }

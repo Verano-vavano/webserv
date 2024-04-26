@@ -24,7 +24,7 @@ Every server are defined by a server name and a port. By default, a server is in
 #### location block
 The location blocks are used to specify certain rules depending on the requested URI<br>
 - `root` and `alias` will modify where to search for the URI. `root` will append itself, as alias will replace.
-- `index`, if no file is specified, will be used instead.
+- `index`, if no file is specified, will be used instead. `index none` will reset the index to an empty string (no indexing, might be useful for directory listing for example)
 - `methods` and `not_methods` can be used to specify or unspecify methods to a directory. (see methods)
 - `func`, `post_func` and `del_func` can be used to specify the behaviour of certain methods. (see func)
 - `log` and `unlog`: see log

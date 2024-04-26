@@ -1,1 +1,1 @@
-print("Bonjour waw python lol")
+parint("Bonjour waw python lol")

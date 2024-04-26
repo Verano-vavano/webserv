@@ -1,5 +1,7 @@
 DEFINE SPACE_MODE must be declared on the first line of the file and written in a strict manner (no extra space between DEFINE and SPACE_MODE)
 
+Unnamed or unknown blocks will be ignored
+
 Errors by default are ignored (except if DEFINE ERROR_STOP toggled). Fatal errors can occure in case of fatal mistakes in the config file
 
 Comments must be on new command and last until a separator is found

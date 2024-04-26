@@ -200,11 +200,9 @@ void HTTPServ::mainLoop(void) {
 			if (matching_socket->is_client) {
 				if (wait_events[i].events & EPOLLIN) {
 					int	ret = Http.read_and_understand_request(matching_socket->fd, matching_socket->rc, matching_socket->possible_config);
-					if (matching_socket->rc.n_req == -1 && matching_socket->rc.conf)
+					if (matching_socket->rc.n_req == -1 && matching_socket->rc.conf) {
 						matching_socket->rc.n_req = matching_socket->rc.conf->keepalive_requests;
-				   	if (ret == -1) {
-						continue ;
-					} else if (ret == 0) {
+					} else if (ret <= 0) {
 						this->delete_client(matching_socket, &wait_events[i]);
 						continue ;
 					}
@@ -225,7 +223,6 @@ void HTTPServ::mainLoop(void) {
 						ret = this->send_chunked_response(matching_socket->fd, matching_socket->rc);
 					}
 					if (matching_socket->rc.n_req <= 0 || ret == -1) {
-						std::cerr << "Disconnecting client" << std::endl;
 						this->delete_client(matching_socket, &wait_events[i]);
 					} else {
 						event_change(matching_socket->fd, EPOLLIN);
