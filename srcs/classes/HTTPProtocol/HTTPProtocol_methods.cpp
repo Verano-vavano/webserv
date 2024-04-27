@@ -18,30 +18,26 @@ void	HTTPProtocol::handle_post(t_response_creator &r) {
 			r.file_type = "application/json; charset=UTF-8";
 		return ;
 	} else if (r.location->post_func == "UPLOAD_MANAGER") {
-		std::cout << "Hey now, youre an all star, get the game on, go play. hey now, youre a rockstar, get the show on get paid. and all that glitter is gold. only shooting stars break the moooooold" << std::endl;
 		//check if a forbiden file already exist
 		if (!access(r.file.c_str(), F_OK) && access(r.file.c_str(), W_OK)) { //if file exist without write access
 			r.err_code = 403;
 			return;
 		}
 		//create the file (if fail, 500)
-		std::cout << r.file << std::endl;
 		std::ofstream	upload_file(r.file.c_str());
 		if (!upload_file.is_open()) {
-			std::cout << "its a cool place" << std::endl;
 			r.err_code = 500;
 			return;
 		}
 		//write body to file (if fail, 500)
 		upload_file << r.req.body;
 		if (upload_file.fail()) {
-			std::cout << "shrekk" << std::endl;
 			r.err_code = 500;
 			return;
 		}
 		//close file
 		upload_file.close();
-		r.err_code = 200;
+		r.err_code = 201;
 		r.res.body = "Succesfully created the file";
 		return;
 	} else {

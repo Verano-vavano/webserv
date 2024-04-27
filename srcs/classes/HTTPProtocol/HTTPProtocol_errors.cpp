@@ -7,12 +7,14 @@ void	HTTPProtocol::handle_error_code(t_response_creator &r) {
 	std::vector<HTTPConfig::t_error>::const_iterator it;
 	bool	found = false;
 
-	for (it = errors.begin(); it != errors.end(); it++) {
-		for (std::set<int>::const_iterator it2 = it->codes.begin();
-				it2 != it->codes.end(); it2++) {
-			if (*it2 == r.err_code) { found = true; break ; }
+	if (r.conf) {
+		for (it = errors.begin(); it != errors.end(); it++) {
+			for (std::set<int>::const_iterator it2 = it->codes.begin();
+					it2 != it->codes.end(); it2++) {
+				if (*it2 == r.err_code) { found = true; break ; }
+			}
+			if (found) { break ; }
 		}
-		if (found) { break ; }
 	}
 
 	if (found) {
@@ -38,6 +40,8 @@ std::string HTTPProtocol::get_error_tag(int err_code) {
 	switch (err_code) {
 	//success
 		case 200: err_mes = "OK";
+			break;
+		case 201: err_mes = "Created";
 			break;
 	//client-side error
 		case 400: err_mes = "Bad Request";

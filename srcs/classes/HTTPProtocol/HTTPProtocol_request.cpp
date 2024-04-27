@@ -82,12 +82,12 @@ void	HTTPProtocol::get_right_conf(t_response_creator &r, std::vector<HTTPConfig:
 
 	std::string const host_header = (finder->second)[0];
 	size_t	idx = host_header.find(':');
+	std::string	hostname;
 	if (idx == std::string::npos) {
-		r.err_code = 400;
-		return ;
+		hostname = (finder->second)[0];
+	} else {
+		hostname = host_header.substr(0, idx);
 	}
-
-	std::string const hostname = host_header.substr(0, idx);
 	for (std::vector<HTTPConfig::t_config *>::iterator it = pc.begin(); it != pc.end(); it++) {
 		if ((*it)->server_name == hostname) {
 			r.conf = *it;

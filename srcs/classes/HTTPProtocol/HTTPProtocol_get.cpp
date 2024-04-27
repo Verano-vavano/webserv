@@ -33,7 +33,7 @@ void	HTTPProtocol::directory_listing(t_response_creator &r, std::string const & 
 }
 
 bool	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int change) {
-	if ((r.location->index == "" || access(r.file.c_str(), F_OK) == -1 || access(r.file.c_str(), R_OK) == -1) && this->is_directory(r.file_wo_index)) {
+	if (this->is_directory(r.file)) {
 		if (r.location->dir_listing) {
 			this->directory_listing(r, r.file_wo_index, uri);
 			r.file = "";
@@ -60,7 +60,7 @@ bool	HTTPProtocol::get_body(std::string const &uri, t_response_creator &r, int c
 		return (false);
 	}
 
-	if (change != -1)
+	if (change >= 100 && change < 600)
 		r.err_code = change;
 
 	if (r.conf->chunked_transfer_encoding) {

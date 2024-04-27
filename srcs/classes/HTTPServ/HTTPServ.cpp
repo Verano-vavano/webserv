@@ -211,11 +211,16 @@ void HTTPServ::mainLoop(void) {
 					matching_socket->rc.req.body = matching_socket->rc.temp_req;
 					matching_socket->rc.temp_req = "";
 					matching_socket->rc.n_req--;
+					matching_socket->rc.location = NULL;
+					if (!matching_socket->rc.conf) {
+						matching_socket->rc.conf = &(this->conf.default_config);
+					}
 					Http.create_response(matching_socket->rc);
-					log.log_it(matching_socket);
+					if (matching_socket->rc.conf)
+						log.log_it(matching_socket);
 					Http.empty_request(matching_socket->rc.req);
 					short	ret;
-					if (!matching_socket->rc.conf->chunked_transfer_encoding ||
+					if (!matching_socket->rc.conf || !matching_socket->rc.conf->chunked_transfer_encoding ||
 							matching_socket->rc.is_json) {
 						std::string res = Http.format_response(matching_socket->rc.res);
 						ret = this->send_data(matching_socket->fd, res.c_str(), res.size());

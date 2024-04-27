@@ -7,7 +7,8 @@ void	HTTPProtocol::create_response(t_response_creator &rc) {
 	rc.is_json = false;
 	rc.has_cgi = false;
 
-	this->handle_method(rc); // Gets body from request method
+	if (rc.err_code == 200)
+		this->handle_method(rc); // Gets body from request method
 	if (rc.err_code == 200) {
 		if (rc.req.http_version != "HTTP/1.1") {
 			rc.err_code = 505;

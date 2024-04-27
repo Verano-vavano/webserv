@@ -10,6 +10,7 @@ ubuntu_cgi_tester
 .usr
 .session
 *.log
+client.py
 
 
 uber-frosh/client
